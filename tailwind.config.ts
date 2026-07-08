@@ -9,8 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        background: "var(--bg)",
+        surface: "var(--surface)",
+        foreground: "var(--fg)",
+        muted: "var(--muted)",
+        border: "var(--border)",
+        neon: "var(--neon)",
+        neon2: "var(--neon-2)",
+        good: "var(--good)",
+        warn: "var(--warn)",
+      },
+      fontFamily: {
+        sans: ["var(--font-geist-sans)", "Arial", "Helvetica", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
       },
     },
   },

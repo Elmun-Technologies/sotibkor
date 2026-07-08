@@ -1,0 +1,40 @@
+/**
+ * Gamifikatsiya va umumiy UI uchun asosiy tiplar (single source of truth).
+ * FE va BE shu tiplardan foydalanadi — o'zgartirilsa hammaga ta'sir qiladi.
+ */
+
+export type LevelKey =
+  "stajyor" | "sotuvchi" | "katta_sotuvchi" | "menejer" | "sales_master";
+
+export interface LevelInfo {
+  key: LevelKey;
+  minXp: number;
+}
+
+export interface UserStats {
+  xp: number;
+  level: LevelKey;
+  sessionsCount: number;
+  streakDays: number;
+  /** ISO 'YYYY-MM-DD' yoki hali faol bo'lmagan bo'lsa null. */
+  lastActive: string | null;
+}
+
+export interface AchievementDef {
+  code: string;
+  xp: number;
+}
+
+export interface AchievementState {
+  code: string;
+  earned: boolean;
+  /** ISO 'YYYY-MM-DD' — ochilgan sana; ochilmagan bo'lsa null/undefined. */
+  earnedAt?: string | null;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  name: string;
+  xpWeek: number;
+  isMe?: boolean;
+}
