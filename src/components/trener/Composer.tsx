@@ -10,6 +10,7 @@ export interface ComposerProps {
   onChange: (v: string) => void;
   onSend: () => void;
   onMic: () => void;
+  onType?: () => void;
   recording: boolean;
   busy: boolean;
 }
@@ -20,6 +21,7 @@ export function Composer({
   onChange,
   onSend,
   onMic,
+  onType,
   recording,
   busy,
 }: ComposerProps) {
@@ -27,7 +29,10 @@ export function Composer({
     <div className="card flex items-end gap-2 p-2.5">
       <textarea
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onType?.();
+          onChange(e.target.value);
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();

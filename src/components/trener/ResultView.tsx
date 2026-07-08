@@ -4,12 +4,20 @@ import { motion } from "framer-motion";
 import { getMessages } from "@/i18n";
 import { Card, ProgressBar, Badge, Button } from "@/components/ui";
 import type { ScoreResult } from "@/lib/scoring";
+import {
+  recommend,
+  interestSeries,
+  FUNNEL_STAGES,
+  type FunnelStage,
+  type Turn,
+} from "@/lib/coach";
 
 const t = getMessages();
 
 export interface ResultViewProps {
   score: ScoreResult;
   onAgain: () => void;
+  transcript?: Turn[];
 }
 
 function verdict(total: number): {
@@ -21,18 +29,43 @@ function verdict(total: number): {
   return { text: t.natija.verdictLow, tone: "warn" };
 }
 
-export function ResultView({ score, onAgain }: ResultViewProps) {
+export function ResultView({
+  score,
+  onAgain,
+  transcript = [],
+}: ResultViewProps) {
   const v = verdict(score.total);
+  const b = score.breakdown;
   const rows: [string, number, number][] = [
-    [t.natija.salomlashish, score.breakdown.salomlashish, 10],
-    [t.natija.ehtiyoj_aniqlash, score.breakdown.ehtiyoj_aniqlash, 20],
-    [t.natija.otkazlarga_ishlov, score.breakdown.otkazlarga_ishlov, 30],
-    [t.natija.closing, score.breakdown.closing, 20],
-    [t.natija.ohang, score.breakdown.ohang, 20],
+    [t.natija.salomlashish, b.salomlashish, 10],
+    [t.natija.ehtiyoj_aniqlash, b.ehtiyoj_aniqlash, 20],
+    [t.natija.otkazlarga_ishlov, b.otkazlarga_ishlov, 30],
+    [t.natija.closing, b.closing, 20],
+    [t.natija.ohang, b.ohang, 20],
   ];
 
+  const rec = recommend(transcript, b);
+  const funnelRatio: Record<FunnelStage, number> = {
+    kontakt: b.salomlashish / 10,
+    ehtiyoj: b.ehtiyoj_aniqlash / 20,
+    prezentatsiya: b.ohang / 20,
+    etiroz: b.otkazlarga_ishlov / 30,
+    yopish: b.closing / 20,
+  };
+
+  const series = interestSeries(transcript);
+  const spark =
+    series.length > 1
+      ? series
+          .map((p, i) => {
+            const x = (i / (series.length - 1)) * 100;
+            return `${x},${100 - Math.max(0, Math.min(100, p))}`;
+          })
+          .join(" ")
+      : "";
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -55,6 +88,105 @@ export function ResultView({ score, onAgain }: ResultViewProps) {
           </div>
         </Card>
       </motion.div>
+
+      {/* Sotuv voronkasi */}
+      <section>
+        <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">
+          {t.natija.funnelTitle}
+        </h2>
+        <Card className="overflow-x-auto">
+          <div className="flex min-w-[520px] items-end gap-2">
+            {FUNNEL_STAGES.map((s) => {
+              const pct = Math.round(funnelRatio[s] * 100);
+              const weak = s === rec.weakestStage;
+              return (
+                <div
+                  key={s}
+                  className="flex flex-1 flex-col items-center gap-2"
+                >
+                  <div className="flex h-24 w-full items-end">
+                    <div className="flex w-full flex-col items-center">
+                      <span
+                        className="mb-1 text-xs font-medium tabular-nums"
+                        style={{ color: weak ? "var(--warn)" : "var(--muted)" }}
+                      >
+                        {pct}%
+                      </span>
+                      <div className="h-20 w-full overflow-hidden rounded-lg2 bg-foreground/[.06]">
+                        <div
+                          className="w-full rounded-lg2"
+                          style={{
+                            height: `${pct}%`,
+                            marginTop: `${100 - pct}%`,
+                            background: weak ? "var(--warn)" : "var(--ink)",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <span
+                    className={`text-center text-xs ${weak ? "font-semibold text-foreground" : "text-muted"}`}
+                  >
+                    {t.natija.funnel[s]}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </section>
+
+      {/* Keyingi mashq tavsiyasi (spaced repetition) */}
+      <section>
+        <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">
+          {t.natija.recTitle}
+        </h2>
+        <div className="ink flex items-start gap-3 p-5">
+          <span aria-hidden className="text-xl">
+            🎯
+          </span>
+          <p className="text-[15px] leading-relaxed text-[color:var(--on-ink)]">
+            {rec.message}
+          </p>
+        </div>
+      </section>
+
+      {/* Qiziqish dinamikasi */}
+      {spark && (
+        <section>
+          <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">
+            {t.natija.interestTitle}
+          </h2>
+          <Card>
+            <div className="h-20 w-full">
+              <svg
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                className="h-full w-full"
+                aria-hidden
+              >
+                <polyline
+                  points={spark}
+                  fill="none"
+                  stroke="var(--accent)"
+                  strokeWidth={3}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
+            </div>
+            <div className="mt-2 flex justify-between text-xs text-muted">
+              <span>
+                {t.natija.interestStart}: {series[0]}
+              </span>
+              <span>
+                {t.natija.interestEnd}: {series[series.length - 1]}
+              </span>
+            </div>
+          </Card>
+        </section>
+      )}
 
       <section>
         <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">
@@ -101,7 +233,7 @@ export function ResultView({ score, onAgain }: ResultViewProps) {
           {t.natija.strengths}
         </h2>
         <Card>
-          <ul className="space-y-1.5 text-sm text-[color:var(--good)]">
+          <ul className="space-y-1.5 text-sm">
             {score.strengths.map((s, i) => (
               <li key={i} className="flex gap-2">
                 <span aria-hidden className="text-[color:var(--good)]">
