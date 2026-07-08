@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Sotuvchi Trainer — dark mode asosiy, neon aksentlar. */
+:root {
+  --background: #0a0a0f;
+  --foreground: #ededed;
+  --neon: #00e5ff;
+  --neon-2: #b026ff;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.neon-text {
+  color: var(--neon);
+  text-shadow:
+    0 0 8px rgba(0, 229, 255, 0.55),
+    0 0 24px rgba(0, 229, 255, 0.35);
+}
+
+.neon-glow {
+  box-shadow:
+    0 0 24px rgba(0, 229, 255, 0.25),
+    0 0 64px rgba(176, 38, 255, 0.15);
+}
