@@ -1,0 +1,23 @@
+{
+  "you": "Sotuvchi",
+  "client": "Mijoz",
+  "placeholder": "Javobingizni yozing yoki mikrofonni bosing...",
+  "send": "Yuborish",
+  "mic": "Mikrofon",
+  "micIdle": "Gapir",
+  "micRecording": "Yozilmoqda... to'xtatish",
+  "stop": "To'xtatish",
+  "finish": "Suhbatni yakunlash",
+  "thinking": "Mijoz o'ylayapti...",
+  "listening": "Tinglayapman...",
+  "empty": "Suhbatni boshlash uchun birinchi gapni yozing yoki mikrofonni bosib gapiring.",
+  "sttUnavailable": "Aisha STT sozlanmagan — matn kiritish rejimidan foydalaning.",
+  "latency": "Kechikish",
+  "cycleLabel": "Aylana",
+  "cycleOk": "Tez",
+  "cycleSlow": "Sekin",
+  "llmFirst": "LLM 1-token",
+  "ttsFirst": "TTS boshlanishi",
+  "totalCycle": "To'liq aylana",
+  "ms": "ms"
+}
