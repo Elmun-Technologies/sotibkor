@@ -6,21 +6,25 @@ Sotuvchi Trainer 6 bosqichda quriladi. Har katta feature'dan keyin shu fayl yang
 
 Maqsad: bitta sahifada to'liq ovoz aylanasi ishlashini isbotlash. Chiroyi muhim emas, **latency** muhim.
 
-- ⬜ Mikrofon yozib olish (`MediaRecorder`), gap oxirini aniqlash.
-- ⬜ Aisha.ai STT integratsiyasi (`src/lib/aisha.ts`, real endpoint).
-- ⬜ Claude persona chaqiruvi, streaming (`src/lib/llm.ts`).
-- ⬜ Aisha.ai TTS integratsiyasi, gap-gap oqim.
-- ⬜ Qimmatchi persona bilan jonli suhbat.
-- ⬜ Latency o'lchagich (har turn `latency_ms`).
+Plumbing tayyor (provider abstraktsiyasi + mock rejim, kalitsiz ishlaydi):
 
-**Yakun mezoni:** Qimmatchi bilan ovozli suhbat, aylana < 2s.
+- ✅ Suhbat sahifasi (`/trener`): soha/persona/level tanlash, jonli transkript, latency badge.
+- ✅ Mikrofon yozib olish (`MediaRecorder`) → `/api/stt` (Aisha sozlanmagan bo'lsa matn kiritish fallback).
+- ✅ Persona chaqiruvi streaming (`/api/chat`, `src/lib/llm.ts`): Claude (kalit bo'lsa) yoki mock oqim.
+- ✅ Gap-gap TTS: `SentenceStreamer` birinchi gapni darrov ovozga (Aisha `/api/tts` yoki brauzer Web Speech fallback).
+- ✅ Latency o'lchagich (LLM first-token, TTS boshlanishi, to'liq aylana) + `npm run bench:voice`.
+- ⬜ **Aisha.ai STT/TTS real endpoint** (`src/lib/aisha.ts` TODO) — rasmiy hujjat kelgach.
+- ⬜ Real ANTHROPIC_API_KEY bilan jonli Claude persona sinovi va latency o'lchash.
+
+**Yakun mezoni:** Qimmatchi bilan ovozli suhbat, aylana < 2s (real kalitlar bilan).
 
 ## 2. Baholash tizimi (2 hafta)
 
-- ⬜ Baholovchi prompt (`prompts/scoring/baholovchi.md`) — mavjud, sinovdan o'tkaziladi.
-- ⬜ `/api/score` route + `src/lib/scoring.ts` JSON validatsiya.
-- ⬜ Natija sahifasi: ball, bo'limlar, xatolar + namunalar, kuchli tomonlar.
-- ⬜ Transkript saqlash (Supabase `sessions` / `transcripts` / `scores`).
+- ✅ Baholovchi prompt (`prompts/scoring/baholovchi.md`).
+- ✅ `/api/score` route + `src/lib/scoring.ts` JSON validatsiya (mock fallback ham).
+- ✅ Natija sahifasi: ball, bo'lim progress-barlar, xatolar + namunalar, kuchli tomonlar, XP.
+- ⬜ Real Claude baholovchi bilan sifat sinovi.
+- ⬜ Transkript saqlash (Supabase `sessions` / `transcripts` / `scores`) — issue #3.
 
 **Yakun mezoni:** suhbat tugagach aniq, o'stiruvchi feedback ko'rsatiladi.
 
