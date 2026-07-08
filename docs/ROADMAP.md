@@ -28,13 +28,15 @@ Plumbing tayyor (provider abstraktsiyasi + mock rejim, kalitsiz ishlaydi):
 
 **Yakun mezoni:** suhbat tugagach aniq, o'stiruvchi feedback ko'rsatiladi.
 
-## 3. Gamification + UI (3 hafta)
+## 3. Gamification + UI — 🟡 JARAYONDA (3 hafta)
 
-- ⬜ XP, darajalar (Stajyor → … → Sales Master), streak.
-- ⬜ Haftalik leaderboard.
-- ⬜ Achievements.
-- ⬜ Progress-xarita (typing club uslubi).
-- ⬜ Dark mode + neon dizayn, Framer Motion animatsiyalar.
+Sprint rejasi: [docs/SPRINT-GAMIFICATION.md](SPRINT-GAMIFICATION.md) (rollar, acceptance, integratsiya).
+
+- 🟡 XP, darajalar (Stajyor → … → Sales Master), streak.
+- 🟡 Haftalik leaderboard.
+- 🟡 Achievements.
+- 🟡 Progress-xarita (typing club uslubi).
+- 🟡 Dark mode + neon dizayn, Framer Motion animatsiyalar.
 
 **Yakun mezoni:** foydalanuvchi o'sishini ko'radi, qaytib kelishga motivatsiya bor.
 

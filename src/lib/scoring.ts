@@ -75,15 +75,19 @@ export function parseScore(raw: string): ScoreResult {
   );
   // ±1 tolerantlik (docs/SCORING.md).
   if (Math.abs(sum - total) > 1) {
-    throw new Error(`total (${total}) breakdown yig'indisiga (${sum}) mos emas.`);
+    throw new Error(
+      `total (${total}) breakdown yig'indisiga (${sum}) mos emas.`,
+    );
   }
 
   return data as ScoreResult;
 }
 
 /**
- * Transkriptni baholaydi. Noto'g'ri JSON qaytsa bir marta qayta so'raydi.
- * TODO(#4): retry logikasi, xatoni loglash, XP formulasini yakunlash.
+ * Transkriptni baholaydi. Noto'g'ri JSON qaytsa BIR MARTA qayta so'raydi
+ * (docs/SCORING.md §Validatsiya): birinchi urinish parse bo'lmasa, modelga
+ * "FAQAT to'g'ri JSON" ta'kidi bilan qayta chaqiriladi. Ikkalasi ham
+ * muvaffaqiyatsiz bo'lsa — xato loglanadi va tashlanadi.
  */
 export async function scoreSession(opts: {
   soha: string;
@@ -92,7 +96,9 @@ export async function scoreSession(opts: {
   transcript: ChatTurn[];
 }): Promise<ScoreResult> {
   const transkript = opts.transcript
-    .map((t) => `${t.role === "assistant" ? "MIJOZ" : "SOTUVCHI"}: ${t.content}`)
+    .map(
+      (t) => `${t.role === "assistant" ? "MIJOZ" : "SOTUVCHI"}: ${t.content}`,
+    )
     .join("\n");
 
   const systemPrompt = await loadPrompt("scoring/baholovchi.md", {
@@ -102,12 +108,33 @@ export async function scoreSession(opts: {
     transkript,
   });
 
-  const raw = await completeOnce({
-    systemPrompt,
-    userContent: "Yuqoridagi transkriptni rubrika bo'yicha bahola va FAQAT JSON qaytar.",
-  });
+  // Ko'rsatma matnlari ham /prompts da (CLAUDE.md §2 — kodda prompt yozilmaydi).
+  const baseUser = await loadPrompt("scoring/baholovchi.user.md");
 
-  return parseScore(raw);
+  try {
+    const raw = await completeOnce({ systemPrompt, userContent: baseUser });
+    return parseScore(raw);
+  } catch (firstErr) {
+    // Birinchi urinish noto'g'ri JSON / sxema — bir marta qayta so'raymiz.
+    console.warn(
+      "[scoring] baholovchi javobi parse bo'lmadi, qayta urinilyapti:",
+      firstErr instanceof Error ? firstErr.message : firstErr,
+    );
+    try {
+      const retryUser = await loadPrompt("scoring/baholovchi.retry.md");
+      const retryRaw = await completeOnce({
+        systemPrompt,
+        userContent: retryUser,
+      });
+      return parseScore(retryRaw);
+    } catch (secondErr) {
+      console.error(
+        "[scoring] retry ham muvaffaqiyatsiz:",
+        secondErr instanceof Error ? secondErr.message : secondErr,
+      );
+      throw secondErr;
+    }
+  }
 }
 
 /**
@@ -116,7 +143,10 @@ export async function scoreSession(opts: {
  */
 export function mockScore(transcript: ChatTurn[]): ScoreResult {
   const sellerTurns = transcript.filter((t) => t.role === "user");
-  const words = sellerTurns.reduce((n, t) => n + t.content.split(/\s+/).length, 0);
+  const words = sellerTurns.reduce(
+    (n, t) => n + t.content.split(/\s+/).length,
+    0,
+  );
   const askedQuestion = sellerTurns.some((t) => t.content.includes("?"));
 
   const breakdown: ScoreBreakdown = {
@@ -140,10 +170,15 @@ export function mockScore(transcript: ChatTurn[]): ScoreResult {
       {
         quote: sellerTurns[0]?.content ?? "(sotuvchi gapirmadi)",
         why: "Bu demo baho (kalitsiz rejim). Real, aniq tahlil uchun ANTHROPIC_API_KEY qo'shing.",
-        better: "Ehtiyojni aniqlab, otkazga qiymat bilan javob bering; darrov chegirma bermang.",
+        better:
+          "Ehtiyojni aniqlab, otkazga qiymat bilan javob bering; darrov chegirma bermang.",
       },
     ],
-    strengths: [askedQuestion ? "Savol berding — ehtiyojni aniqlashga urinding." : "Suhbatni boshlading."],
+    strengths: [
+      askedQuestion
+        ? "Savol berding — ehtiyojni aniqlashga urinding."
+        : "Suhbatni boshlading.",
+    ],
     xp_awarded: Math.round(total),
   };
 }

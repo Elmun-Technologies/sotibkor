@@ -23,7 +23,9 @@ let client: Anthropic | null = null;
 
 function getClient(): Anthropic {
   if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error("ANTHROPIC_API_KEY sozlanmagan (.env.local ni tekshiring).");
+    throw new Error(
+      "ANTHROPIC_API_KEY sozlanmagan (.env.local ni tekshiring).",
+    );
   }
   if (!client) {
     client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -105,8 +107,26 @@ export async function* mockStreamPersona(opts: {
 }
 
 /**
+ * Oddiy retry helper: fn'ni bir marta qayta uradi (jami 2 urinish).
+ * Birinchi urinish xato bersa — xato loglanadi va qayta urinadi. Ikkinchi ham
+ * xato bersa — xato tashlanadi. Tarmoq/oniy nosozliklar uchun (latency kritik
+ * yo'lda EMAS — baholovchi kabi streaming bo'lmagan chaqiruvlar uchun).
+ */
+async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    console.warn(
+      `[llm] ${label} birinchi urinish xato, qayta urinilyapti:`,
+      err instanceof Error ? err.message : err,
+    );
+    return await fn();
+  }
+}
+
+/**
  * Streaming bo'lmagan bir martalik chaqiruv (masalan baholovchi — butun JSON kerak).
- * TODO(#4): baholovchi uchun ishlatiladi; JSON parse scoring.ts da.
+ * Tarmoq xatosida bir marta qayta uriladi (withRetry).
  */
 export async function completeOnce(opts: {
   systemPrompt: string;
@@ -115,12 +135,16 @@ export async function completeOnce(opts: {
   maxTokens?: number;
 }): Promise<string> {
   const anthropic = getClient();
-  const res = await anthropic.messages.create({
-    model: opts.model ?? DEFAULT_MODEL,
-    max_tokens: opts.maxTokens ?? 1024,
-    system: opts.systemPrompt,
-    messages: [{ role: "user", content: opts.userContent }],
-  });
+  const res = await withRetry(
+    () =>
+      anthropic.messages.create({
+        model: opts.model ?? DEFAULT_MODEL,
+        max_tokens: opts.maxTokens ?? 1024,
+        system: opts.systemPrompt,
+        messages: [{ role: "user", content: opts.userContent }],
+      }),
+    "completeOnce",
+  );
   return res.content
     .filter((b): b is Anthropic.TextBlock => b.type === "text")
     .map((b) => b.text)
