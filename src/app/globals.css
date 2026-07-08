@@ -29,6 +29,8 @@
   --accent: #16c66a; /* nozik yashil nuqta/aksent (reference) */
   --good: #12a150;
   --warn: #b8760a;
+  --bad: #e0393b; /* qizil — e'tiborsiz/xato/past qiziqish */
+  --live: #e0393b;
 
   --r-card: 28px;
   --r-lg: 20px;
@@ -62,6 +64,8 @@
   --accent: #2ee27f;
   --good: #2ee27f;
   --warn: #f2b23a;
+  --bad: #ff5a5c;
+  --live: #ff5a5c;
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 40px rgba(0, 0, 0, 0.35);
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
@@ -88,6 +92,8 @@
     --accent: #2ee27f;
     --good: #2ee27f;
     --warn: #f2b23a;
+    --bad: #ff5a5c;
+    --live: #ff5a5c;
     --shadow-card:
       0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 40px rgba(0, 0, 0, 0.35);
     --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
