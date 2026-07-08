@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "bench:voice": "node scripts/bench-voice.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
