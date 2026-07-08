@@ -19,6 +19,7 @@ import profil from "./profil.json";
 import reyting from "./reyting.json";
 import achievements from "./achievements.json";
 import common from "./common.json";
+import dars from "./dars.json";
 
 export type Locale = "uz" | "ru";
 export const DEFAULT_LOCALE: Locale = "uz";
@@ -36,6 +37,7 @@ const messages = {
   reyting,
   achievements,
   common,
+  dars,
 } as const;
 
 export type Messages = typeof messages;

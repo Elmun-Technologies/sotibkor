@@ -1,8 +1,15 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getMessages } from "@/i18n";
-import { type PersonaKey, type SohaKey, type RejimKey } from "@/lib/content";
+import {
+  isPersonaKey,
+  isRejimKey,
+  isSohaKey,
+  type PersonaKey,
+  type SohaKey,
+  type RejimKey,
+} from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
 import { interestScore, interestSeries } from "@/lib/coach";
 import type { ScoreResult } from "@/lib/scoring";
@@ -55,6 +62,24 @@ export default function TrenerPage() {
   const chunksRef = useRef<Blob[]>([]);
   const cancelRef = useRef(false); // barge-in: joriy nutqni bekor qilish
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Dars sahifasidan preset (/trener?soha=..&persona=..&level=..&rejim=..):
+  // to'g'ri parametrlar bo'lsa sozlash tayyor va suhbat darrov boshlanadi.
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const qs = p.get("soha");
+    const qp = p.get("persona");
+    if (!qs || !qp || !isSohaKey(qs) || !isPersonaKey(qp)) return;
+    setSoha(qs);
+    setPersona(qp);
+    const ql = Number(p.get("level"));
+    if (Number.isFinite(ql) && ql >= 1 && ql <= 6) setLevel(Math.floor(ql));
+    const qr = p.get("rejim");
+    if (qr && isRejimKey(qr)) setRejim(qr);
+    setStage("chat");
+    // faqat mount'da
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /** Barge-in: mijoz gapirayotganda uni darrov to'xtatadi (realizm). */
   const stopSpeaking = useCallback(() => {

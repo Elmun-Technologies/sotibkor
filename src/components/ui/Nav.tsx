@@ -36,6 +36,7 @@ export function Nav() {
           {t.nav.brand}
         </Link>
         <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+          <NavLink href="/dars">{t.nav.dars}</NavLink>
           <NavLink href="/trener">{t.nav.trener}</NavLink>
           <NavLink href="/reyting">{t.nav.reyting}</NavLink>
           <NavLink href="/profil">{t.nav.profil}</NavLink>

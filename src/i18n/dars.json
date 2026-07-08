@@ -1,0 +1,69 @@
+{
+  "title": "Ta'lim yo'li",
+  "subtitle": "Bosqichma-bosqich sotuv ustaligiga — har dars bir ko'nikma.",
+  "start": "Boshlash",
+  "resume": "Davom ettirish",
+  "review": "Takrorlash",
+  "locked": "Yopiq",
+  "unlockHint": "Oldingi darsni tugat",
+  "completion": "Bajarilishi",
+  "stars": "Yulduzlar",
+  "score": "Ball",
+  "time": "Vaqt",
+  "starsTotal": "yulduz to'plandi",
+  "weakTitle": "Sizning zaif joyingiz",
+  "weakLead": "Oxirgi suhbatlarga qarab, aynan shu e'tirozda ko'proq mashq kerak.",
+  "weakCta": "Shu bo'yicha mashq qil",
+  "units": {
+    "asoslar": {
+      "title": "Asoslar",
+      "desc": "Ochilish, ehtiyoj aniqlash, birinchi otkaz"
+    },
+    "etirozlar": {
+      "title": "E'tirozlar",
+      "desc": "Narx, ishonch va vaqt e'tirozlari bilan ishlash"
+    },
+    "ustalik": {
+      "title": "Ustalik",
+      "desc": "Bilag'on mijoz, aralash savdo, yopish"
+    }
+  },
+  "lessons": {
+    "ochilish": {
+      "title": "Ochilish va tanishuv",
+      "desc": "Iliq salom, o'zini va kompaniyani tanishtirish"
+    },
+    "ehtiyoj": {
+      "title": "Ehtiyojni aniqlash",
+      "desc": "Ochiq savol bilan mijoz ehtiyojini ochish"
+    },
+    "birinchi_otkaz": {
+      "title": "Birinchi otkaz",
+      "desc": "\"Qimmat\" deganda darrov chegirma bermaslik"
+    },
+    "narx_etirozi": {
+      "title": "Narx e'tirozi",
+      "desc": "Yuzma-yuz savdolashuvda qiymatni himoya qilish"
+    },
+    "ishonch_etirozi": {
+      "title": "Ishonch e'tirozi",
+      "desc": "Kafolat va dalil bilan shubhani yengish"
+    },
+    "vaqt_etirozi": {
+      "title": "Vaqt e'tirozi",
+      "desc": "\"Vaqtim yo'q\" deganni zich pitch bilan ushlash"
+    },
+    "bilagon_mijoz": {
+      "title": "Bilag'on mijoz",
+      "desc": "Egoni qondirib, bilim bilan hamkor qilish"
+    },
+    "aralash_savdo": {
+      "title": "Aralash savdo",
+      "desc": "Aralash tilli, ikkilanuvchi mijoz bilan"
+    },
+    "yopish": {
+      "title": "Yopish (closing)",
+      "desc": "Yashirin e'tirozni ochib, aniq qaror so'rash"
+    }
+  }
+}
