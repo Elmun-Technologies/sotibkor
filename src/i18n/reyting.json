@@ -1,0 +1,16 @@
+{
+  "title": "Reyting",
+  "subtitle": "Haftalik eng kuchli sotuvchilar",
+  "weekly": "Shu hafta",
+  "rank": "O'rin",
+  "name": "Ism",
+  "xpWeek": "Haftalik XP",
+  "you": "Siz",
+  "yourRank": "Sizning o'rningiz",
+  "empty": "Hozircha reyting bo'sh. Birinchi bo'l!",
+  "loading": "Yuklanmoqda...",
+  "tabLeaderboard": "Reyting",
+  "tabAchievements": "Yutuqlar",
+  "achievementsTitle": "Yutuqlar to'plami",
+  "achievementsSubtitle": "Mashq qilib yangi belgilarni och"
+}

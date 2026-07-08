@@ -1,0 +1,30 @@
+{
+  "locked": "Qulflangan",
+  "earned": "Ochilgan",
+  "earnedAt": "Ochilgan sana",
+  "reward": "Mukofot",
+  "birinchi_suhbat": {
+    "title": "Birinchi suhbat",
+    "desc": "Birinchi mashq suhbatingni yakunlading."
+  },
+  "ketma_ket_3": {
+    "title": "3 kun ketma-ket",
+    "desc": "3 kun ketma-ket mashq qilding."
+  },
+  "ketma_ket_7": {
+    "title": "7 kun ketma-ket",
+    "desc": "Bir hafta uzluksiz mashq qilding."
+  },
+  "yuqori_ball": {
+    "title": "Yuqori ball",
+    "desc": "Bitta suhbatda 90+ ball to'plading."
+  },
+  "birinchi_yopish": {
+    "title": "Birinchi yopish",
+    "desc": "Mijozni birinchi marta yopishga ko'ndirding."
+  },
+  "qiyin_persona": {
+    "title": "Qiyin mijoz",
+    "desc": "Eng qiyin personani muvaffaqiyatli yeng."
+  }
+}
