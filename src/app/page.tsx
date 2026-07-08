@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getMessages } from "@/i18n";
 
 export default function Home() {
@@ -12,12 +13,15 @@ export default function Home() {
         <h1 className="text-4xl font-bold sm:text-6xl">
           <span className="neon-text">{t.app.name}</span>
         </h1>
-        <p className="mt-4 text-lg text-white/60 sm:text-xl">
-          — {t.app.comingSoon} —
-        </p>
         <p className="mx-auto mt-6 max-w-md text-sm leading-relaxed text-white/50">
           {t.app.comingSoonDesc}
         </p>
+        <Link
+          href="/trener"
+          className="neon-glow mt-8 inline-block rounded-xl border border-[color:var(--neon)]/40 bg-[color:var(--neon)]/10 px-6 py-3 font-semibold transition hover:bg-[color:var(--neon)]/20"
+        >
+          {t.app.startTraining}
+        </Link>
       </div>
     </main>
   );

@@ -14,6 +14,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { PERSONALAR, type PersonaKey } from "./content";
 
 /** CLAUDE.md: claude-sonnet. Aniq model IDsi env yoki config orqali sozlanadi. */
 const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
@@ -81,6 +82,25 @@ export async function* streamPersona(opts: {
     ) {
       yield event.delta.text;
     }
+  }
+}
+
+/**
+ * MOCK rejim: ANTHROPIC_API_KEY bo'lmasa, persona demo javoblarini (content.ts
+ * `mockLines`) so'zma-so'z oqim qilib qaytaradi — real LLM emas, faqat kalitsiz
+ * loyihani ishlatib ko'rish uchun. Har chaqiruvda oldingi mijoz replikalari
+ * soniga qarab keyingi qatorni tanlaydi.
+ */
+export async function* mockStreamPersona(opts: {
+  personaKey: PersonaKey;
+  assistantTurns: number;
+}): AsyncGenerator<string, void, unknown> {
+  const lines = PERSONALAR[opts.personaKey].mockLines;
+  const idx = Math.min(opts.assistantTurns, lines.length - 1);
+  const text = lines[idx];
+  // So'zma-so'z "oqim" — real streaming his qilinishi uchun.
+  for (const word of text.split(" ")) {
+    yield word + " ";
   }
 }
 

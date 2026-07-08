@@ -109,3 +109,41 @@ export async function scoreSession(opts: {
 
   return parseScore(raw);
 }
+
+/**
+ * MOCK baho: ANTHROPIC_API_KEY bo'lmaganda kalitsiz demo uchun. Transkript
+ * uzunligiga qarab taxminiy ball beradi — real baholovchi EMAS.
+ */
+export function mockScore(transcript: ChatTurn[]): ScoreResult {
+  const sellerTurns = transcript.filter((t) => t.role === "user");
+  const words = sellerTurns.reduce((n, t) => n + t.content.split(/\s+/).length, 0);
+  const askedQuestion = sellerTurns.some((t) => t.content.includes("?"));
+
+  const breakdown: ScoreBreakdown = {
+    salomlashish: sellerTurns.length > 0 ? 7 : 0,
+    ehtiyoj_aniqlash: askedQuestion ? 14 : 6,
+    otkazlarga_ishlov: Math.min(30, 10 + sellerTurns.length * 3),
+    closing: sellerTurns.length >= 3 ? 12 : 5,
+    ohang: Math.min(20, 10 + Math.floor(words / 15)),
+  };
+  const total =
+    breakdown.salomlashish +
+    breakdown.ehtiyoj_aniqlash +
+    breakdown.otkazlarga_ishlov +
+    breakdown.closing +
+    breakdown.ohang;
+
+  return {
+    total,
+    breakdown,
+    mistakes: [
+      {
+        quote: sellerTurns[0]?.content ?? "(sotuvchi gapirmadi)",
+        why: "Bu demo baho (kalitsiz rejim). Real, aniq tahlil uchun ANTHROPIC_API_KEY qo'shing.",
+        better: "Ehtiyojni aniqlab, otkazga qiymat bilan javob bering; darrov chegirma bermang.",
+      },
+    ],
+    strengths: [askedQuestion ? "Savol berding — ehtiyojni aniqlashga urinding." : "Suhbatni boshlading."],
+    xp_awarded: Math.round(total),
+  };
+}
