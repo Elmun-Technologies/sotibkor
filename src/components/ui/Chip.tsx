@@ -14,10 +14,10 @@ export function Chip({ active = false, onClick, children }: ChipProps) {
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-full border px-4 py-1.5 text-sm transition ${
+      className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
         active
-          ? "border-[color:var(--neon)]/60 bg-[color:var(--neon)]/15 text-foreground"
-          : "border-border text-muted hover:border-foreground/25"
+          ? "border-transparent bg-ink text-onink"
+          : "border-border text-muted hover:border-foreground/30 hover:text-foreground"
       }`}
     >
       {children}

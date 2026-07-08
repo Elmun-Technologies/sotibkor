@@ -26,30 +26,29 @@ export function LeaderboardRow({
   return (
     <motion.div
       initial={reduce ? false : { opacity: 0, x: -12 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: "-24px" }}
+      animate={{ opacity: 1, x: 0 }}
       transition={
         reduce
           ? { duration: 0 }
           : { duration: 0.35, delay: Math.min(index * 0.04, 0.4) }
       }
-      className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 ${
+      className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 ${
         entry.isMe
-          ? "border-[color:var(--neon)]/50 bg-[color:var(--neon)]/10"
-          : "border-border bg-surface"
+          ? "bg-surface shadow-card ring-2 ring-ink"
+          : "bg-surface shadow-soft"
       } ${className}`}
     >
-      <div className="grid w-8 shrink-0 place-items-center font-mono text-sm font-bold tabular-nums text-muted">
+      <div className="grid w-8 shrink-0 place-items-center font-mono text-base font-bold tabular-nums text-muted">
         {medal ?? entry.rank}
       </div>
-      <div className="min-w-0 flex-1 truncate text-sm text-foreground">
+      <div className="min-w-0 flex-1 truncate text-[15px] text-foreground">
         {entry.isMe ? (
-          <span className="font-semibold text-neon">{t.reyting.you}</span>
+          <span className="font-semibold text-foreground">{t.reyting.you}</span>
         ) : (
           entry.name
         )}
       </div>
-      <div className="shrink-0 font-mono text-sm tabular-nums text-foreground">
+      <div className="shrink-0 font-mono text-[15px] tabular-nums text-foreground">
         {entry.xpWeek.toLocaleString("ru-RU")}
         <span className="ml-1 text-xs text-muted">{t.common.xp}</span>
       </div>

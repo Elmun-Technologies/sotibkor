@@ -38,15 +38,13 @@ export function ResultView({ score, onAgain }: ResultViewProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: "easeOut" }}
       >
-        <Card className="neon-glow flex flex-col items-center gap-2 text-center">
-          <div className="font-mono text-[11px] uppercase tracking-widest text-muted">
-            {t.natija.total}
-          </div>
+        <Card className="flex flex-col items-center gap-3 py-10 text-center">
+          <div className="eyebrow">{t.natija.total}</div>
           <div className="flex items-end gap-2">
-            <span className="neon-text text-6xl font-bold tabular-nums">
+            <span className="text-8xl font-semibold tabular-nums tracking-tight">
               {score.total}
             </span>
-            <span className="mb-2 text-sm text-muted">{t.natija.outOf}</span>
+            <span className="mb-3 text-lg text-muted">{t.natija.outOf}</span>
           </div>
           <Badge tone={v.tone}>{v.text}</Badge>
           <div className="mt-1 text-sm text-muted">
@@ -59,7 +57,7 @@ export function ResultView({ score, onAgain }: ResultViewProps) {
       </motion.div>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-foreground/70">
+        <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">
           {t.natija.breakdown}
         </h2>
         <Card className="space-y-3">
@@ -78,7 +76,7 @@ export function ResultView({ score, onAgain }: ResultViewProps) {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-foreground/70">
+        <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">
           {t.natija.mistakes}
         </h2>
         <div className="space-y-3">
@@ -99,7 +97,7 @@ export function ResultView({ score, onAgain }: ResultViewProps) {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-foreground/70">
+        <h2 className="mb-3 text-lg font-semibold tracking-tight text-foreground">
           {t.natija.strengths}
         </h2>
         <Card>

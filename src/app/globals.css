@@ -3,112 +3,206 @@
 @tailwind utilities;
 
 /*
- * Sotuvchi Trainer — dizayn tokenlari.
- * Dark asosiy + neon aksent; light theme token asosida to'liq ishlaydi.
- * Theme tanlovi <html data-theme="light|dark"> orqali (layout.tsx init skripti).
- * data-theme har doim system afzalligidan ustun.
+ * Sotuvchi Trainer — "editorial" dizayn tizimi.
+ * Yorug' asosiy (yumshoq kulrang fon + oq kartalar + qora aksent),
+ * yirik qalin tipografiya, katta radiuslar, pill teglar, gradient art panellar.
+ * Dark theme token asosida to'liq ishlaydi (<html data-theme>).
  */
 
-/* ---- DARK (default) ---- */
+/* ---- LIGHT (default) ---- */
 :root,
-:root[data-theme="dark"] {
-  --bg: #0a0a0f;
-  --surface: #14141d;
-  --fg: #ececf2;
-  --muted: #8b8fa6;
-  --border: rgba(255, 255, 255, 0.1);
-  --neon: #00e5ff;
-  --neon-2: #b026ff;
-  --good: #22e0a0;
-  --warn: #ffb020;
-
-  /* Eski kod bilan mosligi (page.tsx / trener) uchun aliaslar */
-  --background: var(--bg);
-  --foreground: var(--fg);
-}
-
-/* ---- LIGHT (explicit) ---- */
 :root[data-theme="light"] {
-  --bg: #f5f6fb;
+  --bg: #e8e8ec;
   --surface: #ffffff;
-  --fg: #0f1117;
-  --muted: #5a6076;
-  --border: rgba(12, 16, 30, 0.12);
-  --neon: #0088a0;
-  --neon-2: #8a1fd0;
-  --good: #0a9d6e;
-  --warn: #a86400;
+  --surface-2: #f2f2f5;
+  --fg: #0d0d10;
+  --muted: #86868e;
+  --faint: #a9a9b2;
+  --border: rgba(15, 15, 25, 0.1);
+  --hair: rgba(15, 15, 25, 0.07);
+
+  /* Kontrast (qora) panel + undagi matn */
+  --ink: #0b0b0d;
+  --on-ink: #f6f6f8;
+  --on-ink-muted: #a6a6ae;
+
+  --accent: #16c66a; /* nozik yashil nuqta/aksent (reference) */
+  --good: #12a150;
+  --warn: #b8760a;
+
+  --r-card: 28px;
+  --r-lg: 20px;
+  --r-md: 14px;
+  --shadow-card:
+    0 1px 2px rgba(10, 10, 25, 0.04), 0 10px 34px rgba(10, 10, 25, 0.05);
+  --shadow-soft: 0 1px 2px rgba(10, 10, 25, 0.05);
+
+  /* eski kod bilan moslik */
+  --background: var(--bg);
+  --foreground: var(--fg);
+  --neon: var(--fg);
+  --neon-2: var(--accent);
+}
+
+/* ---- DARK ---- */
+:root[data-theme="dark"] {
+  --bg: #0b0b0e;
+  --surface: #161619;
+  --surface-2: #1d1d22;
+  --fg: #f3f3f6;
+  --muted: #8b8b95;
+  --faint: #6a6a74;
+  --border: rgba(255, 255, 255, 0.12);
+  --hair: rgba(255, 255, 255, 0.08);
+
+  --ink: #f3f3f6;
+  --on-ink: #0b0b0d;
+  --on-ink-muted: #55555e;
+
+  --accent: #2ee27f;
+  --good: #2ee27f;
+  --warn: #f2b23a;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 40px rgba(0, 0, 0, 0.35);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
 
   --background: var(--bg);
   --foreground: var(--fg);
+  --neon: var(--fg);
+  --neon-2: var(--accent);
 }
 
-/* ---- LIGHT (system, faqat aniq tanlov bo'lmaganda) ---- */
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --bg: #f5f6fb;
-    --surface: #ffffff;
-    --fg: #0f1117;
-    --muted: #5a6076;
-    --border: rgba(12, 16, 30, 0.12);
-    --neon: #0088a0;
-    --neon-2: #8a1fd0;
-    --good: #0a9d6e;
-    --warn: #a86400;
-
+    --bg: #0b0b0e;
+    --surface: #161619;
+    --surface-2: #1d1d22;
+    --fg: #f3f3f6;
+    --muted: #8b8b95;
+    --faint: #6a6a74;
+    --border: rgba(255, 255, 255, 0.12);
+    --hair: rgba(255, 255, 255, 0.08);
+    --ink: #f3f3f6;
+    --on-ink: #0b0b0d;
+    --on-ink-muted: #55555e;
+    --accent: #2ee27f;
+    --good: #2ee27f;
+    --warn: #f2b23a;
+    --shadow-card:
+      0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 40px rgba(0, 0, 0, 0.35);
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
     --background: var(--bg);
     --foreground: var(--fg);
+    --neon: var(--fg);
+    --neon-2: var(--accent);
   }
+}
+
+* {
+  border-color: var(--border);
 }
 
 body {
   color: var(--fg);
   background: var(--bg);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* ---- Utility klasslar (Tailwind bilan yonma-yon) ---- */
+/* ---- Tipografiya yordamchilari ---- */
+.display {
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+  text-wrap: balance;
+}
+.eyebrow {
+  font-family: var(--font-geist-mono), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
 
+/* ---- Yuzalar ---- */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+}
+.card-flat {
+  background: var(--surface);
+  border-radius: var(--r-card);
+  border: 1px solid var(--hair);
+}
+.inset {
+  background: var(--surface-2);
+  border-radius: var(--r-lg);
+}
+.ink {
+  background: var(--ink);
+  color: var(--on-ink);
+  border-radius: var(--r-card);
+}
+
+/* ---- Gradient "art" panellar (3D render o'rnida, CSP-safe) ---- */
+.art {
+  position: relative;
+  overflow: hidden;
+  background-color: #eceaf0;
+}
+.art-coral {
+  background-image:
+    radial-gradient(120% 120% at 18% 18%, #ffe0cf 0%, transparent 55%),
+    radial-gradient(90% 90% at 82% 26%, #ff8a5c 0%, transparent 52%),
+    radial-gradient(130% 150% at 62% 96%, #c9a3ff 0%, transparent 58%),
+    linear-gradient(120deg, #f3eef5, #efe9f3);
+}
+.art-mint {
+  background-image:
+    radial-gradient(110% 110% at 20% 22%, #d7f3e3 0%, transparent 55%),
+    radial-gradient(90% 90% at 84% 24%, #8fd6b4 0%, transparent 52%),
+    radial-gradient(130% 150% at 60% 98%, #b9c8ff 0%, transparent 58%),
+    linear-gradient(120deg, #eef3f0, #e9f0f4);
+}
+.art-azure {
+  background-image:
+    radial-gradient(110% 110% at 22% 20%, #d5e6ff 0%, transparent 55%),
+    radial-gradient(90% 90% at 82% 30%, #5b8cff 0%, transparent 50%),
+    radial-gradient(130% 150% at 64% 96%, #7fe0ff 0%, transparent 58%),
+    linear-gradient(120deg, #eef1f6, #e8eef6);
+}
+.art-violet {
+  background-image:
+    radial-gradient(110% 110% at 20% 22%, #e7d9ff 0%, transparent 55%),
+    radial-gradient(90% 90% at 84% 26%, #9b6bff 0%, transparent 50%),
+    radial-gradient(130% 150% at 60% 98%, #ff9ecb 0%, transparent 58%),
+    linear-gradient(120deg, #f1ecf7, #ece6f4);
+}
+.art-amber {
+  background-image:
+    radial-gradient(110% 110% at 20% 20%, #ffeccb 0%, transparent 55%),
+    radial-gradient(90% 90% at 84% 28%, #ff9e57 0%, transparent 50%),
+    radial-gradient(130% 150% at 62% 96%, #ffd0a1 0%, transparent 58%),
+    linear-gradient(120deg, #f6f1ea, #f3ece3);
+}
+
+/* Eski utility nomlari (buzilmasligi uchun neytral) */
 .surface {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--hair);
 }
-
 .neon-text {
-  color: var(--neon);
-  text-shadow:
-    0 0 8px color-mix(in srgb, var(--neon) 55%, transparent),
-    0 0 24px color-mix(in srgb, var(--neon) 30%, transparent);
+  color: var(--fg);
 }
-
 .neon-glow {
-  box-shadow:
-    0 0 24px color-mix(in srgb, var(--neon) 22%, transparent),
-    0 0 64px color-mix(in srgb, var(--neon-2) 14%, transparent);
+  box-shadow: var(--shadow-card);
 }
 
-/* Light theme'da glow'ni yumshatamiz (haddan oshmasin) */
-:root[data-theme="light"] .neon-glow,
-:root[data-theme="light"] .neon-text {
-  text-shadow: none;
-}
-:root[data-theme="light"] .neon-glow {
-  box-shadow:
-    0 1px 2px rgba(12, 16, 30, 0.06),
-    0 8px 24px color-mix(in srgb, var(--neon) 14%, transparent);
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .neon-text {
-    text-shadow: none;
-  }
-  :root:not([data-theme]) .neon-glow {
-    box-shadow:
-      0 1px 2px rgba(12, 16, 30, 0.06),
-      0 8px 24px color-mix(in srgb, var(--neon) 14%, transparent);
-  }
-}
-
-/* Harakatni kamaytirish afzalligini hurmat qilamiz */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

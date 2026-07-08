@@ -17,9 +17,7 @@ export default function ReytingPage() {
   const me = MOCK_LEADERBOARD.find((e) => e.isMe);
 
   return (
-    <PageShell title={t.reyting.title}>
-      <p className="-mt-3 mb-6 text-sm text-muted">{t.reyting.subtitle}</p>
-
+    <PageShell title={t.reyting.title} lead={t.reyting.subtitle}>
       <div className="mb-6 flex gap-2">
         <Chip
           active={tab === "leaderboard"}
@@ -39,10 +37,8 @@ export default function ReytingPage() {
         <div>
           {me && (
             <Card className="mb-4 flex items-center justify-between">
-              <span className="text-xs uppercase tracking-widest text-muted">
-                {t.reyting.yourRank}
-              </span>
-              <span className="font-mono text-lg font-bold tabular-nums text-neon">
+              <span className="eyebrow">{t.reyting.yourRank}</span>
+              <span className="text-3xl font-semibold tabular-nums tracking-tight text-foreground">
                 #{me.rank}
               </span>
             </Card>

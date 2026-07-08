@@ -50,5 +50,27 @@
     "yumshoq-lekin-olmaydi": "\"Zo'r ekan...\" — maqtaydi-yu, olmaydi."
   },
   "ctaBottomTitle": "Birinchi suhbatni hoziroq boshla",
-  "ctaBottomDesc": "Kalit shart emas — demo rejimda ham to'liq ishlaydi."
+  "ctaBottomDesc": "Kalit shart emas — demo rejimda ham to'liq ishlaydi.",
+  "eyebrowSohalar": "Sohalar",
+  "eyebrowPersonalar": "Mijozlar",
+  "eyebrowHow": "Jarayon",
+  "capabilitiesTitle": "Nimani mashq qilasan",
+  "capabilitiesLead": "Har suhbatda real sotuv ko'nikmalari sinovdan o'tadi.",
+  "tags": [
+    "Narx e'tirozi",
+    "Ehtiyoj aniqlash",
+    "Closing",
+    "Ishonch qurish",
+    "Vaqt e'tirozi",
+    "Qiymat framing",
+    "Ohang va ishonch",
+    "Manipulyatsiyaga javob",
+    "Yashirin e'tiroz"
+  ],
+  "stats": [
+    { "value": "5", "label": "jaydari mijoz turi" },
+    { "value": "4", "label": "sotuv sohasi" },
+    { "value": "<2s", "label": "ovoz aylanasi" },
+    { "value": "100", "label": "ballik rubrika" }
+  ]
 }

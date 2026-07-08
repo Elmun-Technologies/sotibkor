@@ -50,11 +50,9 @@ export function SetupPanel({
 }: SetupPanelProps) {
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold sm:text-4xl">
-          <span className="neon-text">{t.setup.title}</span>
-        </h1>
-        <p className="text-sm text-muted">{t.setup.mockNote}</p>
+      <div className="space-y-3">
+        <h1 className="display text-5xl sm:text-6xl">{t.setup.title}</h1>
+        <p className="max-w-xl text-base text-muted">{t.setup.mockNote}</p>
       </div>
 
       <Card className="space-y-6">

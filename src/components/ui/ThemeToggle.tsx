@@ -41,7 +41,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={t.nav.theme}
       title={label}
-      className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-foreground/80 transition hover:bg-foreground/5"
+      className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground/80 transition hover:bg-foreground/[.05]"
     >
       <span aria-hidden className="text-base leading-none">
         {theme === "light" ? "☾" : "☀"}

@@ -24,9 +24,7 @@ export default function ProfilPage() {
   const totalCount = MOCK_ACHIEVEMENTS.length;
 
   return (
-    <PageShell title={t.profil.title}>
-      <p className="-mt-3 mb-8 text-sm text-muted">{t.profil.subtitle}</p>
-
+    <PageShell title={t.profil.title} lead={t.profil.subtitle}>
       {/* Daraja + asosiy ko'rsatkichlar */}
       <Card className="mb-6">
         <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:gap-10">
@@ -42,12 +40,10 @@ export default function ProfilPage() {
               value={MOCK_USER.sessionsCount}
               hint={t.profil.sessionsUnit}
             />
-            <div className="surface flex items-center rounded-xl p-4">
+            <div className="inset flex items-center p-5">
               <div className="w-full">
-                <div className="font-mono text-xs uppercase tracking-widest text-muted">
-                  {t.profil.streak}
-                </div>
-                <div className="mt-1">
+                <div className="eyebrow">{t.profil.streak}</div>
+                <div className="mt-2">
                   <StreakFlame days={MOCK_USER.streakDays} />
                 </div>
               </div>
@@ -66,15 +62,15 @@ export default function ProfilPage() {
 
       {/* O'sish xaritasi */}
       <Card className="mb-6">
-        <h2 className="mb-4 text-sm font-semibold text-foreground">
+        <h2 className="mb-5 text-xl font-semibold tracking-tight text-foreground">
           {t.profil.progressTitle}
         </h2>
         <ProgressMap xp={MOCK_USER.xp} />
       </Card>
 
       {/* Yutuqlar */}
-      <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-sm font-semibold text-foreground">
+      <div className="mb-4 flex items-baseline justify-between">
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">
           {t.profil.achievementsTitle}
         </h2>
         <span className="font-mono text-xs tabular-nums text-muted">
