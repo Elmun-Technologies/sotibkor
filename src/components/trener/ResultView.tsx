@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { getMessages } from "@/i18n";
 import { Card, ProgressBar, Badge, Button } from "@/components/ui";
+import { TranscriptReview } from "./TranscriptReview";
 import type { ScoreResult } from "@/lib/scoring";
 import {
   recommend,
@@ -184,6 +185,20 @@ export function ResultView({
                 {t.natija.interestEnd}: {series[series.length - 1]}
               </span>
             </div>
+          </Card>
+        </section>
+      )}
+
+      {transcript.length > 0 && (
+        <section>
+          <div className="mb-3 flex items-baseline justify-between">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+              {t.natija.reviewTitle}
+            </h2>
+            <span className="text-sm text-muted">{t.natija.reviewHint}</span>
+          </div>
+          <Card>
+            <TranscriptReview transcript={transcript} />
           </Card>
         </section>
       )}

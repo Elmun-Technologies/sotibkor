@@ -102,6 +102,88 @@ export const OBJECTION_LIBRARY: ObjectionEntry[] = [
     text: "Ular bepul yetkazadi-ku.",
     counter: "To'liq qiymatni (kafolat, xizmat) taqqoslab qayta ramkalash.",
   },
+
+  // --- Qo'shimcha (30+ kutubxona) ---
+  {
+    type: "narx",
+    text: "Naq pulga chegirma qancha?",
+    counter: "Chegirmani shartga bog'la (hajm, muddat) — bepul berma.",
+  },
+  {
+    type: "narx",
+    text: "Keyingi oy maoshdan keyin olaman.",
+    counter: "Bugungi qaror uchun sabab yarat; bo'lib to'lashni eslat.",
+  },
+  {
+    type: "narx",
+    text: "Do'stimga arzonroq bergansizlar-ku.",
+    counter: "Adolatli narx siyosatini tushuntir, qiymatga qaytar.",
+  },
+  {
+    type: "ishonch",
+    text: "Onlayn to'lasam pulim yo'qolmaydimi?",
+    counter: "Xavfsiz to'lov va qaytarish kafolatini konkret ko'rsat.",
+  },
+  {
+    type: "ishonch",
+    text: "Sizni birinchi marta ko'ryapman.",
+    counter: "Ijtimoiy isbot, portfolio, kichik sinov taklif qil.",
+  },
+  {
+    type: "ishonch",
+    text: "Reklama-ku bularning hammasi.",
+    counter: "Da'vo emas — o'lchanadigan natija va mijoz misolini ber.",
+  },
+  {
+    type: "vaqt",
+    text: "Yig'ilishdaman, keyin yozing.",
+    counter: "Aniq vaqt kelish; bir jumlali qiymatni qoldir.",
+  },
+  {
+    type: "vaqt",
+    text: "Telegramga tashlang, ko'raman.",
+    counter: "Kanalga o'tishga rozi bo'l, lekin keyingi qadamni belgila.",
+  },
+  {
+    type: "ehtiyoj",
+    text: "Bizda hammasi joyida, kerak emas.",
+    counter: "Joriy holatdagi yashirin xarajat/og'riqni savol bilan och.",
+  },
+  {
+    type: "ehtiyoj",
+    text: "Bu biznesimizga to'g'ri kelmaydi.",
+    counter: "Segmentiga mos konkret foydani ko'rsat, umumiy gapirma.",
+  },
+  {
+    type: "qaror",
+    text: "Sherigim bilan gaplashib olay.",
+    counter: "Qaror qabul qiluvchini birga suhbatga chaqirishni taklif qil.",
+  },
+  {
+    type: "qaror",
+    text: "Hozircha shoshilmayapmiz.",
+    counter: "Kechikish narxini (yo'qotilgan foyda) ko'rsat, yumshoq deadline.",
+  },
+  {
+    type: "qaror",
+    text: "Materiallaringizni yuboring, o'qiб chiqamiz.",
+    counter: "Yuborishga rozi bo'l + aniq follow-up sana kelish.",
+  },
+  {
+    type: "raqobat",
+    text: "Bizda allaqachon yetkazib beruvchi bor.",
+    counter: "Almashtirishga emas, qo'shimcha qiymatga fokusla.",
+  },
+  {
+    type: "raqobat",
+    text: "Uzum'da o'zim sotaman, vositachi kerakmas.",
+    counter: "Vaqt/logistika tejamini raqam bilan ko'rsat.",
+  },
+  {
+    type: "narx",
+    text: "Bozorda bundan arzon full bor.",
+    counter: "Sifat/kafolat farqini aniq ajratib, qiymatni qayta ramkala.",
+  },
 ];
 
 export function objectionsByType(type: ObjectionType): ObjectionEntry[] {

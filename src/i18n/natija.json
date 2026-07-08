@@ -27,6 +27,16 @@
     "yopish": "Yopish"
   },
   "recTitle": "Keyingi mashq tavsiyasi",
+  "reviewTitle": "Suhbat tahlili",
+  "reviewHint": "Har mijoz e'tirozi turi bo'yicha belgilangan",
+  "objType": {
+    "narx": "Narx",
+    "ishonch": "Ishonch",
+    "vaqt": "Vaqt",
+    "ehtiyoj": "Ehtiyoj",
+    "qaror": "Qaror",
+    "raqobat": "Raqobat"
+  },
   "interestTitle": "Qiziqish dinamikasi",
   "interestStart": "Boshlanish",
   "interestEnd": "Yakun"
