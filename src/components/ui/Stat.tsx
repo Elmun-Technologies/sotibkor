@@ -8,14 +8,12 @@ export interface StatProps {
 
 export function Stat({ label, value, hint }: StatProps) {
   return (
-    <div className="surface rounded-xl p-4">
-      <div className="font-mono text-xs uppercase tracking-widest text-muted">
-        {label}
-      </div>
-      <div className="mt-1 font-mono text-2xl font-semibold tabular-nums text-foreground">
+    <div className="inset p-5">
+      <div className="eyebrow">{label}</div>
+      <div className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-foreground">
         {value}
       </div>
-      {hint != null && <div className="mt-0.5 text-xs text-muted">{hint}</div>}
+      {hint != null && <div className="mt-1 text-sm text-muted">{hint}</div>}
     </div>
   );
 }

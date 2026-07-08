@@ -1,4 +1,4 @@
-/** UI primitivlar barrel — feature agentlar shu yerdan import qiladi. */
+/** UI primitivlar barrel. */
 export { Button } from "./Button";
 export type { ButtonProps } from "./Button";
 export { Card } from "./Card";
@@ -15,3 +15,9 @@ export { PageShell } from "./PageShell";
 export type { PageShellProps } from "./PageShell";
 export { Nav } from "./Nav";
 export { ThemeToggle } from "./ThemeToggle";
+export { Eyebrow } from "./Eyebrow";
+export type { EyebrowProps } from "./Eyebrow";
+export { Tag } from "./Tag";
+export type { TagProps } from "./Tag";
+export { Art } from "./Art";
+export type { ArtProps, ArtVariant } from "./Art";

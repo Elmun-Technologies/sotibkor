@@ -43,23 +43,20 @@ export function AchievementCard({
   return (
     <motion.div
       initial={reduce ? false : { opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
+      animate={{ opacity: 1, y: 0 }}
       transition={
         reduce
           ? { duration: 0 }
           : { duration: 0.4, delay: Math.min(index * 0.05, 0.4) }
       }
-      className={`surface rounded-2xl p-4 ${
-        earned ? "" : "opacity-60"
-      } ${earned ? "border-[color:var(--neon)]/30" : ""} ${className}`}
+      className={`card p-5 ${earned ? "" : "opacity-55"} ${className}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div
-          className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border text-xl ${
+          className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border text-xl ${
             earned
-              ? "neon-glow border-[color:var(--neon)]/40 bg-[color:var(--neon)]/10"
-              : "border-border bg-[color:var(--fg)]/5 grayscale"
+              ? "border-transparent bg-[color:var(--accent)]/15"
+              : "inset border-transparent grayscale"
           }`}
           aria-hidden
         >

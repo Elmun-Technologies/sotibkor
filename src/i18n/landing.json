@@ -38,7 +38,10 @@
     "bank": "Omonat, kredit karta, cashback.",
     "telekom": "Mobil tarif, internet paket.",
     "talim": "Onlayn IT kurs, ish kafolati.",
-    "mebel": "Divan, texnika, kafolat va yetkazib berish."
+    "mebel": "Divan, texnika, kafolat va yetkazib berish.",
+    "kochmas": "Kvartira, bo'lib to'lash, hujjatlar.",
+    "bozor": "Marketpleys sotuvchilariga xizmat.",
+    "fmcg": "Do'konlarga distribyutsiya, ulgurji."
   },
   "personalarTitle": "Kim bilan mashq qilasan?",
   "personalarLead": "Beshta jaydari mijoz — har biri boshqacha otkaz beradi.",
@@ -50,5 +53,43 @@
     "yumshoq-lekin-olmaydi": "\"Zo'r ekan...\" — maqtaydi-yu, olmaydi."
   },
   "ctaBottomTitle": "Birinchi suhbatni hoziroq boshla",
-  "ctaBottomDesc": "Kalit shart emas — demo rejimda ham to'liq ishlaydi."
+  "ctaBottomDesc": "Kalit shart emas — demo rejimda ham to'liq ishlaydi.",
+  "eyebrowSohalar": "Sohalar",
+  "eyebrowPersonalar": "Mijozlar",
+  "eyebrowHow": "Jarayon",
+  "capabilitiesTitle": "Nimani mashq qilasan",
+  "capabilitiesLead": "Har suhbatda real sotuv ko'nikmalari sinovdan o'tadi.",
+  "tags": [
+    "Narx e'tirozi",
+    "Ehtiyoj aniqlash",
+    "Closing",
+    "Ishonch qurish",
+    "Vaqt e'tirozi",
+    "Qiymat framing",
+    "Ohang va ishonch",
+    "Manipulyatsiyaga javob",
+    "Yashirin e'tiroz"
+  ],
+  "stats": [
+    { "value": "5", "label": "jaydari mijoz turi" },
+    { "value": "7", "label": "sotuv sohasi" },
+    { "value": "<2s", "label": "ovoz aylanasi" },
+    { "value": "100", "label": "ballik rubrika" }
+  ],
+  "moatTitle": "Nega aynan biz",
+  "moatLead": "Bozorda faqat rus tilidagi trenajorlar bor. Biz O'zbekiston uchun qurildik.",
+  "moat": [
+    "Jaydari o'zbek + rus + aralash til (\"aka, davay dogovorimsya\") — real suhbatdek",
+    "Sovuq qo'ng'iroq va yuzma-yuz savdolashuv — ikkalasi ham",
+    "Jonli qiziqish o'lchagichi va voronka-bosqich baholash",
+    "Zaif e'tirozga qarab takror mashq (spaced repetition)"
+  ],
+  "notDoTitle": "Biz nima qilmaymiz",
+  "notDo": [
+    "Sehrli \"bir kunda sotuvchi\" va'da bermaymiz — bu mashq, sabr kerak.",
+    "Real mijozlaringizga qo'ng'iroq qilmaymiz — bu trenajor, CRM emas.",
+    "Ma'lumotingizni sotmaymiz.",
+    "Kitobiy, sun'iy AI ohangida gapirmaymiz."
+  ],
+  "trialLine": "5 ta bepul suhbat — kartasiz."
 }

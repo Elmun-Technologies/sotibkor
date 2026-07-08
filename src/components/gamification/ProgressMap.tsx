@@ -32,9 +32,9 @@ export function ProgressMap({ xp, className = "" }: ProgressMapProps) {
 
           const dotClass =
             state === "passed"
-              ? "border-neon bg-[color:var(--neon)]/25 text-foreground"
+              ? "border-transparent bg-ink text-onink"
               : state === "current"
-                ? "neon-glow border-neon bg-[color:var(--neon)]/20 text-foreground"
+                ? "border-[color:var(--accent)] bg-[color:var(--accent)]/15 text-foreground shadow-soft"
                 : "border-border bg-surface text-muted";
 
           // Chiziq (bu tugundan keyingisiga): o'tilgan bo'lsa 100%, joriy bo'lsa progress.
@@ -64,7 +64,7 @@ export function ProgressMap({ xp, className = "" }: ProgressMapProps) {
                   {i < segments && (
                     <div className="h-1 overflow-hidden rounded-full bg-[color:var(--fg)]/10">
                       <motion.div
-                        className="h-full rounded-full bg-[color:var(--neon)]"
+                        className="h-full rounded-full bg-[color:var(--accent)]"
                         initial={reduce ? false : { width: 0 }}
                         animate={{ width: `${fill * 100}%` }}
                         transition={

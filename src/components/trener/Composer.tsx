@@ -10,6 +10,7 @@ export interface ComposerProps {
   onChange: (v: string) => void;
   onSend: () => void;
   onMic: () => void;
+  onType?: () => void;
   recording: boolean;
   busy: boolean;
 }
@@ -20,14 +21,18 @@ export function Composer({
   onChange,
   onSend,
   onMic,
+  onType,
   recording,
   busy,
 }: ComposerProps) {
   return (
-    <div className="flex items-end gap-2 border-t border-border pt-3">
+    <div className="card flex items-end gap-2 p-2.5">
       <textarea
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onType?.();
+          onChange(e.target.value);
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
@@ -36,16 +41,16 @@ export function Composer({
         }}
         rows={2}
         placeholder={t.trener.placeholder}
-        className="min-w-0 flex-1 resize-none rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-[color:var(--neon)]/50"
+        className="min-w-0 flex-1 resize-none rounded-lg2 bg-transparent px-3 py-2 text-[15px] text-foreground outline-none transition placeholder:text-muted"
       />
       <button
         type="button"
         onClick={onMic}
         aria-pressed={recording}
         title={recording ? t.trener.micRecording : t.trener.mic}
-        className={`relative shrink-0 rounded-xl border px-3.5 py-2.5 text-sm transition ${
+        className={`relative shrink-0 rounded-full border px-4 py-3 text-sm transition ${
           recording
-            ? "border-red-500/60 bg-red-500/15 text-red-400"
+            ? "border-red-500/60 bg-red-500/15 text-red-500"
             : "border-border text-foreground/80 hover:bg-foreground/5"
         }`}
       >

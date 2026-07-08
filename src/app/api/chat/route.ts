@@ -8,7 +8,12 @@
  */
 
 import { NextRequest } from "next/server";
-import { streamPersona, mockStreamPersona, loadPrompt, type ChatTurn } from "@/lib/llm";
+import {
+  streamPersona,
+  mockStreamPersona,
+  loadPrompt,
+  type ChatTurn,
+} from "@/lib/llm";
 import { hasAnthropic } from "@/lib/config";
 import { PERSONALAR, SOHALAR, isPersonaKey, isSohaKey } from "@/lib/content";
 
@@ -18,8 +23,14 @@ interface ChatBody {
   soha: string;
   persona: string;
   level: number;
+  rejim?: string;
   history: ChatTurn[];
 }
+
+const REJIM_MATN: Record<string, string> = {
+  qongiroq: "sovuq telefon qo'ng'irog'i (sotuvchi qo'ng'iroq qildi)",
+  yuzma_yuz: "yuzma-yuz uchrashuv / do'kon-bozorda savdolashuv",
+};
 
 export async function POST(req: NextRequest) {
   let body: ChatBody;
@@ -30,19 +41,27 @@ export async function POST(req: NextRequest) {
   }
 
   if (!isSohaKey(body.soha) || !isPersonaKey(body.persona)) {
-    return Response.json({ error: "Noma'lum soha yoki persona." }, { status: 400 });
+    return Response.json(
+      { error: "Noma'lum soha yoki persona." },
+      { status: 400 },
+    );
   }
-  const level = Number.isFinite(body.level) ? Math.max(1, Math.floor(body.level)) : 1;
+  const level = Number.isFinite(body.level)
+    ? Math.max(1, Math.floor(body.level))
+    : 1;
   const history = Array.isArray(body.history) ? body.history : [];
 
   const encoder = new TextEncoder();
 
   let source: AsyncGenerator<string, void, unknown>;
   if (hasAnthropic()) {
+    const rejim =
+      body.rejim && REJIM_MATN[body.rejim] ? body.rejim : "qongiroq";
     const systemPrompt = await loadPrompt(PERSONALAR[body.persona].promptFile, {
       soha: body.soha,
       mahsulot: SOHALAR[body.soha].mahsulot,
       level,
+      rejim: REJIM_MATN[rejim],
     });
     source = streamPersona({ systemPrompt, history });
   } else {

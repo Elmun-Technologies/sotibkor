@@ -5,10 +5,9 @@ import type { ButtonHTMLAttributes } from "react";
 type Variant = "primary" | "ghost" | "danger";
 
 const VARIANTS: Record<Variant, string> = {
-  primary:
-    "neon-glow border border-[color:var(--neon)]/40 bg-[color:var(--neon)]/10 text-foreground hover:bg-[color:var(--neon)]/20",
-  ghost: "border border-border text-foreground/80 hover:bg-foreground/5",
-  danger: "border border-red-500/40 text-red-400 hover:bg-red-500/10",
+  primary: "bg-ink text-onink hover:opacity-90 border border-transparent",
+  ghost: "border border-border text-foreground hover:bg-foreground/[.04]",
+  danger: "border border-red-400/50 text-red-500 hover:bg-red-500/[.08]",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -24,7 +23,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition disabled:pointer-events-none disabled:opacity-40 ${VARIANTS[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-[15px] font-medium transition disabled:pointer-events-none disabled:opacity-40 ${VARIANTS[variant]} ${className}`}
       {...props}
     />
   );

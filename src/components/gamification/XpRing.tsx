@@ -50,8 +50,8 @@ export function XpRing({
       >
         <defs>
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="var(--neon)" />
-            <stop offset="100%" stopColor="var(--neon-2)" />
+            <stop offset="0%" stopColor="var(--accent)" />
+            <stop offset="100%" stopColor="var(--fg)" />
           </linearGradient>
         </defs>
         <circle

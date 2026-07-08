@@ -11,3 +11,5 @@ export { AchievementCard } from "./AchievementCard";
 export type { AchievementCardProps } from "./AchievementCard";
 export { LeaderboardRow } from "./LeaderboardRow";
 export type { LeaderboardRowProps } from "./LeaderboardRow";
+export { TrendChart } from "./TrendChart";
+export type { TrendChartProps } from "./TrendChart";

@@ -2,8 +2,9 @@
 
 import { useCallback, useRef, useState } from "react";
 import { getMessages } from "@/i18n";
-import { type PersonaKey, type SohaKey } from "@/lib/content";
+import { type PersonaKey, type SohaKey, type RejimKey } from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
+import { interestScore, interestSeries } from "@/lib/coach";
 import type { ScoreResult } from "@/lib/scoring";
 import { PageShell, Badge, Button } from "@/components/ui";
 import {
@@ -12,6 +13,7 @@ import {
   LatencyBadge,
   ResultView,
   SetupPanel,
+  InterestMeter,
 } from "@/components/trener";
 
 const t = getMessages();
@@ -29,11 +31,15 @@ export default function TrenerPage() {
   const [soha, setSoha] = useState<SohaKey>("mebel");
   const [persona, setPersona] = useState<PersonaKey>("qimmatchi");
   const [level, setLevel] = useState(2);
+  const [rejim, setRejim] = useState<RejimKey>("qongiroq");
 
   const [turns, setTurns] = useState<Turn[]>([]);
   const [streaming, setStreaming] = useState("");
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [interest, setInterest] = useState<number | null>(null);
+  const [series, setSeries] = useState<number[]>([]);
   const [metrics, setMetrics] = useState<Metrics>({
     llmFirst: null,
     ttsFirst: null,
@@ -47,9 +53,29 @@ export default function TrenerPage() {
   const ttsModeRef = useRef<"probe" | "aisha" | "web">("probe");
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const cancelRef = useRef(false); // barge-in: joriy nutqni bekor qilish
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  /** Barge-in: mijoz gapirayotganda uni darrov to'xtatadi (realizm). */
+  const stopSpeaking = useCallback(() => {
+    cancelRef.current = true;
+    try {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    } catch {
+      /* e'tiborsiz */
+    }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setSpeaking(false);
+  }, []);
 
   const playSentence = useCallback(
     async (text: string, onStart: () => void): Promise<void> => {
+      if (cancelRef.current) return;
       if (ttsModeRef.current !== "web") {
         try {
           const res = await fetch("/api/tts", {
@@ -59,8 +85,10 @@ export default function TrenerPage() {
           });
           if (res.ok) {
             ttsModeRef.current = "aisha";
+            if (cancelRef.current) return;
             const buf = await res.arrayBuffer();
             const audio = new Audio(URL.createObjectURL(new Blob([buf])));
+            audioRef.current = audio;
             return await new Promise<void>((resolve) => {
               audio.onplay = onStart;
               audio.onended = () => resolve();
@@ -73,7 +101,11 @@ export default function TrenerPage() {
           ttsModeRef.current = "web";
         }
       }
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      if (
+        !cancelRef.current &&
+        typeof window !== "undefined" &&
+        "speechSynthesis" in window
+      ) {
         return await new Promise<void>((resolve) => {
           const u = new SpeechSynthesisUtterance(text);
           u.lang = "uz-UZ";
@@ -93,11 +125,17 @@ export default function TrenerPage() {
     async (text: string) => {
       const clean = text.trim();
       if (!clean || busy) return;
+      stopSpeaking();
+      cancelRef.current = false;
+
       const history: Turn[] = [...turns, { role: "user", content: clean }];
       setTurns(history);
       setInput("");
       setBusy(true);
       setStreaming("");
+      // Qiziqishni sotuvchi replikasidan darrov yangilaymiz
+      setInterest(interestScore(history));
+      setSeries(interestSeries(history));
 
       const sendStart = performance.now();
       let firstToken: number | null = null;
@@ -109,7 +147,8 @@ export default function TrenerPage() {
       const drain = async () => {
         if (draining) return;
         draining = true;
-        while (queue.length) {
+        setSpeaking(true);
+        while (queue.length && !cancelRef.current) {
           const s = queue.shift()!;
           await playSentence(s, () => {
             if (firstAudio == null) {
@@ -129,6 +168,7 @@ export default function TrenerPage() {
           });
         }
         draining = false;
+        setSpeaking(false);
       };
 
       let acc = "";
@@ -136,7 +176,7 @@ export default function TrenerPage() {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ soha, persona, level, history }),
+          body: JSON.stringify({ soha, persona, level, rejim, history }),
         });
         const reader = res.body?.getReader();
         const dec = new TextDecoder();
@@ -164,15 +204,16 @@ export default function TrenerPage() {
           void drain();
         }
       } finally {
-        setTurns([
+        const full: Turn[] = [
           ...history,
           { role: "assistant", content: acc.trim() || "..." },
-        ]);
+        ];
+        setTurns(full);
         setStreaming("");
         setBusy(false);
       }
     },
-    [busy, turns, soha, persona, level, playSentence],
+    [busy, turns, soha, persona, level, rejim, playSentence, stopSpeaking],
   );
 
   const toggleMic = useCallback(async () => {
@@ -180,6 +221,7 @@ export default function TrenerPage() {
       recorderRef.current?.stop();
       return;
     }
+    stopSpeaking();
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -213,16 +255,23 @@ export default function TrenerPage() {
     } catch {
       setSttHint(t.trener.sttUnavailable);
     }
-  }, [recording, sendSeller]);
+  }, [recording, sendSeller, stopSpeaking]);
 
   const finish = useCallback(async () => {
     if (turns.length === 0) return;
+    stopSpeaking();
     setScoring(true);
     try {
       const res = await fetch("/api/score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ soha, persona, level, transcript: turns }),
+        body: JSON.stringify({
+          soha,
+          persona,
+          level,
+          rejim,
+          transcript: turns,
+        }),
       });
       const data = (await res.json()) as ScoreResult;
       setScore(data);
@@ -230,13 +279,16 @@ export default function TrenerPage() {
     } finally {
       setScoring(false);
     }
-  }, [turns, soha, persona, level]);
+  }, [turns, soha, persona, level, rejim, stopSpeaking]);
 
   const reset = () => {
+    stopSpeaking();
     setStage("setup");
     setTurns([]);
     setStreaming("");
     setScore(null);
+    setInterest(null);
+    setSeries([]);
     setMetrics({ llmFirst: null, ttsFirst: null, total: null });
     ttsModeRef.current = "probe";
   };
@@ -249,9 +301,11 @@ export default function TrenerPage() {
           soha={soha}
           persona={persona}
           level={level}
+          rejim={rejim}
           onSoha={setSoha}
           onPersona={setPersona}
           onLevel={setLevel}
+          onRejim={setRejim}
           onStart={() => setStage("chat")}
         />
       </PageShell>
@@ -261,28 +315,41 @@ export default function TrenerPage() {
   if (stage === "chat") {
     return (
       <PageShell>
-        <div className="flex min-h-[calc(100vh-8rem)] flex-col gap-3">
-          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+        <div className="flex min-h-[calc(100vh-9rem)] flex-col gap-3">
+          <header className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="neon">{t.sohalar[soha]}</Badge>
               <Badge tone="muted">{t.personalar[persona]}</Badge>
               <Badge tone="muted">L{level}</Badge>
+              <Badge tone="muted">
+                {rejim === "qongiroq"
+                  ? t.trener.rejimQongiroq
+                  : t.trener.rejimYuzmaYuz}
+              </Badge>
             </div>
-            <Button
-              variant="ghost"
-              onClick={finish}
-              disabled={turns.length === 0 || scoring}
-            >
-              {scoring ? t.natija.evaluating : t.trener.finish}
-            </Button>
+            <div className="flex items-center gap-2">
+              {speaking && (
+                <Button variant="ghost" onClick={stopSpeaking}>
+                  {t.trener.stopSpeaking}
+                </Button>
+              )}
+              <Button onClick={finish} disabled={turns.length === 0 || scoring}>
+                {scoring ? t.natija.evaluating : t.trener.finish}
+              </Button>
+            </div>
           </header>
 
-          <LatencyBadge metrics={metrics} />
+          <div className="grid gap-2 sm:grid-cols-2">
+            {interest != null && (
+              <InterestMeter value={interest} series={series} />
+            )}
+            <LatencyBadge metrics={metrics} />
+          </div>
 
           <div className="flex-1 space-y-3 overflow-y-auto py-2">
             {turns.length === 0 && !streaming && !busy && (
               <div className="flex h-full min-h-40 items-center justify-center px-6 text-center">
-                <p className="max-w-sm text-sm text-muted">{t.trener.empty}</p>
+                <p className="max-w-sm text-muted">{t.trener.empty}</p>
               </div>
             )}
             {turns.map((turn, i) => (
@@ -309,6 +376,9 @@ export default function TrenerPage() {
             onChange={setInput}
             onSend={() => void sendSeller(input)}
             onMic={() => void toggleMic()}
+            onType={() => {
+              if (speaking) stopSpeaking();
+            }}
             recording={recording}
             busy={busy}
           />
@@ -320,7 +390,7 @@ export default function TrenerPage() {
   // result
   return (
     <PageShell title={t.natija.title}>
-      {score && <ResultView score={score} onAgain={reset} />}
+      {score && <ResultView score={score} transcript={turns} onAgain={reset} />}
     </PageShell>
   );
 }

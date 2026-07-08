@@ -10,7 +10,15 @@ import {
   type SohaKey,
 } from "../content";
 
-const EXPECTED_SOHALAR: SohaKey[] = ["bank", "telekom", "talim", "mebel"];
+const EXPECTED_SOHALAR: SohaKey[] = [
+  "bank",
+  "telekom",
+  "talim",
+  "mebel",
+  "kochmas",
+  "bozor",
+  "fmcg",
+];
 const EXPECTED_PERSONALAR: PersonaKey[] = [
   "qimmatchi",
   "shubhali",

@@ -7,13 +7,17 @@
  * javoblar (real LLM prompti EMAS). Real persona prompti prompts/personas/ da.
  */
 
-export type SohaKey = "bank" | "telekom" | "talim" | "mebel";
+export type SohaKey =
+  "bank" | "telekom" | "talim" | "mebel" | "kochmas" | "bozor" | "fmcg";
 export type PersonaKey =
-  | "qimmatchi"
-  | "shubhali"
-  | "bandman"
-  | "bilagon"
-  | "yumshoq-lekin-olmaydi";
+  "qimmatchi" | "shubhali" | "bandman" | "bilagon" | "yumshoq-lekin-olmaydi";
+
+/** Suhbat rejimi — O'zbekiston bozori uchun cold-call'dan tashqari yuzma-yuz savdolashuv. */
+export type RejimKey = "qongiroq" | "yuzma_yuz";
+export const REJIM_KEYS: RejimKey[] = ["qongiroq", "yuzma_yuz"];
+export function isRejimKey(v: string): v is RejimKey {
+  return v === "qongiroq" || v === "yuzma_yuz";
+}
 
 export interface Soha {
   key: SohaKey;
@@ -49,6 +53,21 @@ export const SOHALAR: Record<SohaKey, Soha> = {
     key: "mebel",
     mahsulot:
       "burchak divan (5 900 000 so'm, 2 yil kafolat, bepul yetkazib berish va yig'ish)",
+  },
+  kochmas: {
+    key: "kochmas",
+    mahsulot:
+      "yangi binoda 2 xonali kvartira (yaxshi joylashuv, 12 oy bo'lib to'lash, hujjatlar tayyor)",
+  },
+  bozor: {
+    key: "bozor",
+    mahsulot:
+      "marketpleys sotuvchilariga (Uzum kabi) logistika va reklama xizmati (oyiga 300 000 so'm)",
+  },
+  fmcg: {
+    key: "fmcg",
+    mahsulot:
+      "do'konlar uchun ichimlik/oziq-ovqat distribyutsiyasi (ulgurji narx, haftalik yetkazib berish, konsignatsiya)",
   },
 };
 

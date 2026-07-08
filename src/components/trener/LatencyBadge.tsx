@@ -36,7 +36,7 @@ export function LatencyBadge({ metrics }: LatencyBadgeProps) {
   );
 
   return (
-    <div className="surface flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl px-3 py-2">
+    <div className="inset flex flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3">
       <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
         {t.trener.cycleLabel}
       </span>

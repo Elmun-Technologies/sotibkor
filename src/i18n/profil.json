@@ -19,6 +19,8 @@
   "achievementsTitle": "Yutuqlar",
   "achievementsProgress": "ochilgan",
   "progressTitle": "O'sish xaritasi",
+  "trendTitle": "Ball dinamikasi",
+  "trendHint": "Oxirgi suhbatlar bo'yicha o'sish",
   "levelUp": "Yangi daraja!",
   "statsTitle": "Ko'rsatkichlar",
   "daraja": {

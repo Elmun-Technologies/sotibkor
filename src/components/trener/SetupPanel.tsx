@@ -5,20 +5,29 @@ import { Card, Chip, Button, Badge } from "@/components/ui";
 import {
   PERSONA_KEYS,
   SOHA_KEYS,
+  REJIM_KEYS,
   type PersonaKey,
   type SohaKey,
+  type RejimKey,
 } from "@/lib/content";
 
 const t = getMessages();
 const LEVELS = [1, 2, 3, 4, 5, 6];
 
+const REJIM_LABEL: Record<RejimKey, string> = {
+  qongiroq: t.trener.rejimQongiroq,
+  yuzma_yuz: t.trener.rejimYuzmaYuz,
+};
+
 export interface SetupPanelProps {
   soha: SohaKey;
   persona: PersonaKey;
   level: number;
+  rejim: RejimKey;
   onSoha: (k: SohaKey) => void;
   onPersona: (k: PersonaKey) => void;
   onLevel: (l: number) => void;
+  onRejim: (r: RejimKey) => void;
   onStart: () => void;
 }
 
@@ -43,18 +52,18 @@ export function SetupPanel({
   soha,
   persona,
   level,
+  rejim,
   onSoha,
   onPersona,
   onLevel,
+  onRejim,
   onStart,
 }: SetupPanelProps) {
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold sm:text-4xl">
-          <span className="neon-text">{t.setup.title}</span>
-        </h1>
-        <p className="text-sm text-muted">{t.setup.mockNote}</p>
+      <div className="space-y-3">
+        <h1 className="display text-5xl sm:text-6xl">{t.setup.title}</h1>
+        <p className="max-w-xl text-base text-muted">{t.setup.mockNote}</p>
       </div>
 
       <Card className="space-y-6">
@@ -88,6 +97,16 @@ export function SetupPanel({
             <span className="ml-1">
               <Badge tone="neon">L{level}</Badge>
             </span>
+          </div>
+        </Field>
+
+        <Field label={t.trener.rejim}>
+          <div className="flex flex-wrap gap-2">
+            {REJIM_KEYS.map((r) => (
+              <Chip key={r} active={rejim === r} onClick={() => onRejim(r)}>
+                {REJIM_LABEL[r]}
+              </Chip>
+            ))}
           </div>
         </Field>
       </Card>

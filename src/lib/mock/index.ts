@@ -42,6 +42,11 @@ export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
   { rank: 10, name: "Otabek D.", xpWeek: 260 },
 ];
 
+/** Oxirgi suhbatlar ballari (progress trend grafigi uchun). */
+export const MOCK_SCORE_HISTORY: number[] = [
+  38, 45, 52, 49, 61, 58, 67, 72, 78,
+];
+
 export const MOCK_ACHIEVEMENTS: AchievementState[] = [
   { code: "birinchi_suhbat", earned: true, earnedAt: "2026-06-20" },
   { code: "ketma_ket_3", earned: true, earnedAt: "2026-06-24" },

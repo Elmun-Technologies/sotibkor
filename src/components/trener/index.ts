@@ -9,3 +9,7 @@ export { Composer } from "./Composer";
 export type { ComposerProps } from "./Composer";
 export { ResultView } from "./ResultView";
 export type { ResultViewProps } from "./ResultView";
+export { InterestMeter } from "./InterestMeter";
+export type { InterestMeterProps } from "./InterestMeter";
+export { TranscriptReview } from "./TranscriptReview";
+export type { TranscriptReviewProps } from "./TranscriptReview";
