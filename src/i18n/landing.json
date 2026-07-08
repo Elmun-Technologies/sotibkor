@@ -1,0 +1,54 @@
+{
+  "heroBadge": "Ovozli AI trenajor",
+  "heroTitle": "Sotuvni ovoz bilan mashq qil",
+  "heroSubtitle": "AI mijoz jaydari o'zbekchada otkaz beradi, manipulyatsiya qiladi. Sen javob berasan, suhbat oxirida aniq baho va feedback olasan.",
+  "ctaPrimary": "Trenajorni boshlash",
+  "ctaSecondary": "Reytingni ko'rish",
+  "heroReplayLabel": "Jonli suhbat namunasi",
+  "demo": {
+    "title": "Shundoq eshitiladi",
+    "c1": "Obbo, qimmat-ku bu. Boshqa joyda arzonroq beryapti.",
+    "s1": "Tushunaman. Lekin 2 yil kafolat va bepul yetkazish narxning ichida — hisoblab ko'ramizmi?",
+    "c2": "Hmm... mayli, bir o'ylab ko'ray-chi."
+  },
+  "featuresTitle": "Nega Sotuvchi Trainer?",
+  "features": {
+    "realVoice": {
+      "title": "Real ovozli suhbat",
+      "desc": "Mikrofonga gapir — AI mijoz o'zbekcha javob beradi, 2 soniyadan tez."
+    },
+    "honestFeedback": {
+      "title": "Halol feedback",
+      "desc": "Har suhbat rubrika bo'yicha baholanadi: xatolar, kuchli tomonlar, aniq maslahat."
+    },
+    "gamified": {
+      "title": "O'yin ko'rinishida",
+      "desc": "XP yig', daraja ko'tar, streak yurit va reytingda yuqoriga chiq."
+    }
+  },
+  "howTitle": "Qanday ishlaydi",
+  "how": {
+    "step1": "Soha va mijoz turini tanla",
+    "step2": "AI mijoz bilan ovozli suhbat qil",
+    "step3": "Baho, XP va feedback ol"
+  },
+  "sohalarTitle": "Sohani tanla",
+  "sohalarLead": "Har soha o'z mahsuloti va o'ziga xos otkazlari bilan keladi.",
+  "sohaHint": {
+    "bank": "Omonat, kredit karta, cashback.",
+    "telekom": "Mobil tarif, internet paket.",
+    "talim": "Onlayn IT kurs, ish kafolati.",
+    "mebel": "Divan, texnika, kafolat va yetkazib berish."
+  },
+  "personalarTitle": "Kim bilan mashq qilasan?",
+  "personalarLead": "Beshta jaydari mijoz — har biri boshqacha otkaz beradi.",
+  "personaHint": {
+    "qimmatchi": "\"Qimmat-ku!\" — narxdan boshqa gapi yo'q.",
+    "shubhali": "\"Original o'zimi?\" — hamma narsaga shubha.",
+    "bandman": "\"Vaqtim yo'q, tez!\" — shoshiltiradi.",
+    "bilagon": "\"Menga o'rgatmang\" — hammasini biladi.",
+    "yumshoq-lekin-olmaydi": "\"Zo'r ekan...\" — maqtaydi-yu, olmaydi."
+  },
+  "ctaBottomTitle": "Birinchi suhbatni hoziroq boshla",
+  "ctaBottomDesc": "Kalit shart emas — demo rejimda ham to'liq ishlaydi."
+}

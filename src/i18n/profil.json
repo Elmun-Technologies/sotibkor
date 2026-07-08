@@ -1,0 +1,31 @@
+{
+  "title": "Profil",
+  "subtitle": "O'sishingni kuzat",
+  "xp": "XP",
+  "xpTotal": "Jami XP",
+  "level": "Daraja",
+  "currentLevel": "Joriy daraja",
+  "nextLevel": "Keyingi daraja",
+  "toNext": "gacha",
+  "maxLevel": "Eng yuqori daraja",
+  "maxLevelReached": "Cho'qqidasan!",
+  "streak": "Ketma-ket kun",
+  "streakDays": "kun",
+  "streakZero": "Bugun boshla",
+  "sessions": "Suhbatlar",
+  "sessionsUnit": "ta",
+  "lastActive": "Oxirgi faollik",
+  "never": "Hali yo'q",
+  "achievementsTitle": "Yutuqlar",
+  "achievementsProgress": "ochilgan",
+  "progressTitle": "O'sish xaritasi",
+  "levelUp": "Yangi daraja!",
+  "statsTitle": "Ko'rsatkichlar",
+  "daraja": {
+    "stajyor": "Stajyor",
+    "sotuvchi": "Sotuvchi",
+    "katta_sotuvchi": "Katta sotuvchi",
+    "menejer": "Menejer",
+    "sales_master": "Sales Master"
+  }
+}
