@@ -5,8 +5,14 @@ import {
   StreakFlame,
   ProgressMap,
   AchievementCard,
+  TrendChart,
 } from "@/components/gamification";
-import { ACHIEVEMENTS, MOCK_USER, MOCK_ACHIEVEMENTS } from "@/lib/mock";
+import {
+  ACHIEVEMENTS,
+  MOCK_USER,
+  MOCK_ACHIEVEMENTS,
+  MOCK_SCORE_HISTORY,
+} from "@/lib/mock";
 
 const t = getMessages();
 
@@ -66,6 +72,17 @@ export default function ProfilPage() {
           {t.profil.progressTitle}
         </h2>
         <ProgressMap xp={MOCK_USER.xp} />
+      </Card>
+
+      {/* Ball dinamikasi (trend) */}
+      <Card className="mb-6">
+        <div className="mb-4 flex items-baseline justify-between">
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            {t.profil.trendTitle}
+          </h2>
+          <span className="text-sm text-muted">{t.profil.trendHint}</span>
+        </div>
+        <TrendChart data={MOCK_SCORE_HISTORY} />
       </Card>
 
       {/* Yutuqlar */}

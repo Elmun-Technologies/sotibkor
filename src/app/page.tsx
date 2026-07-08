@@ -20,6 +20,9 @@ const SOHA_ART: Record<SohaKey, ArtVariant> = {
   telekom: "mint",
   talim: "amber",
   mebel: "coral",
+  kochmas: "violet",
+  bozor: "azure",
+  fmcg: "amber",
 };
 
 const FEATURE_KEYS = ["realVoice", "honestFeedback", "gamified"] as const;
@@ -214,6 +217,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ---------- MOAT (nega biz) ---------- */}
+      <section className="mt-24">
+        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+          <div>
+            <Eyebrow>Moat</Eyebrow>
+            <h2 className="display mt-3 text-4xl sm:text-5xl">
+              {t.landing.moatTitle}
+            </h2>
+            <p className="mt-3 max-w-sm text-lg text-muted">
+              {t.landing.moatLead}
+            </p>
+          </div>
+          <div className="grid gap-3">
+            {t.landing.moat.map((m) => (
+              <Card key={m} className="flex items-start gap-3 py-5">
+                <span aria-hidden className="mt-0.5 text-[color:var(--good)]">
+                  ✓
+                </span>
+                <p className="text-[15px] leading-relaxed text-foreground">
+                  {m}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ---------- CAPABILITIES (tag cloud) ---------- */}
       <section className="mt-24">
         <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
@@ -254,6 +284,24 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ---------- BIZ NIMA QILMAYMIZ (halol pozitsiya) ---------- */}
+      <section className="mt-24">
+        <Eyebrow>Halollik</Eyebrow>
+        <h2 className="display mt-3 text-4xl sm:text-5xl">
+          {t.landing.notDoTitle}
+        </h2>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          {t.landing.notDo.map((n) => (
+            <Card key={n} className="flex items-start gap-3 py-5">
+              <span aria-hidden className="mt-0.5 text-muted">
+                ✕
+              </span>
+              <p className="text-[15px] leading-relaxed text-foreground">{n}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* ---------- BOTTOM CTA ---------- */}
       <section className="mt-24">
         <div className="ink flex flex-col items-center gap-6 px-6 py-16 text-center sm:py-20">
@@ -263,6 +311,9 @@ export default function Home() {
           <p className="max-w-md text-lg text-[color:var(--on-ink-muted)]">
             {t.landing.ctaBottomDesc}
           </p>
+          <span className="rounded-full border border-[color:var(--on-ink)]/25 px-4 py-1.5 text-sm text-[color:var(--on-ink)]">
+            {t.landing.trialLine}
+          </span>
           <Link
             href="/trener"
             className="inline-flex items-center justify-center rounded-full bg-[color:var(--on-ink)] px-7 py-3 text-[15px] font-medium text-[color:var(--ink)] transition hover:opacity-90"

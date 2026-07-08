@@ -17,5 +17,17 @@
   "strengths": "Kuchli tomonlar",
   "xp": "XP",
   "again": "Yana mashq qilish",
-  "evaluating": "Baholanyapti..."
+  "evaluating": "Baholanyapti...",
+  "funnelTitle": "Sotuv voronkasi",
+  "funnel": {
+    "kontakt": "Kontakt",
+    "ehtiyoj": "Ehtiyoj",
+    "prezentatsiya": "Prezentatsiya",
+    "etiroz": "E'tiroz",
+    "yopish": "Yopish"
+  },
+  "recTitle": "Keyingi mashq tavsiyasi",
+  "interestTitle": "Qiziqish dinamikasi",
+  "interestStart": "Boshlanish",
+  "interestEnd": "Yakun"
 }

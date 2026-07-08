@@ -19,5 +19,12 @@
   "llmFirst": "LLM 1-token",
   "ttsFirst": "TTS boshlanishi",
   "totalCycle": "To'liq aylana",
-  "ms": "ms"
+  "ms": "ms",
+  "interest": "Qiziqish",
+  "interestHint": "Mijoz qiziqishi real vaqtda",
+  "stopSpeaking": "Gapirishni bo'lish",
+  "rejim": "Rejim",
+  "rejimQongiroq": "Sovuq qo'ng'iroq",
+  "rejimYuzmaYuz": "Yuzma-yuz savdo",
+  "interrupted": "Siz mijozni bo'ldingiz"
 }
