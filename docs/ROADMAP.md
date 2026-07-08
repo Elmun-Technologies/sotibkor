@@ -2,6 +2,21 @@
 
 Sotuvchi Trainer 6 bosqichda quriladi. Har katta feature'dan keyin shu fayl yangilanadi (holat: ⬜ rejalashtirilgan / 🟡 jarayonda / ✅ tugadi).
 
+## Raqobat pozitsiyasi — closeme.ru'dan 10x
+
+closeme faqat **rus tili + Rossiya B2B** bilan cheklangan. Bizning moat — O'zbekiston:
+
+- ✅ **Jaydari o'zbek + aralash til (code-switching)** — persona promptlarida ("aka, davay dogovorimsya"). closeme buni qila olmaydi.
+- ✅ **Ikki rejim**: sovuq qo'ng'iroq **va** yuzma-yuz savdolashuv (O'zbekiston bozori reali).
+- ✅ **Jonli qiziqish o'lchagichi** (`src/lib/coach.ts` `interestScore`) — closeme "Интерес"idan kuchliroq (sparkline + dinamika).
+- ✅ **Voronka-bosqich baholash** + **spaced-repetition tavsiyasi** (zaif e'tirozga qarab keyingi mashq).
+- ✅ **E'tiroz kutubxonasi** (`src/lib/objections.ts`) — tur bo'yicha teglangan.
+- ✅ **Ball trendi** (profil) — bir martalik ball emas, vaqt bo'yicha o'sish.
+- ⬜ **To'liq barge-in** (persona pauza ushlaydi/gapni bo'ladi) — real full-dupleks audio + VAD kerak (issue).
+- ⬜ **B2B persona-yasash + dashboard**, **real interest signal LLM'dan** (issue).
+
+Yangi ustuvorlik (realizm-first): barge-in + real Aisha latency → e'tiroz/voronka baholash (✅ mock) → jonli qiziqish (✅) → persona katalogi + UZ sohalar (✅ qisman) → B2B + to'lov.
+
 ## 1. Ovoz aylanasi POC — 🟡 HOZIRGI BOSQICH (2–3 hafta)
 
 Maqsad: bitta sahifada to'liq ovoz aylanasi ishlashini isbotlash. Chiroyi muhim emas, **latency** muhim.
