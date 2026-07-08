@@ -1,0 +1,333 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { getMessages } from "@/i18n";
+import { Button } from "@/components/ui";
+
+const t = getMessages();
+
+type Turn = { role: "user" | "assistant"; content: string };
+
+export interface CallViewProps {
+  personaLabel: string;
+  sohaLabel: string;
+  rejimLabel: string;
+  level: number;
+  interest: number | null;
+  cycleMs?: number | null;
+  turns: Turn[];
+  streaming: string;
+  input: string;
+  busy: boolean;
+  recording: boolean;
+  speaking: boolean;
+  scoring: boolean;
+  onInput: (v: string) => void;
+  onSend: () => void;
+  onMic: () => void;
+  onType: () => void;
+  onFinish: () => void;
+}
+
+function toneVar(v: number | null): string {
+  if (v == null) return "var(--muted)";
+  if (v >= 66) return "var(--good)";
+  if (v >= 40) return "var(--warn)";
+  return "var(--bad)";
+}
+
+function fmt(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+/** Ekvalayzer — gapirish/tinglash paytida jonli to'lqin. */
+function Waveform({ active, color }: { active: boolean; color: string }) {
+  const reduce = useReducedMotion();
+  const bars = [0.4, 0.8, 1, 0.6, 0.9, 0.5, 0.75];
+  return (
+    <div className="flex h-6 items-center justify-center gap-1" aria-hidden>
+      {bars.map((h, i) => (
+        <motion.span
+          key={i}
+          className="w-[3px] rounded-full"
+          style={{ height: 24, background: color, transformOrigin: "center" }}
+          initial={{ scaleY: 0.28 }}
+          animate={
+            active && !reduce
+              ? { scaleY: [0.28, h, 0.35, h * 0.8, 0.28] }
+              : { scaleY: 0.22 }
+          }
+          transition={
+            active && !reduce
+              ? {
+                  duration: 0.9,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: i * 0.08,
+                }
+              : { duration: 0.2 }
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
+export function CallView(p: CallViewProps) {
+  const reduce = useReducedMotion();
+  const [sec, setSec] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const id = setInterval(() => setSec((s) => s + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [p.turns.length, p.streaming]);
+
+  const state = p.recording
+    ? "listening"
+    : p.speaking
+      ? "speaking"
+      : p.busy
+        ? "thinking"
+        : "ready";
+  const stateLabel =
+    state === "speaking"
+      ? t.trener.callSpeaking
+      : state === "listening"
+        ? t.trener.callListening
+        : state === "thinking"
+          ? t.trener.callThinking
+          : t.trener.callReady;
+
+  const tone = toneVar(p.interest);
+  const initial = p.personaLabel.trim().charAt(0).toUpperCase() || "M";
+  const auraActive = state === "speaking" || state === "listening";
+
+  return (
+    <div className="flex min-h-[calc(100vh-9rem)] flex-col gap-4">
+      {/* Yuqori: kontekst + timer + yakunlash */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-muted">
+          <span className="flex items-center gap-1.5 text-[color:var(--live)]">
+            <motion.span
+              className="h-2 w-2 rounded-full bg-[color:var(--live)]"
+              animate={reduce ? undefined : { opacity: [1, 0.3, 1] }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+            />
+            {t.trener.callLive}
+          </span>
+          <span className="tabular-nums text-foreground">{fmt(sec)}</span>
+          {p.cycleMs != null && (
+            <>
+              <span className="text-faint">·</span>
+              <span
+                className="tabular-nums"
+                style={{
+                  color: p.cycleMs > 2000 ? "var(--bad)" : "var(--good)",
+                }}
+              >
+                {(p.cycleMs / 1000).toFixed(1)}s
+              </span>
+            </>
+          )}
+          <span className="text-faint">·</span>
+          <span>{p.sohaLabel}</span>
+          <span className="text-faint">·</span>
+          <span>{p.personaLabel}</span>
+          <span className="text-faint">·</span>
+          <span>L{p.level}</span>
+          <span className="text-faint">·</span>
+          <span>{p.rejimLabel}</span>
+        </div>
+        <button
+          type="button"
+          onClick={p.onFinish}
+          disabled={p.turns.length === 0 || p.scoring}
+          className="rounded-full border border-[color:var(--bad)]/50 px-4 py-2 text-sm font-medium text-[color:var(--bad)] transition hover:bg-[color:var(--bad)]/10 disabled:opacity-40"
+        >
+          {p.scoring ? t.natija.evaluating : t.trener.finish}
+        </button>
+      </div>
+
+      {/* Avatar + holat */}
+      <div className="card flex flex-col items-center gap-4 py-8">
+        <div className="relative grid h-36 w-36 place-items-center">
+          {/* Aura halqalari */}
+          {auraActive &&
+            !reduce &&
+            [0, 0.6].map((d) => (
+              <motion.span
+                key={d}
+                className="absolute inset-0 rounded-full"
+                style={{ border: `2px solid ${tone}` }}
+                initial={{ scale: 1, opacity: 0.5 }}
+                animate={{ scale: 1.7, opacity: 0 }}
+                transition={{
+                  duration: 1.6,
+                  repeat: Infinity,
+                  ease: "easeOut",
+                  delay: d,
+                }}
+              />
+            ))}
+          <motion.div
+            className="absolute inset-2 rounded-full"
+            style={{
+              background: `color-mix(in srgb, ${tone} 14%, transparent)`,
+            }}
+            animate={
+              auraActive && !reduce ? { scale: [1, 1.06, 1] } : { scale: 1 }
+            }
+            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <div
+            className="relative grid h-24 w-24 place-items-center rounded-full text-3xl font-semibold"
+            style={{ background: "var(--ink)", color: "var(--on-ink)" }}
+          >
+            {initial}
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-2">
+          <div className="text-lg font-semibold tracking-tight">
+            {p.personaLabel}
+          </div>
+          <div
+            className="flex items-center gap-2 text-sm"
+            style={{ color: state === "ready" ? "var(--muted)" : tone }}
+          >
+            {(state === "speaking" || state === "listening") && (
+              <Waveform active color={tone} />
+            )}
+            <span>{stateLabel}</span>
+          </div>
+        </div>
+
+        {/* Qiziqish o'lchagichi — rang holatga bog'liq */}
+        {p.interest != null && (
+          <div className="mt-1 flex w-full max-w-xs items-center gap-3">
+            <span className="font-mono text-xs uppercase tracking-wider text-muted">
+              {t.trener.interest}
+            </span>
+            <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-foreground/[.08]">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ background: tone }}
+                animate={{ width: `${p.interest}%` }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              />
+            </div>
+            <span
+              className="font-mono text-sm font-semibold tabular-nums"
+              style={{ color: tone }}
+            >
+              {p.interest}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Jonli transkript (qo'ng'iroq yozib borilishi) */}
+      <div
+        ref={scrollRef}
+        className="inset flex-1 space-y-2 overflow-y-auto p-4"
+      >
+        {p.turns.length === 0 && !p.streaming && !p.busy && (
+          <p className="py-8 text-center text-sm text-muted">
+            {t.trener.callHint}
+          </p>
+        )}
+        {p.turns.map((turn, i) => {
+          const isSeller = turn.role === "user";
+          return (
+            <div key={i} className="flex gap-2 text-[15px] leading-relaxed">
+              <span
+                className={`shrink-0 font-mono text-[10px] uppercase tracking-wider ${
+                  isSeller ? "text-foreground/50" : "text-[color:var(--accent)]"
+                }`}
+                style={{ width: 56, paddingTop: 3 }}
+              >
+                {isSeller ? t.trener.you : t.trener.client}
+              </span>
+              <span
+                className={isSeller ? "text-foreground" : "text-foreground"}
+              >
+                {turn.content}
+              </span>
+            </div>
+          );
+        })}
+        {p.streaming && (
+          <div className="flex gap-2 text-[15px] leading-relaxed">
+            <span
+              className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-[color:var(--accent)]"
+              style={{ width: 56, paddingTop: 3 }}
+            >
+              {t.trener.client}
+            </span>
+            <span>
+              {p.streaming}
+              <span className="ml-0.5 inline-block h-3.5 w-[2px] translate-y-0.5 animate-pulse bg-[color:var(--accent)]" />
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Boshqaruv: katta mikrofon + ikkilamchi matn */}
+      <div className="flex flex-col items-center gap-3">
+        <button
+          type="button"
+          onClick={p.onMic}
+          aria-pressed={p.recording}
+          className="relative grid h-16 w-16 place-items-center rounded-full text-2xl transition"
+          style={{
+            background: p.recording ? "var(--bad)" : "var(--ink)",
+            color: p.recording ? "#fff" : "var(--on-ink)",
+          }}
+        >
+          {p.recording && !reduce && (
+            <motion.span
+              className="absolute inset-0 rounded-full"
+              style={{ border: "2px solid var(--bad)" }}
+              animate={{ scale: [1, 1.5], opacity: [0.6, 0] }}
+              transition={{ duration: 1.1, repeat: Infinity }}
+            />
+          )}
+          <span aria-hidden>{p.recording ? "■" : "🎙"}</span>
+        </button>
+        <span className="text-xs text-muted">
+          {p.recording ? t.trener.callStop : t.trener.callTalk}
+        </span>
+
+        <div className="mt-1 flex w-full items-center gap-2">
+          <input
+            value={p.input}
+            onChange={(e) => {
+              p.onType();
+              p.onInput(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                p.onSend();
+              }
+            }}
+            placeholder={`${t.trener.callOrType}...`}
+            className="min-w-0 flex-1 rounded-full border border-border bg-surface px-4 py-2.5 text-sm outline-none transition placeholder:text-faint focus:border-foreground/40"
+          />
+          <Button onClick={p.onSend} disabled={p.busy || !p.input.trim()}>
+            {t.trener.send}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

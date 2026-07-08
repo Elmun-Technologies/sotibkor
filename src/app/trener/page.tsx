@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getMessages } from "@/i18n";
+import { isRegistered } from "@/lib/auth";
 import {
   isPersonaKey,
   isRejimKey,
@@ -11,17 +13,10 @@ import {
   type RejimKey,
 } from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
-import { interestScore, interestSeries } from "@/lib/coach";
+import { interestScore } from "@/lib/coach";
 import type { ScoreResult } from "@/lib/scoring";
-import { PageShell, Badge, Button } from "@/components/ui";
-import {
-  ChatBubble,
-  Composer,
-  LatencyBadge,
-  ResultView,
-  SetupPanel,
-  InterestMeter,
-} from "@/components/trener";
+import { PageShell } from "@/components/ui";
+import { ResultView, SetupPanel, CallView } from "@/components/trener";
 
 const t = getMessages();
 
@@ -34,6 +29,7 @@ type Metrics = {
 };
 
 export default function TrenerPage() {
+  const router = useRouter();
   const [stage, setStage] = useState<Stage>("setup");
   const [soha, setSoha] = useState<SohaKey>("mebel");
   const [persona, setPersona] = useState<PersonaKey>("qimmatchi");
@@ -46,7 +42,6 @@ export default function TrenerPage() {
   const [busy, setBusy] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [interest, setInterest] = useState<number | null>(null);
-  const [series, setSeries] = useState<number[]>([]);
   const [metrics, setMetrics] = useState<Metrics>({
     llmFirst: null,
     ttsFirst: null,
@@ -66,6 +61,12 @@ export default function TrenerPage() {
   // Dars sahifasidan preset (/trener?soha=..&persona=..&level=..&rejim=..):
   // to'g'ri parametrlar bo'lsa sozlash tayyor va suhbat darrov boshlanadi.
   useEffect(() => {
+    // Trening boshlashdan oldin ro'yxatdan o'tish majburiy (Menejer/ROP).
+    if (!isRegistered()) {
+      const next = window.location.pathname + window.location.search;
+      router.replace(`/boshlash?next=${encodeURIComponent(next)}`);
+      return;
+    }
     const p = new URLSearchParams(window.location.search);
     const qs = p.get("soha");
     const qp = p.get("persona");
@@ -160,7 +161,6 @@ export default function TrenerPage() {
       setStreaming("");
       // Qiziqishni sotuvchi replikasidan darrov yangilaymiz
       setInterest(interestScore(history));
-      setSeries(interestSeries(history));
 
       const sendStart = performance.now();
       let firstToken: number | null = null;
@@ -313,7 +313,6 @@ export default function TrenerPage() {
     setStreaming("");
     setScore(null);
     setInterest(null);
-    setSeries([]);
     setMetrics({ llmFirst: null, ttsFirst: null, total: null });
     ttsModeRef.current = "probe";
   };
@@ -340,74 +339,37 @@ export default function TrenerPage() {
   if (stage === "chat") {
     return (
       <PageShell>
-        <div className="flex min-h-[calc(100vh-9rem)] flex-col gap-3">
-          <header className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge tone="neon">{t.sohalar[soha]}</Badge>
-              <Badge tone="muted">{t.personalar[persona]}</Badge>
-              <Badge tone="muted">L{level}</Badge>
-              <Badge tone="muted">
-                {rejim === "qongiroq"
-                  ? t.trener.rejimQongiroq
-                  : t.trener.rejimYuzmaYuz}
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              {speaking && (
-                <Button variant="ghost" onClick={stopSpeaking}>
-                  {t.trener.stopSpeaking}
-                </Button>
-              )}
-              <Button onClick={finish} disabled={turns.length === 0 || scoring}>
-                {scoring ? t.natija.evaluating : t.trener.finish}
-              </Button>
-            </div>
-          </header>
-
-          <div className="grid gap-2 sm:grid-cols-2">
-            {interest != null && (
-              <InterestMeter value={interest} series={series} />
-            )}
-            <LatencyBadge metrics={metrics} />
-          </div>
-
-          <div className="flex-1 space-y-3 overflow-y-auto py-2">
-            {turns.length === 0 && !streaming && !busy && (
-              <div className="flex h-full min-h-40 items-center justify-center px-6 text-center">
-                <p className="max-w-sm text-muted">{t.trener.empty}</p>
-              </div>
-            )}
-            {turns.map((turn, i) => (
-              <ChatBubble key={i} role={turn.role}>
-                {turn.content}
-              </ChatBubble>
-            ))}
-            {streaming && (
-              <ChatBubble role="assistant" live>
-                {streaming}
-              </ChatBubble>
-            )}
-            {busy && !streaming && (
-              <p className="px-1 text-sm text-muted">{t.trener.thinking}</p>
-            )}
-          </div>
-
-          {sttHint && (
-            <p className="text-xs text-[color:var(--warn)]">{sttHint}</p>
-          )}
-
-          <Composer
-            value={input}
-            onChange={setInput}
-            onSend={() => void sendSeller(input)}
-            onMic={() => void toggleMic()}
-            onType={() => {
-              if (speaking) stopSpeaking();
-            }}
-            recording={recording}
-            busy={busy}
-          />
-        </div>
+        <CallView
+          personaLabel={t.personalar[persona]}
+          sohaLabel={t.sohalar[soha]}
+          rejimLabel={
+            rejim === "qongiroq"
+              ? t.trener.rejimQongiroq
+              : t.trener.rejimYuzmaYuz
+          }
+          level={level}
+          interest={interest}
+          cycleMs={metrics.total}
+          turns={turns}
+          streaming={streaming}
+          input={input}
+          busy={busy}
+          recording={recording}
+          speaking={speaking}
+          scoring={scoring}
+          onInput={setInput}
+          onSend={() => void sendSeller(input)}
+          onMic={() => void toggleMic()}
+          onType={() => {
+            if (speaking) stopSpeaking();
+          }}
+          onFinish={finish}
+        />
+        {sttHint && (
+          <p className="mt-3 text-center text-xs text-[color:var(--warn)]">
+            {sttHint}
+          </p>
+        )}
       </PageShell>
     );
   }

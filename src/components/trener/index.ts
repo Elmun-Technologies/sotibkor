@@ -13,3 +13,5 @@ export { InterestMeter } from "./InterestMeter";
 export type { InterestMeterProps } from "./InterestMeter";
 export { TranscriptReview } from "./TranscriptReview";
 export type { TranscriptReviewProps } from "./TranscriptReview";
+export { CallView } from "./CallView";
+export type { CallViewProps } from "./CallView";
