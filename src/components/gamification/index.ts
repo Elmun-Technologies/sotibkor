@@ -13,3 +13,5 @@ export { LeaderboardRow } from "./LeaderboardRow";
 export type { LeaderboardRowProps } from "./LeaderboardRow";
 export { TrendChart } from "./TrendChart";
 export type { TrendChartProps } from "./TrendChart";
+export { ActivityCalendar } from "./ActivityCalendar";
+export type { ActivityCalendarProps } from "./ActivityCalendar";

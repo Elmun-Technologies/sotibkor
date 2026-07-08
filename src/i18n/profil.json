@@ -21,6 +21,12 @@
   "progressTitle": "O'sish xaritasi",
   "trendTitle": "Ball dinamikasi",
   "trendHint": "Oxirgi suhbatlar bo'yicha o'sish",
+  "activityTitle": "Faollik kalendari",
+  "dailyGoalTitle": "Kunlik maqsad",
+  "dailyGoalUnit": "daqiqa",
+  "longestStreak": "Eng uzun streak",
+  "streakWeeks": "hafta",
+  "weekdays": ["Yak", "Du", "Se", "Cho", "Pay", "Ju", "Sha"],
   "levelUp": "Yangi daraja!",
   "statsTitle": "Ko'rsatkichlar",
   "daraja": {
