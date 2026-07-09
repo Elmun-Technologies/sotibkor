@@ -1,6 +1,10 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Stat } from "@/components/ui";
+import { PageShell, Card, Stat, Chip, Button } from "@/components/ui";
 import {
   LevelBadge,
   StreakFlame,
@@ -18,6 +22,13 @@ import {
   MOCK_DAILY,
   MOCK_LONGEST,
 } from "@/lib/mock";
+import {
+  isRegistered,
+  isOnboarded,
+  getProfile,
+  saveProfile,
+  type Profile,
+} from "@/lib/auth";
 
 const t = getMessages();
 
@@ -30,12 +41,167 @@ function formatDate(iso: string | null): string {
   return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : iso;
 }
 
+function ProductSettingsCard() {
+  const [product, setProduct] = useState("");
+  const [usp, setUsp] = useState("");
+  const [audience, setAudience] = useState("");
+  const [spheres, setSpheres] = useState<string[]>([]);
+  const [custom, setCustom] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const p = getProfile();
+    if (p) {
+      setProduct(p.product ?? "");
+      setUsp(p.usp ?? "");
+      setAudience(p.audience ?? "");
+      setSpheres(p.spheres ?? []);
+    }
+  }, []);
+
+  const toggle = (s: string) =>
+    setSpheres((prev) =>
+      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s],
+    );
+
+  const addCustom = () => {
+    const c = custom.trim();
+    if (!c) return;
+    setSpheres((s) => [...s, c]);
+    setCustom("");
+  };
+
+  const save = () => {
+    const prev: Profile = getProfile() ?? { spheres: [], onboarded: true };
+    saveProfile({
+      ...prev,
+      product: product.trim() || undefined,
+      usp: usp.trim() || undefined,
+      audience: audience.trim() || undefined,
+      spheres,
+      onboarded: true,
+    });
+    setSaved(true);
+    window.setTimeout(() => setSaved(false), 1800);
+  };
+
+  return (
+    <Card className="mb-6 flex flex-col gap-5">
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">
+          {t.profil.productTitle}
+        </h2>
+        <p className="mt-1 text-sm text-muted">{t.profil.productLead}</p>
+      </div>
+
+      <label className="block">
+        <span className="mb-1.5 block text-sm text-foreground">
+          {t.onboarding.product}
+        </span>
+        <input
+          value={product}
+          onChange={(e) => setProduct(e.target.value)}
+          placeholder={t.onboarding.productPh}
+          className="w-full rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] outline-none transition placeholder:text-faint focus:border-foreground/40"
+        />
+      </label>
+
+      <label className="block">
+        <span className="mb-1.5 block text-sm text-foreground">
+          {t.onboarding.usp}
+        </span>
+        <textarea
+          value={usp}
+          onChange={(e) => setUsp(e.target.value)}
+          rows={2}
+          placeholder={t.onboarding.uspPh}
+          className="w-full resize-none rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] leading-relaxed outline-none transition placeholder:text-faint focus:border-foreground/40"
+        />
+      </label>
+
+      <label className="block">
+        <span className="mb-1.5 block text-sm text-foreground">
+          {t.onboarding.audience}
+        </span>
+        <input
+          value={audience}
+          onChange={(e) => setAudience(e.target.value)}
+          placeholder={t.onboarding.audiencePh}
+          className="w-full rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] outline-none transition placeholder:text-faint focus:border-foreground/40"
+        />
+      </label>
+
+      <div>
+        <span className="mb-2 block text-sm text-foreground">
+          {t.onboarding.step2Title}
+        </span>
+        <div className="flex flex-wrap gap-2">
+          {Array.from(new Set([...t.onboarding.spheres, ...spheres])).map(
+            (s) => (
+              <Chip
+                key={s}
+                active={spheres.includes(s)}
+                onClick={() => toggle(s)}
+              >
+                {s}
+              </Chip>
+            ),
+          )}
+        </div>
+        <div className="mt-3 flex gap-2">
+          <input
+            value={custom}
+            onChange={(e) => setCustom(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addCustom();
+              }
+            }}
+            placeholder={t.onboarding.customPh}
+            className="min-w-0 flex-1 rounded-full border border-border bg-surface2 px-4 py-2.5 text-sm outline-none transition placeholder:text-faint focus:border-foreground/40"
+          />
+          <Button variant="ghost" onClick={addCustom}>
+            {t.onboarding.addBtn}
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <Button onClick={save}>{t.profil.saveBtn}</Button>
+        {saved && (
+          <span className="text-sm text-[color:var(--good)]">
+            ✓ {t.profil.savedMsg}
+          </span>
+        )}
+      </div>
+    </Card>
+  );
+}
+
 export default function ProfilPage() {
+  const router = useRouter();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!isRegistered()) {
+      router.replace("/boshlash?next=/profil");
+      return;
+    }
+    if (!isOnboarded()) {
+      router.replace("/onboarding?next=/profil");
+      return;
+    }
+    setReady(true);
+  }, [router]);
+
   const earnedCount = MOCK_ACHIEVEMENTS.filter((a) => a.earned).length;
   const totalCount = MOCK_ACHIEVEMENTS.length;
   const preview = [...MOCK_ACHIEVEMENTS]
     .sort((a, b) => Number(b.earned) - Number(a.earned))
     .slice(0, 6);
+
+  if (!ready) return null;
 
   return (
     <PageShell title={t.profil.title} lead={t.profil.subtitle}>
@@ -73,6 +239,9 @@ export default function ProfilPage() {
           </div>
         </div>
       </Card>
+
+      {/* Mahsulot ma'lumotlari (tahrirlanadigan) */}
+      <ProductSettingsCard />
 
       {/* O'sish xaritasi */}
       <Card className="mb-6">

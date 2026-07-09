@@ -241,7 +241,7 @@ function SidebarInner({
         </div>
         <p className="mt-2 text-xs text-muted">{t.nav.freeCalls}</p>
         <Link
-          href="/reyting"
+          href="/tariflar"
           onClick={onNavigate}
           className="mt-3 flex w-full items-center justify-center rounded-full bg-ink px-4 py-2 text-xs font-medium text-onink transition hover:opacity-90"
         >

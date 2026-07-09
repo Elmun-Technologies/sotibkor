@@ -29,6 +29,10 @@
   "weekdays": ["Yak", "Du", "Se", "Cho", "Pay", "Ju", "Sha"],
   "levelUp": "Yangi daraja!",
   "statsTitle": "Ko'rsatkichlar",
+  "productTitle": "Mahsulot ma'lumotlari",
+  "productLead": "AI mijoz e'tirozlar generatsiyasida shu ma'lumotni ishlatadi — yangilab turing.",
+  "saveBtn": "Saqlash",
+  "savedMsg": "Saqlandi",
   "daraja": {
     "stajyor": "Stajyor",
     "sotuvchi": "Sotuvchi",
