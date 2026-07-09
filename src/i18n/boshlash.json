@@ -27,6 +27,7 @@
   "password": "Parol",
   "passwordHint": "kamida 8 belgi",
   "agree": "Ro'yxatdan o'tib, ma'lumotlarni qayta ishlashga rozilik bildirasiz.",
+  "registerError": "Ro'yxatdan o'tishda xato yuz berdi. Qaytadan urinib ko'ring.",
   "benefitsMenejer": [
     {
       "t": "Ovoz, matn emas",

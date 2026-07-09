@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { Card, Button } from "@/components/ui";
-import { getUser, register, isOnboarded, type Role } from "@/lib/auth";
+import { getUser, registerAccount, isOnboarded, type Role } from "@/lib/auth";
 
 const t = getMessages();
 
@@ -49,24 +49,37 @@ export default function BoshlashPage() {
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [team, setTeam] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
   // Allaqachon ro'yxatdan o'tган bo'lsa — o'tkazib yuboramiz
   useEffect(() => {
     if (getUser()) router.replace(afterAuthDest());
   }, [router]);
 
-  const submit = () => {
+  const submit = async () => {
     const nm =
       name.trim() ||
       (role === "rop"
         ? t.boshlash.defaultNameRop
         : t.boshlash.defaultNameMenejer);
-    register({
+    setBusy(true);
+    setError("");
+    const res = await registerAccount({
+      email: email.trim(),
+      password,
       role,
       name: nm,
       company: company.trim() || undefined,
       team: role === "rop" ? team.trim() || undefined : undefined,
     });
+    if (!res.ok) {
+      setError(res.error ?? t.boshlash.registerError);
+      setBusy(false);
+      return;
+    }
     router.push(afterAuthDest());
   };
 
@@ -136,7 +149,7 @@ export default function BoshlashPage() {
           className="mt-6 space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
-            submit();
+            void submit();
           }}
         >
           {isRop && (
@@ -163,6 +176,9 @@ export default function BoshlashPage() {
             label={t.boshlash.email}
             placeholder={t.boshlash.emailPlaceholder}
             type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <Field
             label={t.boshlash.company}
@@ -175,9 +191,15 @@ export default function BoshlashPage() {
             hint={t.boshlash.passwordHint}
             type="password"
             placeholder="••••••••"
+            required
+            minLength={8}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
 
-          <Button type="submit" className="w-full">
+          {error && <p className="text-sm text-[color:var(--bad)]">{error}</p>}
+
+          <Button type="submit" className="w-full" disabled={busy}>
             {isRop ? t.boshlash.createRop : t.boshlash.createMenejer}
           </Button>
           <p className="text-center text-xs text-muted">{t.boshlash.agree}</p>
