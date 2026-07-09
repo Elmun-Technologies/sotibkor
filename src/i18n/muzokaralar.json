@@ -1,0 +1,20 @@
+{
+  "title": "Muzokaralar",
+  "subtitle": "Bitim yakuniy bosqichida qiyin talablarni muzokara qilishni mashq qil.",
+  "searchPlaceholder": "Ssenariy nomi, mijoz yoki teg bo'yicha qidirish...",
+  "tabAll": "Barcha ssenariylar",
+  "tabMine": "Mening ssenariylarim",
+  "createBtn": "O'z ssenariyingni yarat",
+  "createTitle": "O'z ssenariyingni yarat",
+  "createLead": "Muzokara vaziyatini tasvirlab ber — AI shunga mos dialog quradi.",
+  "createBtnCard": "Yaratish",
+  "badge": "Muzokara",
+  "details": "Batafsil",
+  "start": "Boshlash",
+  "objectiveLabel": "Maqsad",
+  "levelLabel": "Daraja",
+  "lockedLabel": "kerak",
+  "emptyMineTitle": "Hozircha ssenariy yo'q",
+  "emptyMineLead": "O'z muzokara vaziyatingizni yarating yoki tayyor ssenariylardan boshlang.",
+  "resultEmpty": "Qidiruvga mos ssenariy topilmadi."
+}

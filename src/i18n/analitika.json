@@ -1,0 +1,34 @@
+{
+  "title": "Analitika",
+  "subtitle": "O'sishingizni raqamda ko'ring — trend, voronka, e'tirozlar va xatolar.",
+  "period": "Oxirgi 30 kun",
+  "levelLabel": "Umumiy daraja",
+  "sessionsLabel": "Bu davrda trening",
+  "avgScoreLabel": "O'rtacha ball",
+  "trendTitle": "Ball trendi",
+  "funnelTitle": "Suhbat voronkasi",
+  "funnelStages": {
+    "kontakt": "Kontakt o'rnatildi",
+    "ehtiyoj": "Ehtiyoj aniqlandi",
+    "prezentatsiya": "Prezentatsiyaga yetdi",
+    "etiroz": "E'tirozga yetdi",
+    "yopish": "Keyingi qadam olindi"
+  },
+  "objTitle": "E'tirozlar bo'yicha statistika",
+  "objType": "Tur",
+  "objMet": "Uchragan",
+  "objResolved": "Muvaffaqiyatli yopilgan",
+  "errorsTitle": "Xulq-atvor xatolari",
+  "insightsTitle": "AI xulosalari",
+  "insightsCta": "Ko'nikmani oshirish",
+  "insights": [
+    "So'nggi suhbatlarda narx e'tirozida ko'pincha bahsga kirasiz — avval tan olib, keyin qayta ramkalang.",
+    "Ehtiyoj aniqlash bosqichida savollar soni kam — ochiq savollarni ko'proq ishlating.",
+    "Yopish bosqichigacha yetish darajangiz o'sib bormoqda — shu tezlikda davom eting."
+  ],
+  "errors": [
+    "Mijozni gapini bo'lib yubordingiz",
+    "Narxni juda erta aytib yubordingiz",
+    "Keyingi qadamni aniq belgilamadingiz"
+  ]
+}

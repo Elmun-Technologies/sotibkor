@@ -56,6 +56,31 @@ export const MOCK_DAILY = { doneMin: 8, goalMin: 15 };
 /** Eng uzun streak. */
 export const MOCK_LONGEST = { days: 6, weeks: 2 };
 
+/** Suhbat voronkasi — bosqichdan bosqichga o'tgan suhbatlar foizi (Analitika). */
+export const MOCK_FUNNEL: Record<
+  "kontakt" | "ehtiyoj" | "prezentatsiya" | "etiroz" | "yopish",
+  number
+> = {
+  kontakt: 100,
+  ehtiyoj: 86,
+  prezentatsiya: 71,
+  etiroz: 58,
+  yopish: 34,
+};
+
+/** E'tiroz turi bo'yicha: nechta suhbatda uchragan va nechtasi muvaffaqiyatli yopilgan. */
+export const MOCK_OBJECTION_STATS: Record<
+  "narx" | "ishonch" | "vaqt" | "ehtiyoj" | "qaror" | "raqobat",
+  { met: number; resolved: number }
+> = {
+  narx: { met: 14, resolved: 9 },
+  ishonch: { met: 8, resolved: 6 },
+  vaqt: { met: 11, resolved: 8 },
+  ehtiyoj: { met: 6, resolved: 3 },
+  qaror: { met: 9, resolved: 4 },
+  raqobat: { met: 5, resolved: 3 },
+};
+
 export const MOCK_ACHIEVEMENTS: AchievementState[] = [
   { code: "birinchi_suhbat", earned: true, earnedAt: "2026-06-20" },
   { code: "ketma_ket_3", earned: true, earnedAt: "2026-06-24" },

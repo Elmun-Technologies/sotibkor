@@ -13,8 +13,10 @@ type IconKey =
   | "home"
   | "vazifalar"
   | "qongiroq"
+  | "muzokaralar"
   | "etirozlar"
   | "dars"
+  | "analitika"
   | "reyting"
   | "profil";
 
@@ -53,6 +55,16 @@ function Icon({ name }: { name: IconKey }) {
           <path d="M4.5 5.5c0 8 6 14 14 14 .9 0 1.5-.7 1.5-1.5v-2.3c0-.7-.5-1.3-1.2-1.5l-2.6-.6c-.6-.1-1.2.1-1.5.6l-.6.9c-2-1-3.6-2.6-4.6-4.6l.9-.6c.5-.3.7-.9.6-1.5l-.6-2.6C10.1 5 9.5 4.5 8.8 4.5H6.5C5.7 4.5 5 5.1 5 6l-.5-.5Z" />
         </svg>
       );
+    case "muzokaralar":
+      return (
+        <svg {...common}>
+          <path d="M8 12h2l1.5-2 3 4L16 12h2" />
+          <path d="M4 12a8 8 0 0 1 14.8-4.2" />
+          <path d="M20 12a8 8 0 0 1-14.8 4.2" />
+          <path d="M17 5.5 18.8 7.8 16.5 8.5" />
+          <path d="M7 18.5 5.2 16.2 7.5 15.5" />
+        </svg>
+      );
     case "etirozlar":
       return (
         <svg {...common}>
@@ -64,6 +76,16 @@ function Icon({ name }: { name: IconKey }) {
         <svg {...common}>
           <path d="M12 4 3 8l9 4 9-4-9-4Z" />
           <path d="M7 10.5V15c0 1.1 2.2 2 5 2s5-.9 5-2v-4.5" />
+        </svg>
+      );
+    case "analitika":
+      return (
+        <svg {...common}>
+          <path d="M3 20h18" />
+          <path d="M4 16 9 10l3.5 3L20 6" />
+          <circle cx="9" cy="10" r="0.9" fill="currentColor" stroke="none" />
+          <circle cx="12.5" cy="13" r="0.9" fill="currentColor" stroke="none" />
+          <circle cx="20" cy="6" r="0.9" fill="currentColor" stroke="none" />
         </svg>
       );
     case "reyting":
@@ -94,8 +116,10 @@ const NAV: NavItem[] = [
   { href: "/home", label: t.nav.home, icon: "home" },
   { href: "/vazifalar", label: t.nav.vazifalar, icon: "vazifalar" },
   { href: "/qongiroq", label: t.nav.qongiroq, icon: "qongiroq" },
+  { href: "/muzokaralar", label: t.nav.muzokaralar, icon: "muzokaralar" },
   { href: "/etirozlar", label: t.nav.etirozlar, icon: "etirozlar" },
   { href: "/dars", label: t.nav.dars, icon: "dars" },
+  { href: "/analitika", label: t.nav.analitika, icon: "analitika" },
   { href: "/reyting", label: t.nav.reyting, icon: "reyting" },
   { href: "/profil", label: t.nav.profil, icon: "profil" },
 ];

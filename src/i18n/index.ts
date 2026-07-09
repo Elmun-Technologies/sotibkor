@@ -26,6 +26,8 @@ import home from "./home.json";
 import etirozlar from "./etirozlar.json";
 import qongiroq from "./qongiroq.json";
 import vazifalar from "./vazifalar.json";
+import muzokaralar from "./muzokaralar.json";
+import analitika from "./analitika.json";
 
 export type Locale = "uz" | "ru";
 export const DEFAULT_LOCALE: Locale = "uz";
@@ -50,6 +52,8 @@ const messages = {
   etirozlar,
   qongiroq,
   vazifalar,
+  muzokaralar,
+  analitika,
 } as const;
 
 export type Messages = typeof messages;

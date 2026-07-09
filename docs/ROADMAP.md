@@ -96,5 +96,7 @@ Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
 - ✅ **Tezkor mashq** (`/etirozlar` → drill) — closeme "Тренировка"ga o'xshash: e'tirozlarni checkbox + takror-hisoblagich bilan tanlash, qiyinlik darajasi, ketma-ket savol-javob (har javobga darhol mock AI ball+feedback), yakunda o'rtacha ball va eng kuchli/zaif tur.
 - ✅ **Qo'ng'iroq ssenariylari** (`/qongiroq`) — nomli mijoz katalogi (soha × persona × qiyinlik), filtrlar, "o'z mijozingni yarat".
 - ✅ **Vazifalar** (`/vazifalar`) — menejer topshiriqlari + ROP topshiriq biriktirish va jamoa holati (rol bo'yicha).
+- ✅ **Muzokaralar** (`/muzokaralar`) — closeme "Переговоры"ga o'xshash: bitim yakuniy bosqichi ssenariylari (chegirma/to'lov/yetkazish talablari), qidiruv, "Barcha/Mening ssenariylarim" tab, progressiv qulflangan ilg'or ssenariylar (daraja bo'yicha ochiladi), "o'z ssenariyingni yarat".
+- ✅ **Analitika** (`/analitika`) — closeme "Аналитика"ga o'xshash dashboard: daraja/trening/o'rtacha ball statistikasi, ball trendi, suhbat voronkasi (5 bosqich), e'tiroz turi bo'yicha muvaffaqiyat foizi, xulq-atvor xatolari, AI xulosalari + "ko'nikmani oshirish" CTA (mock ma'lumot bilan — closeme'ning o'zi ham demo hisobda bo'sh ko'rsatadi, bizniki mazmunli).
 
 Keyingi qadam — **1-bosqich, issue #1: real Aisha STT/TTS + Claude persona aylanasi** (kalitlar kerak), so'ng **Supabase** (real auth + ROP jamoa dashboard + to'lov, #8/#9).
