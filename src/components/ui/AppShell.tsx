@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { getMessages } from "@/i18n";
-import { getUser, logout, type AuthUser } from "@/lib/auth";
+import { getUser, logout, syncSession, type AuthUser } from "@/lib/auth";
 import { ThemeToggle } from "./ThemeToggle";
 import { SupportWidget } from "./SupportWidget";
 
@@ -303,7 +303,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    // Avval keshdan (tez), keyin serverdan (haqiqiy sessiya) hidratsiya.
     setUser(getUser());
+    void syncSession().then((u) => setUser(u));
   }, []);
 
   // Marshrut o'zgarsa drawer yopiladi
