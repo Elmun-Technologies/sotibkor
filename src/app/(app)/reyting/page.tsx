@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Chip } from "@/components/ui";
+import { PageShell, Card, Chip, Button } from "@/components/ui";
 import { LeaderboardRow, AchievementCard } from "@/components/gamification";
 import { ACHIEVEMENTS, MOCK_LEADERBOARD, MOCK_ACHIEVEMENTS } from "@/lib/mock";
 
@@ -15,6 +16,10 @@ type Tab = "leaderboard" | "achievements";
 export default function ReytingPage() {
   const [tab, setTab] = useState<Tab>("leaderboard");
   const me = MOCK_LEADERBOARD.find((e) => e.isMe);
+  const earnedCount = MOCK_ACHIEVEMENTS.filter((a) => a.earned).length;
+  const preview = [...MOCK_ACHIEVEMENTS]
+    .sort((a, b) => Number(b.earned) - Number(a.earned))
+    .slice(0, 3);
 
   return (
     <PageShell title={t.reyting.title} lead={t.reyting.subtitle}>
@@ -56,16 +61,21 @@ export default function ReytingPage() {
         </div>
       ) : (
         <div>
-          <div className="mb-4">
-            <h2 className="text-sm font-semibold text-foreground">
-              {t.reyting.achievementsTitle}
-            </h2>
-            <p className="mt-0.5 text-xs text-muted">
-              {t.reyting.achievementsSubtitle}
-            </p>
+          <div className="mb-4 flex items-baseline justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-foreground">
+                {t.reyting.achievementsTitle}
+              </h2>
+              <p className="mt-0.5 text-xs text-muted">
+                {t.reyting.achievementsSubtitle}
+              </p>
+            </div>
+            <span className="font-mono text-xs tabular-nums text-muted">
+              {earnedCount}/{MOCK_ACHIEVEMENTS.length}
+            </span>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {MOCK_ACHIEVEMENTS.map((a, i) => (
+            {preview.map((a, i) => (
               <AchievementCard
                 key={a.code}
                 code={a.code}
@@ -75,6 +85,11 @@ export default function ReytingPage() {
                 index={i}
               />
             ))}
+          </div>
+          <div className="mt-5">
+            <Link href="/yutuqlar">
+              <Button variant="ghost">{t.yutuqlar.seeAllFromReyting} →</Button>
+            </Link>
           </div>
         </div>
       )}

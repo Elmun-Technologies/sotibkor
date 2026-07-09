@@ -20,9 +20,18 @@ export interface UserStats {
   lastActive: string | null;
 }
 
+export type AchievementCategory =
+  | "sovuq_qongiroq"
+  | "sifat"
+  | "progress"
+  | "intizom"
+  | "muzokaralar"
+  | "afsonaviy";
+
 export interface AchievementDef {
   code: string;
   xp: number;
+  category: AchievementCategory;
 }
 
 export interface AchievementState {

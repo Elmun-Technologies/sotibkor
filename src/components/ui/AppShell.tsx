@@ -18,6 +18,7 @@ type IconKey =
   | "dars"
   | "analitika"
   | "reyting"
+  | "yutuqlar"
   | "profil";
 
 /** Yengil chiziqli ikonlar (editorial, neytral) — currentColor. */
@@ -96,6 +97,17 @@ function Icon({ name }: { name: IconKey }) {
           <path d="M17 21v-7" />
         </svg>
       );
+    case "yutuqlar":
+      return (
+        <svg {...common}>
+          <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" />
+          <path d="M7 5.5H4.5a1 1 0 0 0-1 1.3 4 4 0 0 0 3.5 2.7" />
+          <path d="M17 5.5h2.5a1 1 0 0 1 1 1.3 4 4 0 0 1-3.5 2.7" />
+          <path d="M12 14v3" />
+          <path d="M9 20.5h6" />
+          <path d="M10 17.5h4v3h-4z" />
+        </svg>
+      );
     case "profil":
       return (
         <svg {...common}>
@@ -121,6 +133,7 @@ const NAV: NavItem[] = [
   { href: "/dars", label: t.nav.dars, icon: "dars" },
   { href: "/analitika", label: t.nav.analitika, icon: "analitika" },
   { href: "/reyting", label: t.nav.reyting, icon: "reyting" },
+  { href: "/yutuqlar", label: t.nav.yutuqlar, icon: "yutuqlar" },
   { href: "/profil", label: t.nav.profil, icon: "profil" },
 ];
 
