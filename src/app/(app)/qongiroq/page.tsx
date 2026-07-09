@@ -12,7 +12,12 @@ import {
   scenarioHref,
   type Difficulty,
 } from "@/lib/scenarios";
-import { SOHA_KEYS, type SohaKey } from "@/lib/content";
+import {
+  SOHA_KEYS,
+  PERSONA_KEYS,
+  type SohaKey,
+  type PersonaKey,
+} from "@/lib/content";
 
 const t = getMessages();
 
@@ -46,14 +51,39 @@ function DiffBadge({ d }: { d: Difficulty }) {
   );
 }
 
+interface CustomClient {
+  id: string;
+  name: string;
+  company: string;
+  soha: SohaKey;
+  persona: PersonaKey;
+  desc: string;
+}
+
+function customHref(c: CustomClient): string {
+  const q = new URLSearchParams({
+    soha: c.soha,
+    persona: c.persona,
+    level: "3",
+    rejim: "qongiroq",
+  });
+  return `/trener?${q.toString()}`;
+}
+
 export default function QongiroqPage() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [soha, setSoha] = useState<SohaKey | "all">("all");
   const [diff, setDiff] = useState<Difficulty | "all">("all");
+
   const [name, setName] = useState("");
+  const [company, setCompany] = useState("");
+  const [customSoha, setCustomSoha] = useState<SohaKey>(SOHA_KEYS[0]);
+  const [customPersona, setCustomPersona] = useState<PersonaKey>(
+    PERSONA_KEYS[0],
+  );
   const [desc, setDesc] = useState("");
-  const [added, setAdded] = useState(false);
+  const [created, setCreated] = useState<CustomClient[]>([]);
 
   useEffect(() => {
     if (!isRegistered()) {
@@ -167,6 +197,43 @@ export default function QongiroqPage() {
         </div>
       )}
 
+      {/* Yaratilgan mijozlar */}
+      {created.length > 0 && (
+        <div className="mt-10">
+          <h2 className="mb-4 text-xl font-semibold tracking-tight">
+            {t.qongiroq.createdTitle}
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {created.map((c) => (
+              <Card key={c.id} className="flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-ink text-base font-semibold text-onink">
+                    {initials(c.name)}
+                  </span>
+                  <div>
+                    <h3 className="font-semibold tracking-tight text-foreground">
+                      {c.name}
+                    </h3>
+                    <p className="text-xs text-muted">
+                      {t.sohalar[c.soha]} · {t.personalar[c.persona]}
+                      {c.company ? ` · ${c.company}` : ""}
+                    </p>
+                  </div>
+                </div>
+                {c.desc && (
+                  <p className="text-sm leading-relaxed text-muted">{c.desc}</p>
+                )}
+                <div className="mt-auto flex items-center justify-end border-t border-hair pt-4">
+                  <Link href={customHref(c)}>
+                    <Button>▶ {t.qongiroq.call}</Button>
+                  </Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* O'z mijozingni yarat */}
       <div className="mt-10">
         <Card className="flex flex-col gap-4">
@@ -184,25 +251,62 @@ export default function QongiroqPage() {
               </span>
               <input
                 value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  setAdded(false);
-                }}
+                onChange={(e) => setName(e.target.value)}
                 placeholder={t.qongiroq.customNamePh}
                 className="w-full rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] outline-none transition placeholder:text-faint focus:border-foreground/40"
               />
             </label>
-            <label className="block sm:row-span-2">
+            <label className="block">
+              <span className="mb-1.5 block text-sm text-foreground">
+                {t.qongiroq.customCompany}
+              </span>
+              <input
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                placeholder={t.qongiroq.customCompanyPh}
+                className="w-full rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] outline-none transition placeholder:text-faint focus:border-foreground/40"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-sm text-foreground">
+                {t.qongiroq.customSoha}
+              </span>
+              <select
+                value={customSoha}
+                onChange={(e) => setCustomSoha(e.target.value as SohaKey)}
+                className="w-full rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] outline-none transition focus:border-foreground/40"
+              >
+                {SOHA_KEYS.map((k) => (
+                  <option key={k} value={k}>
+                    {t.sohalar[k]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-sm text-foreground">
+                {t.qongiroq.customXarakter}
+              </span>
+              <select
+                value={customPersona}
+                onChange={(e) => setCustomPersona(e.target.value as PersonaKey)}
+                className="w-full rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] outline-none transition focus:border-foreground/40"
+              >
+                {PERSONA_KEYS.map((k) => (
+                  <option key={k} value={k}>
+                    {t.personalar[k]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block sm:col-span-2">
               <span className="mb-1.5 block text-sm text-foreground">
                 {t.qongiroq.customDesc}
               </span>
               <textarea
                 value={desc}
-                onChange={(e) => {
-                  setDesc(e.target.value);
-                  setAdded(false);
-                }}
-                rows={4}
+                onChange={(e) => setDesc(e.target.value)}
+                rows={3}
                 placeholder={t.qongiroq.customDescPh}
                 className="w-full resize-none rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] leading-relaxed outline-none transition placeholder:text-faint focus:border-foreground/40"
               />
@@ -210,16 +314,27 @@ export default function QongiroqPage() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Button
-              onClick={() => setAdded(true)}
-              disabled={!name.trim() || !desc.trim()}
+              onClick={() => {
+                if (!name.trim()) return;
+                setCreated((list) => [
+                  ...list,
+                  {
+                    id: `${Date.now()}-${list.length}`,
+                    name: name.trim(),
+                    company: company.trim(),
+                    soha: customSoha,
+                    persona: customPersona,
+                    desc: desc.trim(),
+                  },
+                ]);
+                setName("");
+                setCompany("");
+                setDesc("");
+              }}
+              disabled={!name.trim()}
             >
               {t.qongiroq.customBtn}
             </Button>
-            {added && (
-              <span className="inline-flex items-center gap-1.5 text-sm text-[color:var(--good)]">
-                ✓ {name.trim()}
-              </span>
-            )}
             <span className="text-xs text-faint">{t.qongiroq.customHint}</span>
           </div>
         </Card>

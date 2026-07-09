@@ -6,6 +6,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { getMessages } from "@/i18n";
 import { getUser, logout, type AuthUser } from "@/lib/auth";
 import { ThemeToggle } from "./ThemeToggle";
+import { SupportWidget } from "./SupportWidget";
 
 const t = getMessages();
 
@@ -375,6 +376,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Kontent */}
       <div className="min-w-0 flex-1">{children}</div>
+
+      <SupportWidget />
     </div>
   );
 }
