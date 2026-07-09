@@ -124,3 +124,14 @@ Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugalla
 Bular sozlanganda: `voice-test` skili bilan latency o'lchanadi, keyin Supabase migratsiya + RLS, keyin to'lov ulanadi — kod tomoni (adapterlar, DB helper'lar, env o'qish) allaqachon tayyor turibdi.
 
 Keyingi qadam — **1-bosqich, issue #1: real Aisha STT/TTS + Claude persona aylanasi** (kalitlar kerak), so'ng **Supabase** (real auth + ROP jamoa dashboard + to'lov, #8/#9).
+
+## Autentifikatsiya (self-hosted) — ✅ tugadi
+
+Supabase Auth o'rniga o'z serverda (Contabo) autentifikatsiya:
+
+- ✅ **Ro'yxatdan o'tish / kirish** — email + parol. Parol `bcryptjs` bilan hash (ochiq parol saqlanmaydi).
+- ✅ **Sessiya** — JWT (`jose`, HS256), httpOnly + secure + sameSite cookie. `JWT_SECRET` .env dan.
+- ✅ **DB** — self-hosted Postgres (`pg`, `DATABASE_URL`). `users` jadvaliga `email` + `password_hash` (migratsiya `0002_auth.sql`).
+- ✅ **API** — `/api/auth/{register,login,logout,me}` (Next.js route handlers, server-only).
+- ✅ **Himoya** — `src/middleware.ts` (app) bo'limini JWT bilan qo'riqlaydi; sessiyasiz `/boshlash`ga yo'naltiradi.
+- ✅ **Frontend** — `/boshlash` (ro'yxatdan o'tish) + `/kirish` (sign-in) sahifalari; `src/lib/auth.ts` mock o'rniga real API.
