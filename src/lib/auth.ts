@@ -1,28 +1,26 @@
 /**
- * Autentifikatsiya (self-hosted) — frontend qatlami.
+ * Ro'yxatdan o'tish — localStorage keshi (sinxron o'qish uchun, UI gating)
+ * + ixtiyoriy real Supabase Auth (Google OAuth) qatlami.
  *
- * O'ZGARISH: avval bu localStorage MOCK edi. Endi haqiqiy auth server orqali:
- *   - Sessiya httpOnly cookie'da (JWT) — bu yerda ko'rinmaydi/o'qilmaydi.
- *   - /api/auth/{register,login,logout,me} route'lari bilan ishlaydi.
- *   - localStorage faqat NON-SENSITIVE keshdir (id, role, name) — tez UX uchun.
- *     Haqiqiy himoya cookie + middleware'da. localStorage'da parol YO'Q.
- *
- * getUser()/isRegistered()/isOnboarded() sinxron qoladi (mavjud sahifalar
- * shunday chaqiradi) — ular keshdan o'qiydi. syncSession() serverdan hidratsiya.
+ * Supabase sozlanmagan bo'lsa (`hasSupabaseAuth()` false) — hammasi avvalgidek
+ * sof localStorage mock. Sozlangan bo'lsa — Google orqali kirilgach, real
+ * `users` qatori localStorage keshiga ko'chiriladi (`syncFromSupabase`), shu
+ * tufayli qolgan barcha sahifalar (sinxron `getUser()`/`isOnboarded()` o'qish)
+ * o'zgarishsiz ishlayveradi. Manba haqiqati — Supabase; localStorage faqat kesh.
  */
+
+import { hasSupabaseAuth } from "./config";
 
 export type Role = "menejer" | "rop";
 
 export interface AuthUser {
-  id?: string;
   role: Role;
   name: string;
   company?: string;
-  team?: string;
+  team?: string; // ROP uchun jamoa nomi
 }
 
 const KEY = "sotibkor_user";
-const PROFILE_KEY = "sotibkor_profile";
 
 export function getUser(): AuthUser | null {
   if (typeof window === "undefined") return null;
@@ -37,122 +35,46 @@ export function getUser(): AuthUser | null {
   }
 }
 
-function setUserCache(u: AuthUser | null): void {
-  if (typeof window === "undefined") return;
-  try {
-    if (u) localStorage.setItem(KEY, JSON.stringify(u));
-    else localStorage.removeItem(KEY);
-  } catch {
-    /* e'tiborsiz */
-  }
-}
-
 export function isRegistered(): boolean {
   return getUser() !== null;
 }
 
-export interface Credentials {
-  email: string;
-  password: string;
-}
-
-export interface RegisterInput extends Credentials {
-  name: string;
-  role: Role;
-  company?: string;
-  team?: string;
-}
-
-interface ApiResult {
-  ok: boolean;
-  error?: string;
-}
-
-async function postJson(url: string, body: unknown): Promise<Response> {
-  return fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-}
-
-export async function registerAccount(input: RegisterInput): Promise<ApiResult> {
-  const res = await postJson("/api/auth/register", input);
-  const data = (await res.json().catch(() => ({}))) as {
-    user?: AuthUser;
-    error?: string;
-  };
-  if (!res.ok || !data.user) {
-    return { ok: false, error: data.error ?? "Ro'yxatdan o'tishda xato" };
-  }
-  setUserCache({
-    id: data.user.id,
-    role: data.user.role,
-    name: data.user.name,
-    company: input.company?.trim() || undefined,
-    team: input.role === "rop" ? input.team?.trim() || undefined : undefined,
-  });
-  return { ok: true };
-}
-
-export async function loginAccount(creds: Credentials): Promise<ApiResult> {
-  const res = await postJson("/api/auth/login", creds);
-  const data = (await res.json().catch(() => ({}))) as {
-    user?: AuthUser;
-    error?: string;
-  };
-  if (!res.ok || !data.user) {
-    return { ok: false, error: data.error ?? "Kirishda xato" };
-  }
-  setUserCache({
-    id: data.user.id,
-    role: data.user.role,
-    name: data.user.name,
-  });
-  return { ok: true };
-}
-
-export async function syncSession(): Promise<AuthUser | null> {
+export function register(user: AuthUser): void {
+  if (typeof window === "undefined") return;
   try {
-    const res = await fetch("/api/auth/me", { cache: "no-store" });
-    if (!res.ok) {
-      setUserCache(null);
-      return null;
-    }
-    const data = (await res.json()) as { user?: AuthUser | null };
-    if (data.user) {
-      const prev = getUser();
-      setUserCache({ ...prev, ...data.user });
-      return getUser();
-    }
-    setUserCache(null);
-    return null;
+    localStorage.setItem(KEY, JSON.stringify(user));
   } catch {
-    return getUser();
+    /* localStorage yo'q — e'tiborsiz */
   }
 }
 
 export async function logout(): Promise<void> {
+  if (typeof window === "undefined") return;
   try {
-    await postJson("/api/auth/logout", {});
+    localStorage.removeItem(KEY);
+    localStorage.removeItem(PROFILE_KEY);
   } catch {
     /* e'tiborsiz */
   }
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.removeItem(KEY);
-      localStorage.removeItem(PROFILE_KEY);
-    } catch {
-      /* e'tiborsiz */
-    }
+  if (hasSupabaseAuth()) {
+    const { createClient } = await import("./supabase/browser");
+    await createClient()
+      .auth.signOut()
+      .catch(() => {
+        /* tarmoq xatosi — localStorage allaqachon tozalandi, yetarli */
+      });
   }
 }
 
+/* ---- Onboarding profili (nima/kimga sotasan) ---- */
+
+const PROFILE_KEY = "sotibkor_profile";
+
 export interface Profile {
-  product?: string;
-  usp?: string;
-  audience?: string;
-  spheres: string[];
+  product?: string; // nima sotasan
+  usp?: string; // UTP / farq
+  audience?: string; // maqsadli auditoriya
+  spheres: string[]; // kimga sotasan (soha kalitlari/nomlari)
   onboarded: boolean;
 }
 
@@ -173,9 +95,153 @@ export function saveProfile(p: Profile): void {
   } catch {
     /* e'tiborsiz */
   }
+  if (hasSupabaseAuth()) {
+    void pushProfileToSupabase(p);
+  }
 }
 
 export function isOnboarded(): boolean {
   return getProfile()?.onboarded === true;
 }
-//START
+
+/* ---- Real Supabase Auth (Google) — faqat hasSupabaseAuth() true bo'lsa ---- */
+
+interface UsersRow {
+  id: string;
+  email: string | null;
+  avatar_url: string | null;
+  full_name: string | null;
+  role: Role;
+  company: string | null;
+  team_name: string | null;
+  product: string | null;
+  usp: string | null;
+  audience: string | null;
+  spheres: string[] | null;
+  onboarded: boolean;
+}
+
+/** Google OAuth oynasini ochadi. Muvaffaqiyatli bo'lsa /auth/callback'ga qaytadi. */
+export async function signInWithGoogle(next: string): Promise<void> {
+  const { createClient } = await import("./supabase/browser");
+  const supabase = createClient();
+  const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+  await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo },
+  });
+}
+
+/**
+ * Google bilan birinchi marta kirgan foydalanuvchi rolni tanlagach chaqiriladi.
+ * `users` qatorini yaratadi (yoki yangilaydi) va localStorage keshiga ko'chiradi.
+ */
+export async function completeGoogleSignup(
+  role: Role,
+  extra?: { company?: string; team?: string },
+): Promise<AuthUser> {
+  const { createClient } = await import("./supabase/browser");
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Sessiya topilmadi — qaytadan kiring.");
+
+  const name =
+    (user.user_metadata?.full_name as string | undefined) ??
+    (user.user_metadata?.name as string | undefined) ??
+    user.email ??
+    "Foydalanuvchi";
+
+  const { error } = await supabase.from("users").upsert({
+    id: user.id,
+    email: user.email,
+    avatar_url: (user.user_metadata?.avatar_url as string | undefined) ?? null,
+    full_name: name,
+    role,
+    company: extra?.company ?? null,
+    team_name: extra?.team ?? null,
+  });
+  if (error) throw error;
+
+  const authUser: AuthUser = {
+    role,
+    name,
+    company: extra?.company,
+    team: extra?.team,
+  };
+  register(authUser);
+  return authUser;
+}
+
+/**
+ * Live Supabase sessiyasi bo'lsa, `users` qatorini localStorage keshiga
+ * ko'chiradi (qaytgan foydalanuvchi, yangi brauzer/qurilma). Sessiya yoki
+ * qator bo'lmasa — jimgina hech narsa qilmaydi (mock rejim buzilmaydi).
+ */
+export async function syncFromSupabase(): Promise<void> {
+  if (!hasSupabaseAuth()) return;
+  const { createClient } = await import("./supabase/browser");
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data } = await supabase
+    .from("users")
+    .select(
+      "id,email,avatar_url,full_name,role,company,team_name,product,usp,audience,spheres,onboarded",
+    )
+    .eq("id", user.id)
+    .maybeSingle<UsersRow>();
+  if (!data) return;
+
+  register({
+    role: data.role,
+    name: data.full_name ?? data.email ?? "Foydalanuvchi",
+    company: data.company ?? undefined,
+    team: data.team_name ?? undefined,
+  });
+  saveProfileLocalOnly({
+    product: data.product ?? undefined,
+    usp: data.usp ?? undefined,
+    audience: data.audience ?? undefined,
+    spheres: data.spheres ?? [],
+    onboarded: data.onboarded,
+  });
+}
+
+/** saveProfile'ning Supabase'ga qayta yozmaydigan versiyasi (sync paytida cheksiz tsikl bo'lmasin). */
+function saveProfileLocalOnly(p: Profile): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+  } catch {
+    /* e'tiborsiz */
+  }
+}
+
+/** `saveProfile` chaqirilganda (masalan /profil tahriri) Supabase'dagi qatorni ham yangilaydi. */
+async function pushProfileToSupabase(p: Profile): Promise<void> {
+  try {
+    const { createClient } = await import("./supabase/browser");
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase
+      .from("users")
+      .update({
+        product: p.product ?? null,
+        usp: p.usp ?? null,
+        audience: p.audience ?? null,
+        spheres: p.spheres,
+        onboarded: p.onboarded,
+      })
+      .eq("id", user.id);
+  } catch {
+    /* tarmoq xatosi — localStorage kesh allaqachon yangilangan, foydalanuvchi to'xtamaydi */
+  }
+}

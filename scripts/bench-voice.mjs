@@ -14,7 +14,7 @@
  */
 
 const BUDGET = { stt: 500, llmFirst: 400, ttsFirst: 500, total: 2000 };
-const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
+const hasOpenAI = !!process.env.OPENAI_API_KEY;
 const hasAisha = !!process.env.AISHA_API_KEY;
 const BASE = process.env.BENCH_BASE_URL ?? "http://localhost:3000";
 
@@ -68,7 +68,7 @@ async function benchLlmStreaming() {
 async function main() {
   console.log("\n🎙  Sotuvchi Trainer — ovoz aylanasi latency benchmark\n");
   console.log(
-    `  Rejim: LLM=${hasAnthropic ? "real" : "mock"}  STT/TTS=${hasAisha ? "real" : "mock/web-speech"}`,
+    `  Rejim: LLM=${hasOpenAI ? "real" : "mock"}  STT/TTS=${hasAisha ? "real" : "mock/web-speech"}`,
   );
   console.log(`  Base:  ${BASE}\n`);
 

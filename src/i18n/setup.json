@@ -4,5 +4,5 @@
   "persona": "Mijoz turi",
   "level": "Qiyinlik darajasi",
   "start": "Suhbatni boshlash",
-  "mockNote": "Kalitsiz demo rejim: mijoz oldindan yozilgan javob beradi va brauzer ovozida gapiradi. Real AI uchun ANTHROPIC_API_KEY va AISHA_API_KEY qo'shing."
+  "mockNote": "Kalitsiz demo rejim: mijoz oldindan yozilgan javob beradi va brauzer ovozida gapiradi. Real AI uchun OPENAI_API_KEY va AISHA_API_KEY qo'shing."
 }

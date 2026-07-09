@@ -312,8 +312,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   const onLogout = () => {
-    logout();
-    router.replace("/");
+    void logout().finally(() => router.replace("/"));
   };
 
   return (

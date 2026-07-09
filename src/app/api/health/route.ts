@@ -3,7 +3,7 @@
  * Maxfiy qiymatlarni QAYTARMAYDI — faqat sozlangan/sozlanmagan holati.
  */
 
-import { hasAnthropic, hasAisha, hasSupabase } from "@/lib/config";
+import { hasOpenAI, hasAisha, hasSupabase } from "@/lib/config";
 
 export const runtime = "nodejs";
 
@@ -11,10 +11,10 @@ export function GET() {
   return Response.json({
     ok: true,
     providers: {
-      anthropic: hasAnthropic(),
+      openai: hasOpenAI(),
       aisha: hasAisha(),
       supabase: hasSupabase(),
     },
-    mode: hasAnthropic() && hasAisha() ? "live" : "mock",
+    mode: hasOpenAI() && hasAisha() ? "live" : "mock",
   });
 }

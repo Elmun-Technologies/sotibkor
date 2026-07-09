@@ -25,11 +25,11 @@ Plumbing tayyor (provider abstraktsiyasi + mock rejim, kalitsiz ishlaydi):
 
 - ✅ Suhbat sahifasi (`/trener`): soha/persona/level tanlash, jonli transkript, latency badge.
 - ✅ Mikrofon yozib olish (`MediaRecorder`) → `/api/stt` (Aisha sozlanmagan bo'lsa matn kiritish fallback).
-- ✅ Persona chaqiruvi streaming (`/api/chat`, `src/lib/llm.ts`): Claude (kalit bo'lsa) yoki mock oqim.
+- ✅ Persona chaqiruvi streaming (`/api/chat`, `src/lib/llm.ts`): OpenAI (kalit bo'lsa) yoki mock oqim.
 - ✅ Gap-gap TTS: `SentenceStreamer` birinchi gapni darrov ovozga (Aisha `/api/tts` yoki brauzer Web Speech fallback).
 - ✅ Latency o'lchagich (LLM first-token, TTS boshlanishi, to'liq aylana) + `npm run bench:voice`.
 - ⬜ **Aisha.ai STT/TTS real endpoint** (`src/lib/aisha.ts` TODO) — rasmiy hujjat kelgach.
-- ⬜ Real ANTHROPIC_API_KEY bilan jonli Claude persona sinovi va latency o'lchash.
+- ⬜ Real OPENAI_API_KEY bilan jonli OpenAI persona sinovi va latency o'lchash.
 
 **Yakun mezoni:** Qimmatchi bilan ovozli suhbat, aylana < 2s (real kalitlar bilan).
 
@@ -110,6 +110,9 @@ Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
   - `/vazifalar` sahifasidagi joyida yozilgan mock ma'lumot (topshiriqlar, jamoa) `src/lib/mock/index.ts` va `src/lib/types.ts`ga ko'chirildi — endi barcha demo ma'lumot bitta manbada (achievements/leaderboard bilan bir xil pattern).
   - Xavfsizlik auditi: kritik topilma yo'q — API kalitlar faqat `process.env` orqali, server-only kalitlar client bundle'ga sizmaydi, `.env*` git'dan tashqarida, `dangerouslySetInnerHTML` faqat statik tema-init skriptida.
   - Dead link yo'q, bo'sh/"coming soon" sahifa yo'q, i18n fayllarida bo'sh qiymat yo'q (24 ta namespace to'liq tekshirildi).
+- ✅ **Google orqali kirish (Supabase Auth)** — `@supabase/ssr` bilan haqiqiy OAuth oqimi: `/boshlash`da "Google orqali kirish" tugmasi (faqat `hasSupabaseAuth()` bo'lganda ko'rinadi), `GET /auth/callback` kod almashinuvi + birinchi marta kirgan foydalanuvchi uchun rol tanlash qadami (`?step=role`), `src/middleware.ts` sessiya cookie yangilash. Mavjud ~15 sahifaning sinxron auth-gating kodi butunlay o'zgarmadi — Supabase `users` jadvali localStorage keshiga ko'chiriladi (`syncFromSupabase`), profil o'zgarishlari fonda orqaga suriladi (`pushProfileToSupabase`). `supabase/migrations/0002_google_auth.sql` — `users`ga yangi ustunlar (email, avatar, company, team, mahsulot profili, onboarded), `role` CHECK (`'menejer'|'rop'`) va "faqat o'zini" RLS siyosatlari. Kod tomoni to'liq tayyor — ishga tushishi uchun foydalanuvchiga Supabase loyihasi + Google Cloud OAuth client kerak (qadamlar: `supabase/README.md` § Google OAuth sozlash).
+  - Parallel branch'da self-hosted email/parol auth (bcrypt+JWT+Postgres, PR #14) ham qurilgan va `main`ga birlashtirilgan edi — ikkalasi bir xil fayllarni (`auth.ts`, `middleware.ts`, `/boshlash`) qayta yozgani uchun birga tura olmasdi. Qaror: **Google OAuth qoladi** (loyiha Contabo'da self-hosted ishga tushsa ham, Google Auth Supabase'ning bulutli Auth backend'i orqali ishlaydi). Self-hosted variant (`api/auth/*`, `auth-server.ts`, `db/pg.ts`, `db/users.ts`, `0002_auth.sql`, `bcryptjs`/`jose`/`pg`) olib tashlandi.
+- ✅ **Dokploy/Docker deploy tayyorgarligi** — `Dockerfile` (uch bosqichli, `node:20-alpine`, standalone output), `.dockerignore`, `next.config.mjs`'da `output: "standalone"`, `public/robots.txt`. Batafsil qo'llanma + env checklist: [docs/DEPLOY.md](DEPLOY.md). Lokal `next build` bilan standalone artefaktlar (`server.js`, traced `prompts/`) tekshirilgan.
 
 ### Mock-rejimda "100%" nimani anglatadi
 
@@ -117,10 +120,11 @@ Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugalla
 
 **Quyidagilar FAQAT tashqi hisob ma'lumotlari (API kalit/loyihalar) bilan davom etadi — men ularsiz "tugata olmayman":**
 
-- **Real ovoz aylanasi** — `AISHA_API_KEY` (STT/TTS) va `ANTHROPIC_API_KEY` (persona/baholovchi). Hozir mock: matn kiritish + brauzer ovozi.
-- **Real autentifikatsiya va ma'lumotlar bazasi** — Supabase loyihasi (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_KEY`). Hozir: localStorage mock, ROP jamoa/topshiriq biriktiruvi demo.
+- **Real ovoz aylanasi** — `AISHA_API_KEY` (STT/TTS) va `OPENAI_API_KEY` (persona/baholovchi, `gpt-4o-mini`). Hozir mock: matn kiritish + brauzer ovozi.
+- **Google orqali kirish** — kod tomoni tayyor (`@supabase/ssr`, `/auth/callback`, `0002_google_auth.sql`). Ishlashi uchun foydalanuvchi Supabase loyihasi (`NEXT_PUBLIC_SUPABASE_URL/ANON_KEY`) ochib, Google Cloud'da OAuth client yaratib, Supabase Dashboard'da Google provayderni yoqishi kerak — qadamlar `supabase/README.md`da.
+- **Ma'lumotlar bazasi (sessiya/transkript/baho saqlash)** — `SUPABASE_SERVICE_KEY`. Hozir: sessiyalar saqlanmaydi, faqat joriy oynada ko'rinadi.
 - **To'lov** — Payme/Click merchant ma'lumotlari. Hozir: `/tariflar` UI tayyor, tugmalar bosilganda "tez orada" xabari.
 
-Bular sozlanganda: `voice-test` skili bilan latency o'lchanadi, keyin Supabase migratsiya + RLS, keyin to'lov ulanadi — kod tomoni (adapterlar, DB helper'lar, env o'qish) allaqachon tayyor turibdi.
+Bular sozlanganda: `voice-test` skili bilan latency o'lchanadi, keyin ROP jamoa/topshiriq biriktiruvini haqiqiy DB'ga ko'chirish, keyin to'lov ulanadi — kod tomoni (adapterlar, DB helper'lar, env o'qish) allaqachon tayyor turibdi.
 
-Keyingi qadam — **1-bosqich, issue #1: real Aisha STT/TTS + Claude persona aylanasi** (kalitlar kerak), so'ng **Supabase** (real auth + ROP jamoa dashboard + to'lov, #8/#9).
+Keyingi qadam — **1-bosqich, issue #1: real Aisha STT/TTS + OpenAI persona aylanasi** (kalitlar kerak), so'ng sessiya/transkript persistensiyasi + to'lov (#8/#9).

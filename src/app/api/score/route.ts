@@ -2,14 +2,14 @@
  * POST /api/score — tugagan suhbat transkriptini rubrika bo'yicha baholaydi.
  * Kirish: { soha, persona, level, transcript:[{role,content}] }.
  *
- * ANTHROPIC_API_KEY bo'lsa — real baholovchi (prompts/scoring/baholovchi.md).
+ * OPENAI_API_KEY bo'lsa — real baholovchi (prompts/scoring/baholovchi.md).
  * Bo'lmasa — mock baho (kalitsiz demo).
  */
 
 import { NextRequest } from "next/server";
 import { scoreSession, mockScore } from "@/lib/scoring";
 import type { ChatTurn } from "@/lib/llm";
-import { hasAnthropic } from "@/lib/config";
+import { hasOpenAI } from "@/lib/config";
 import { isPersonaKey, isSohaKey } from "@/lib/content";
 
 export const runtime = "nodejs";
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Bo'sh transkript." }, { status: 400 });
   }
 
-  if (!hasAnthropic()) {
+  if (!hasOpenAI()) {
     return Response.json({ ...mockScore(transcript), provider: "mock" });
   }
 
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       level: Math.max(1, Math.floor(body.level) || 1),
       transcript,
     });
-    return Response.json({ ...result, provider: "anthropic" });
+    return Response.json({ ...result, provider: "openai" });
   } catch (err) {
     return Response.json({ error: (err as Error).message }, { status: 502 });
   }

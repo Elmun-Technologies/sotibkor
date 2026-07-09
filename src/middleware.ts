@@ -1,81 +1,45 @@
 /**
- * Middleware — himoyalangan (app) bo'limini qo'riqlaydi.
- *
- * Sessiya cookie'sini JWT bilan tekshiradi (jose — Edge runtime'da ishlaydi).
- * Sessiya yo'q/yaroqsiz bo'lsa /boshlash?next=... ga yo'naltiradi.
- *
- * DIQQAT: bu yerda auth-server.ts import QILINMAYDI, chunki u "server-only"
- * (next/headers, bcryptjs) — Edge middleware'da ishlamaydi. Shuning uchun
- * jwtVerify to'g'ridan-to'g'ri chaqiriladi.
+ * Supabase sessiya (auth) tokenlarini har so'rovda yangilab turadi — @supabase/ssr
+ * talab qiladigan standart pattern. Supabase sozlanmagan bo'lsa (mock rejim) —
+ * hech narsa qilmaydi, oddiy `next()`.
  */
 
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { jwtVerify } from "jose";
 
-const SESSION_COOKIE = "sotibkor_session";
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({ request: { headers: request.headers } });
 
-// Himoyalangan yo'llar (src/app/(app)/* URL segmentlari).
-const PROTECTED = [
-  "/home",
-  "/trener",
-  "/dars",
-  "/analitika",
-  "/etirozlar",
-  "/muzokaralar",
-  "/profil",
-  "/qongiroq",
-  "/reyting",
-  "/tariflar",
-  "/vazifalar",
-  "/yutuqlar",
-];
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) return response;
 
-function secret(): Uint8Array | null {
-  const s = process.env.JWT_SECRET;
-  if (!s || s.length < 16) return null;
-  return new TextEncoder().encode(s);
-}
+  const supabase = createServerClient(url, anonKey, {
+    cookies: {
+      get(name: string) {
+        return request.cookies.get(name)?.value;
+      },
+      set(name: string, value: string, options: CookieOptions) {
+        request.cookies.set({ name, value, ...options });
+        response = NextResponse.next({ request: { headers: request.headers } });
+        response.cookies.set({ name, value, ...options });
+      },
+      remove(name: string, options: CookieOptions) {
+        request.cookies.set({ name, value: "", ...options });
+        response = NextResponse.next({ request: { headers: request.headers } });
+        response.cookies.set({ name, value: "", ...options });
+      },
+    },
+  });
 
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-  const needsAuth = PROTECTED.some(
-    (p) => pathname === p || pathname.startsWith(p + "/"),
-  );
-  if (!needsAuth) return NextResponse.next();
+  // Sessiya muddati tugagan bo'lsa — shu yerda yangilanadi (side effect).
+  await supabase.auth.getUser();
 
-  const token = req.cookies.get(SESSION_COOKIE)?.value;
-  const key = secret();
-  let ok = false;
-  if (token && key) {
-    try {
-      await jwtVerify(token, key);
-      ok = true;
-    } catch {
-      ok = false;
-    }
-  }
-
-  if (ok) return NextResponse.next();
-
-  const url = req.nextUrl.clone();
-  url.pathname = "/boshlash";
-  url.searchParams.set("next", pathname);
-  return NextResponse.redirect(url);
+  return response;
 }
 
 export const config = {
   matcher: [
-    "/home/:path*",
-    "/trener/:path*",
-    "/dars/:path*",
-    "/analitika/:path*",
-    "/etirozlar/:path*",
-    "/muzokaralar/:path*",
-    "/profil/:path*",
-    "/qongiroq/:path*",
-    "/reyting/:path*",
-    "/tariflar/:path*",
-    "/vazifalar/:path*",
-    "/yutuqlar/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp)$).*)",
   ],
 };

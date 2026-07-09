@@ -3,7 +3,7 @@
  * Kirish: { soha, persona, level, history:[{role,content}] }.
  * role: "user" = sotuvchi, "assistant" = mijoz (persona).
  *
- * ANTHROPIC_API_KEY bo'lsa — real Claude (prompts/personas/<...>.md).
+ * OPENAI_API_KEY bo'lsa — real OpenAI (prompts/personas/<...>.md).
  * Bo'lmasa — mock oqim (kalitsiz demo).
  */
 
@@ -14,7 +14,7 @@ import {
   loadPrompt,
   type ChatTurn,
 } from "@/lib/llm";
-import { hasAnthropic } from "@/lib/config";
+import { hasOpenAI } from "@/lib/config";
 import { PERSONALAR, SOHALAR, isPersonaKey, isSohaKey } from "@/lib/content";
 
 export const runtime = "nodejs";
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
   const encoder = new TextEncoder();
 
   let source: AsyncGenerator<string, void, unknown>;
-  if (hasAnthropic()) {
+  if (hasOpenAI()) {
     const rejim =
       body.rejim && REJIM_MATN[body.rejim] ? body.rejim : "qongiroq";
     const systemPrompt = await loadPrompt(PERSONALAR[body.persona].promptFile, {
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-store",
-      "X-Provider": hasAnthropic() ? "anthropic" : "mock",
+      "X-Provider": hasOpenAI() ? "openai" : "mock",
     },
   });
 }
