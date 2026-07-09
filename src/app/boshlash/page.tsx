@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { Card, Button } from "@/components/ui";
-import { getUser, registerAccount, isOnboarded, type Role } from "@/lib/auth";
+import {
+  getUser,
+  registerAccount,
+  isOnboarded,
+  type Role,
+} from "@/lib/auth";
 
 const t = getMessages();
 
@@ -15,10 +20,9 @@ function nextUrl(): string {
   return n && n.startsWith("/") ? n : "/home";
 }
 
-/** Ro'yxatdan keyin: onboarding tugamagan bo'lsa avval /onboarding. */
 function afterAuthDest(): string {
   if (isOnboarded()) return nextUrl();
-  return `/onboarding?next=${encodeURIComponent(nextUrl())}`;
+  return "/onboarding?next=" + encodeURIComponent(nextUrl());
 }
 
 function Field({
@@ -47,37 +51,36 @@ export default function BoshlashPage() {
   const router = useRouter();
   const [role, setRole] = useState<Role>("menejer");
   const [name, setName] = useState("");
-  const [company, setCompany] = useState("");
-  const [team, setTeam] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [company, setCompany] = useState("");
+  const [team, setTeam] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Allaqachon ro'yxatdan o'tган bo'lsa — o'tkazib yuboramiz
   useEffect(() => {
     if (getUser()) router.replace(afterAuthDest());
   }, [router]);
 
   const submit = async () => {
+    setError(null);
     const nm =
       name.trim() ||
       (role === "rop"
         ? t.boshlash.defaultNameRop
         : t.boshlash.defaultNameMenejer);
-    setBusy(true);
-    setError("");
+    setLoading(true);
     const res = await registerAccount({
       email: email.trim(),
       password,
-      role,
       name: nm,
+      role,
       company: company.trim() || undefined,
       team: role === "rop" ? team.trim() || undefined : undefined,
     });
+    setLoading(false);
     if (!res.ok) {
       setError(res.error ?? t.boshlash.registerError);
-      setBusy(false);
       return;
     }
     router.push(afterAuthDest());
@@ -88,7 +91,6 @@ export default function BoshlashPage() {
 
   return (
     <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-2 lg:items-center">
-      {/* Chap: hero + foydalar */}
       <div className="space-y-8">
         <div className="space-y-5">
           <span className="inline-flex items-center gap-2 rounded-full border border-[color:var(--good)]/40 px-4 py-1.5 text-sm font-medium text-[color:var(--good)]">
@@ -116,7 +118,6 @@ export default function BoshlashPage() {
         </div>
       </div>
 
-      {/* O'ng: forma */}
       <Card className="w-full">
         <div className="mb-6 grid grid-cols-2 gap-1 rounded-full bg-surface2 p-1">
           {(["menejer", "rop"] as Role[]).map((r) => (
@@ -124,35 +125,56 @@ export default function BoshlashPage() {
               key={r}
               type="button"
               onClick={() => setRole(r)}
-              className={`rounded-full py-2.5 text-sm font-medium transition ${
-                role === r
+              className={
+                "rounded-full py-2.5 text-sm font-medium transition " +
+                (role === r
                   ? "bg-ink text-onink"
-                  : "text-muted hover:text-foreground"
-              }`}
+                  : "text-muted hover:text-foreground")
+              }
             >
               {r === "menejer" ? t.boshlash.roleMenejer : t.boshlash.roleRop}
             </button>
           ))}
         </div>
 
-        <h2 className="text-2xl font-semibold tracking-tight">
+        <h2 className="mb-5 text-xl font-semibold text-foreground">
           {isRop ? t.boshlash.formTitleRop : t.boshlash.formTitleMenejer}
         </h2>
-        <p className="mt-1 text-sm text-muted">
-          {t.boshlash.haveAccount}{" "}
-          <span className="font-medium text-foreground underline">
-            {t.boshlash.login}
-          </span>
-        </p>
 
         <form
-          className="mt-6 space-y-4"
+          className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
-            void submit();
+            if (!loading) void submit();
           }}
         >
-          {isRop && (
+          <Field
+            label={t.boshlash.name}
+            placeholder={t.boshlash.namePlaceholder}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoComplete="name"
+          />
+          <Field
+            label={t.boshlash.email}
+            type="email"
+            placeholder={t.boshlash.emailPlaceholder}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+          />
+          <Field
+            label={t.boshlash.password}
+            hint={t.boshlash.passwordHint}
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            minLength={8}
+            required
+          />
+          {isRop ? (
             <Field
               label={t.boshlash.team}
               hint={t.boshlash.teamHint}
@@ -160,55 +182,43 @@ export default function BoshlashPage() {
               value={team}
               onChange={(e) => setTeam(e.target.value)}
             />
+          ) : (
+            <Field
+              label={t.boshlash.company}
+              placeholder={t.boshlash.companyPlaceholder}
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              autoComplete="organization"
+            />
           )}
-          <Field
-            label={t.boshlash.name}
-            placeholder={t.boshlash.namePlaceholder}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Field
-            label={t.boshlash.phone}
-            placeholder={t.boshlash.phonePlaceholder}
-            inputMode="tel"
-          />
-          <Field
-            label={t.boshlash.email}
-            placeholder={t.boshlash.emailPlaceholder}
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Field
-            label={t.boshlash.company}
-            placeholder={t.boshlash.companyPlaceholder}
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-          />
-          <Field
-            label={t.boshlash.password}
-            hint={t.boshlash.passwordHint}
-            type="password"
-            placeholder="••••••••"
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
 
-          {error && <p className="text-sm text-[color:var(--bad)]">{error}</p>}
+          {error && (
+            <p className="text-sm text-[color:var(--bad)]" role="alert">
+              {error}
+            </p>
+          )}
 
-          <Button type="submit" className="w-full" disabled={busy}>
+          <Button type="submit" className="w-full" disabled={loading}>
             {isRop ? t.boshlash.createRop : t.boshlash.createMenejer}
           </Button>
-          <p className="text-center text-xs text-muted">{t.boshlash.agree}</p>
-          <p className="text-center text-xs text-faint">
-            <Link href="/" className="underline">
-              ← {t.boshlash.backHome}
-            </Link>
-          </p>
         </form>
+
+        <p className="mt-4 text-center text-xs text-muted">{t.boshlash.agree}</p>
+
+        <div className="mt-5 flex items-center justify-between text-sm">
+          <Link href="/" className="text-muted hover:text-foreground">
+            {t.boshlash.backHome}
+          </Link>
+          <span className="text-muted">
+            {t.boshlash.haveAccount}{" "}
+            <Link
+              href="/kirish"
+              className="font-medium text-foreground underline underline-offset-4"
+            >
+              {t.boshlash.login}
+            </Link>
+          </span>
+        </div>
       </Card>
     </main>
   );
