@@ -358,7 +358,7 @@ function Pill({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+      className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
         active
           ? subtle
             ? "bg-foreground/[.08] text-foreground"

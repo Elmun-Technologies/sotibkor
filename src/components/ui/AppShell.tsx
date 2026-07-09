@@ -197,7 +197,7 @@ function SidebarInner({
               key={item.href}
               href={item.href}
               onClick={onNavigate}
-              className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+              className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 active:scale-[0.98] ${
                 active
                   ? "bg-ink text-onink"
                   : "text-muted hover:bg-foreground/[.05] hover:text-foreground"
@@ -244,7 +244,7 @@ function SidebarInner({
         <Link
           href="/tariflar"
           onClick={onNavigate}
-          className="mt-3 flex w-full items-center justify-center rounded-full bg-ink px-4 py-2 text-xs font-medium text-onink transition hover:opacity-90"
+          className="mt-3 flex w-full items-center justify-center rounded-full bg-ink px-4 py-2 text-xs font-medium text-onink transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
         >
           {t.nav.plan}
         </Link>
@@ -265,7 +265,7 @@ function SidebarInner({
           type="button"
           onClick={onLogout}
           aria-label={t.nav.logout}
-          className="grid h-8 w-8 place-items-center rounded-full text-faint transition hover:bg-foreground/[.05] hover:text-foreground"
+          className="grid h-8 w-8 place-items-center rounded-full text-faint transition-all duration-150 hover:bg-foreground/[.05] hover:text-foreground active:scale-[0.93]"
         >
           <svg
             width="16"
@@ -337,7 +337,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             type="button"
             onClick={() => setOpen(true)}
             aria-label={t.nav.menu}
-            className="grid h-9 w-9 place-items-center rounded-full border border-border text-foreground"
+            className="grid h-9 w-9 place-items-center rounded-full border border-border text-foreground transition-all duration-150 hover:bg-foreground/[.05] active:scale-[0.93]"
           >
             <svg
               width="18"

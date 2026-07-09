@@ -364,7 +364,7 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+      className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
         active
           ? "bg-ink text-onink"
           : "border border-border text-muted hover:bg-foreground/[.04] hover:text-foreground"
@@ -631,7 +631,7 @@ function DrillView() {
                 key={k}
                 type="button"
                 onClick={() => setDifficulty(k)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
                   difficulty === k
                     ? "bg-ink text-onink"
                     : "text-muted hover:text-foreground"

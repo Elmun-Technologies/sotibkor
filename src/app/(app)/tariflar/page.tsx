@@ -93,7 +93,8 @@ export default function TariflarPage() {
                 </span>
                 <span className="text-sm text-muted">
                   {" "}
-                  so&apos;m{key === "solo" ? t.tariflar.perMonth : ""}
+                  {t.tariflar.currency}
+                  {key === "solo" ? t.tariflar.perMonth : ""}
                 </span>
                 {plan.calls && (
                   <p className="mt-1 text-xs text-faint">

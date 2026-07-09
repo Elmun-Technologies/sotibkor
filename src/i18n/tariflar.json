@@ -1,6 +1,7 @@
 {
   "title": "Tariflar",
   "subtitle": "Bepul — 5 suhbat. Keyin bir martalik paket yoki oylik cheksiz obuna.",
+  "currency": "so'm",
   "currentPlan": "Joriy tarif",
   "callsUsed": "O'tkazilgan suhbatlar",
   "callsUnit": "ta",

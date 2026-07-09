@@ -56,7 +56,11 @@ export default function BoshlashPage() {
   }, [router]);
 
   const submit = () => {
-    const nm = name.trim() || (role === "rop" ? "ROP" : "Menejer");
+    const nm =
+      name.trim() ||
+      (role === "rop"
+        ? t.boshlash.defaultNameRop
+        : t.boshlash.defaultNameMenejer);
     register({
       role,
       name: nm,
@@ -152,12 +156,12 @@ export default function BoshlashPage() {
           />
           <Field
             label={t.boshlash.phone}
-            placeholder="+998 90 123 45 67"
+            placeholder={t.boshlash.phonePlaceholder}
             inputMode="tel"
           />
           <Field
             label={t.boshlash.email}
-            placeholder="siz@kompaniya.uz"
+            placeholder={t.boshlash.emailPlaceholder}
             type="email"
           />
           <Field
@@ -179,7 +183,7 @@ export default function BoshlashPage() {
           <p className="text-center text-xs text-muted">{t.boshlash.agree}</p>
           <p className="text-center text-xs text-faint">
             <Link href="/" className="underline">
-              ← Bosh sahifa
+              ← {t.boshlash.backHome}
             </Link>
           </p>
         </form>

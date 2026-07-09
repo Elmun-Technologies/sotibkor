@@ -46,7 +46,7 @@ function ContactRow({
       <button
         type="button"
         onClick={copy}
-        className="shrink-0 rounded-full px-3 py-1.5 text-xs font-medium text-muted transition hover:bg-foreground/[.06] hover:text-foreground"
+        className="shrink-0 rounded-full px-3 py-1.5 text-xs font-medium text-muted transition-all duration-150 hover:bg-foreground/[.06] hover:text-foreground active:scale-[0.95]"
       >
         {copied ? `✓ ${t.yordam.copied}` : t.yordam.copyBtn}
       </button>
@@ -62,7 +62,7 @@ export function SupportWidget() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border border-[color:var(--good)]/30 bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-lg transition hover:bg-[color:var(--good)]/[.08]"
+        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border border-[color:var(--good)]/30 bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-lg transition-all duration-150 hover:bg-[color:var(--good)]/[.08] active:scale-[0.96]"
       >
         <span aria-hidden className="text-[color:var(--good)]">
           <svg
@@ -97,7 +97,7 @@ export function SupportWidget() {
               type="button"
               onClick={() => setOpen(false)}
               aria-label={t.yordam.close}
-              className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full text-faint transition hover:bg-foreground/[.06] hover:text-foreground"
+              className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full text-faint transition-all duration-150 hover:bg-foreground/[.06] hover:text-foreground active:scale-[0.93]"
             >
               ✕
             </button>
