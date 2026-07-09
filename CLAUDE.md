@@ -10,6 +10,7 @@ Sotuvchilar uchun ovozli AI trenajor: sotuvchi soha tanlaydi, AI mijoz rolini o'
 - **OpenAI API** (`gpt-4o-mini`, sifat kerak bo'lsa `gpt-4o`) — mijoz personasi + baholovchi
 - **Tailwind + Framer Motion** — dark mode asosiy, neon aksentlar
 - **Payme / Click** subscription (keyingi bosqichlarda)
+- **Dokploy** (Contabo, self-hosted) — Docker orqali joylash. Batafsil: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Ovoz aylanasi (kritik yo'l)
 
@@ -39,8 +40,9 @@ docs/                  — ARCHITECTURE, PERSONAS, SCORING, ROADMAP
 prompts/personas/      — har persona alohida .md
 prompts/scoring/       — baholovchi.md
 src/app/               — Next.js sahifalar (App Router)
-src/lib/               — aisha.ts (STT/TTS), llm.ts (Claude streaming), scoring.ts
+src/lib/               — aisha.ts (STT/TTS), llm.ts (OpenAI streaming), scoring.ts
 .github/workflows/     — CI
+Dockerfile              — Dokploy/Docker production build
 ```
 
 ## Hujjatlar
@@ -49,6 +51,7 @@ src/lib/               — aisha.ts (STT/TTS), llm.ts (Claude streaming), scorin
 - [docs/PERSONAS.md](docs/PERSONAS.md) — 5 persona spetsifikatsiyasi + jaydari til qoidalari
 - [docs/SCORING.md](docs/SCORING.md) — baholash rubrikasi + feedback JSON formati
 - [docs/ROADMAP.md](docs/ROADMAP.md) — 6 bosqich reja
+- [docs/DEPLOY.md](docs/DEPLOY.md) — Dokploy (Contabo) deploy qo'llanmasi, env checklist
 
 ## Skills (`.claude/skills/`)
 
