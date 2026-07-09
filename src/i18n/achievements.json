@@ -3,28 +3,100 @@
   "earned": "Ochilgan",
   "earnedAt": "Ochilgan sana",
   "reward": "Mukofot",
-  "birinchi_suhbat": {
-    "title": "Birinchi suhbat",
+  "categories": {
+    "sovuq_qongiroq": "Sovuq qo'ng'iroqlar",
+    "sifat": "Qo'ng'iroq sifati",
+    "progress": "Progress",
+    "intizom": "Intizom",
+    "muzokaralar": "Muzokaralar",
+    "afsonaviy": "Afsonaviy"
+  },
+  "birinchi_qongiroq": {
+    "title": "Birinchi qo'ng'iroq",
     "desc": "Birinchi mashq suhbatingni yakunlading."
   },
-  "ketma_ket_3": {
+  "on_qongiroq": {
+    "title": "Yo'lda",
+    "desc": "10 ta suhbat o'tkazding."
+  },
+  "ellik_qongiroq": {
+    "title": "Tinmaydigan",
+    "desc": "50 ta suhbat o'tkazding."
+  },
+  "yuz_qongiroq": {
+    "title": "Yuz qo'ng'iroq",
+    "desc": "100 ta suhbat o'tkazding."
+  },
+  "besh_yuz_qongiroq": {
+    "title": "Sovuq mashina",
+    "desc": "500 ta suhbat o'tkazding."
+  },
+  "ball_70": {
+    "title": "Yaxshi natija",
+    "desc": "Bitta suhbatda 70+ ball to'plading."
+  },
+  "ball_85": {
+    "title": "Yuqori ball",
+    "desc": "Bitta suhbatda 85+ ball to'plading."
+  },
+  "ball_100": {
+    "title": "Mukammal suhbat",
+    "desc": "Bitta suhbatda maksimal ball oldingiz."
+  },
+  "barqaror_sifat": {
+    "title": "Argumentator",
+    "desc": "Oxirgi 10 suhbat o'rtacha bali 80 dan yuqori."
+  },
+  "osish_boshlandi": {
+    "title": "O'sish boshlandi",
+    "desc": "Oldingi suhbatga nisbatan ballni 3 marta yaxshiladingiz."
+  },
+  "ishonchli_osish": {
+    "title": "Ishonchli o'sish",
+    "desc": "Oldingi suhbatga nisbatan ballni 10 marta yaxshiladingiz."
+  },
+  "uch_qadam_yuqoriga": {
+    "title": "Uch qadam yuqoriga",
+    "desc": "Ketma-ket 3 suhbatda ball o'sib bordi."
+  },
+  "uch_kun_ketma_ket": {
     "title": "3 kun ketma-ket",
     "desc": "3 kun ketma-ket mashq qilding."
   },
-  "ketma_ket_7": {
+  "yetti_kun_ketma_ket": {
     "title": "7 kun ketma-ket",
     "desc": "Bir hafta uzluksiz mashq qilding."
   },
-  "yuqori_ball": {
-    "title": "Yuqori ball",
-    "desc": "Bitta suhbatda 90+ ball to'plading."
+  "ottiz_kun_ketma_ket": {
+    "title": "30 kun ketma-ket",
+    "desc": "Bir oy uzluksiz mashq qilding."
   },
-  "birinchi_yopish": {
-    "title": "Birinchi yopish",
-    "desc": "Mijozni birinchi marta yopishga ko'ndirding."
+  "toqson_kun_ketma_ket": {
+    "title": "90 kun ketma-ket",
+    "desc": "Uch oy uzluksiz mashq qilding."
   },
-  "qiyin_persona": {
-    "title": "Qiyin mijoz",
-    "desc": "Eng qiyin personani muvaffaqiyatli yeng."
+  "birinchi_muzokara": {
+    "title": "Birinchi muzokara",
+    "desc": "Birinchi muzokara ssenariysini muvaffaqiyatli yakunlading."
+  },
+  "birinchi_chegirma": {
+    "title": "Birinchi chegirma",
+    "desc": "«Chegirma so'raydi» ssenariysini muvaffaqiyatli o'tding."
+  },
+  "birinchi_otsrochka": {
+    "title": "Birinchi otsrochka",
+    "desc": "«To'lovni kechiktirishni so'raydi» ssenariysini muvaffaqiyatli o'tding."
+  },
+  "shartlar_ustasi": {
+    "title": "Shartlar ustasi",
+    "desc": "Barcha ochiq muzokara ssenariylarini muvaffaqiyatli yakunlading."
+  },
+  "million_argument": {
+    "title": "Million argument",
+    "desc": "100 marta maksimal ball oldingiz."
+  },
+  "toliq_kolleksiya": {
+    "title": "To'liq kolleksiya",
+    "desc": "Qolgan barcha yutuqlarni ochding."
   }
 }

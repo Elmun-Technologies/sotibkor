@@ -1,188 +1,513 @@
 /**
  * E'tiroz kutubxonasi — tur bo'yicha teglangan, jaydari o'zbek + aralash (rus)
- * misollar bilan. Coaching tavsiyalari va (kelajakda) persona targetlash uchun.
- *
- * closeme'da 32 e'tiroz bor; bizniki tur (ObjectionType) bo'yicha strukturali
- * va aralash tilni qamraydi — bu O'zbekiston bozori uchun moat.
+ * misollar bilan. Har e'tirozga bir nechta uslub bilan teglangan javob
+ * (closeme'ning "Возражения" playbook'iga o'xshash — lekin O'zbekiston
+ * bozori uchun aralash tilda).
  */
 
 import type { ObjectionType } from "./coach";
 
+export type AnswerStyle =
+  "logika" | "ekspertlik" | "intriga" | "dojim" | "bosim" | "yumor";
+
+export interface Answer {
+  text: string;
+  style: AnswerStyle;
+}
+
 export interface ObjectionEntry {
+  id: string;
   type: ObjectionType;
   text: string;
-  /** Yaxshi javob yo'nalishi (murabbiy uchun). */
-  counter: string;
+  answers: Answer[];
 }
 
 export const OBJECTION_LIBRARY: ObjectionEntry[] = [
-  // --- Narx ---
   {
+    id: "narx-qimmat",
     type: "narx",
     text: "Qimmat-ku, boshqa joyda arzonroq.",
-    counter: "Narxni emas, qiymatni asosla; raqobatchidan farqni ko'rsat.",
+    answers: [
+      {
+        text: "Narxni emas, qiymatni solishtiraylik — u yerda kafolat va xizmat bormi?",
+        style: "logika",
+      },
+      {
+        text: "Arzon narsa ko'pincha qimmatga tushadi — 2 marta sotib olishga to'g'ri kelmasin.",
+        style: "yumor",
+      },
+      {
+        text: "Bizning mijozlarimizning 80%i aynan shu farqni ko'rib qaytib kelgan.",
+        style: "ekspertlik",
+      },
+    ],
   },
   {
+    id: "narx-chegirma",
     type: "narx",
     text: "Chegirma yo'qmi? Davay dogovorimsya.",
-    counter: "Darrov chegirmaga yugurma — avval qiymatni himoya qil.",
+    answers: [
+      {
+        text: "Chegirmani hajm yoki muddatga bog'lab beramiz — qancha olishni rejalashtiryapsiz?",
+        style: "dojim",
+      },
+      {
+        text: "Narxni tushirsak, sifatdan kamayamiz — buni xohlamaysiz-ku?",
+        style: "logika",
+      },
+      {
+        text: "Kelib bir gaplashamiz — yuzma-yuz osonroq kelishamiz.",
+        style: "intriga",
+      },
+    ],
   },
   {
+    id: "narx-byudjet",
     type: "narx",
     text: "Byudjetim yo'q hozir.",
-    counter: "Bo'lib to'lash yoki ROI'ni kunlik xarajatga bo'lib ko'rsat.",
+    answers: [
+      {
+        text: "Bo'lib to'lash bor — kuniga qancha chiqishini birga hisoblaymizmi?",
+        style: "logika",
+      },
+      {
+        text: "Byudjet bo'lmasa, aynan shuning uchun hoziroq boshlash foydali — kechikish qimmatga tushadi.",
+        style: "dojim",
+      },
+      { text: "Qachon byudjet ochilishi rejalashtirilgan?", style: "intriga" },
+    ],
   },
   {
+    id: "narx-arziydi",
     type: "narx",
     text: "Shuncha pulga arziydimi o'zi?",
-    counter: "Aniq foyda va natijani raqam bilan bog'la.",
+    answers: [
+      {
+        text: "Aniq foyda va natijani raqamda ko'rsataylik — o'zingiz baholaysiz.",
+        style: "ekspertlik",
+      },
+      {
+        text: "Arzimasa, pulingizni qaytarib beramiz — shunchalik ishonamiz.",
+        style: "bosim",
+      },
+    ],
   },
-
-  // --- Ishonch ---
   {
+    id: "ishonch-original",
     type: "ishonch",
     text: "Original o'zimi? Kafolat bormi?",
-    counter: "Hujjat, kafolat, qaytarish siyosati — konkret dalil ber.",
+    answers: [
+      {
+        text: "Hujjat va kafolat qog'ozini ko'rsataman — bemalol tekshirib ko'rasiz.",
+        style: "ekspertlik",
+      },
+      {
+        text: "Yoqmasa 7 kun ichida qaytarib olamiz — risk sizda emas.",
+        style: "logika",
+      },
+      {
+        text: "1000dan ortiq mijoz allaqachon ishonib sotib olgan.",
+        style: "dojim",
+      },
+    ],
   },
   {
+    id: "ishonch-aldangan",
     type: "ishonch",
     text: "Tanishim shunaqasini olib aldangan.",
-    counter: "Ijtimoiy isbot va risk kamaytirish (qaytarish) taklif qil.",
+    answers: [
+      {
+        text: "Tushunaman, achinarli holat. Bizda qanday kafolat borligini ko'rsatsam maylimi?",
+        style: "logika",
+      },
+      {
+        text: "Har doim shunday odam bo'ladi — biz sizga real dalil ko'rsatamiz.",
+        style: "ekspertlik",
+      },
+    ],
   },
   {
+    id: "ishonch-sifat",
     type: "ishonch",
     text: "Sifati yaxshimi ishqilib?",
-    counter: "Sertifikat/reyting/namuna bilan tasdiqla, bo'sh va'da berma.",
+    answers: [
+      {
+        text: "Sertifikat va reyting shu yerda — o'zingiz ko'rib qaror qilasiz.",
+        style: "ekspertlik",
+      },
+      {
+        text: "Sifatli bo'lmasa, bugun bu yerda sizga taklif ham qilmasdim.",
+        style: "bosim",
+      },
+    ],
   },
-
-  // --- Vaqt ---
   {
+    id: "vaqt-yoq",
     type: "vaqt",
     text: "Vaqtim yo'q, keyin qo'ng'iroq qiling.",
-    counter: "Bir gapda qiymat + 30 soniya so'ra; vaqtini hurmat qil.",
+    answers: [
+      {
+        text: "Tushunaman, 30 soniya — asosiy foydani aytaman, keyin qaror sizga.",
+        style: "intriga",
+      },
+      {
+        text: "Qachon qo'ng'iroq qilsam qulay bo'ladi — ertaga shu vaqtdami?",
+        style: "dojim",
+      },
+      {
+        text: "Vaqtingizni hurmat qilaman — bitta gap: qancha tejaysiz bilasizmi?",
+        style: "logika",
+      },
+    ],
   },
   {
+    id: "vaqt-bandman",
     type: "vaqt",
     text: "Hozir bandman, koroche nima gap?",
-    counter: "Zich pitch: mahsulot + asosiy foyda + aniq keyingi qadam.",
+    answers: [
+      {
+        text: "Zich aytaman: [mahsulot] + asosiy foyda — 15 soniya.",
+        style: "logika",
+      },
+      {
+        text: "Aynan shuning uchun band odamlar bizni tanlaydi — vaqt tejaydi.",
+        style: "ekspertlik",
+      },
+    ],
   },
-
-  // --- Ehtiyoj ---
   {
+    id: "ehtiyoj-bor",
     type: "ehtiyoj",
     text: "Menga kerak emas, bor allaqachon.",
-    counter: "Joriy yechimidagi og'riqni ochuvchi savol ber.",
+    answers: [
+      {
+        text: "Zo'r, hozirgisidan qoniqasizmi to'liq, yoki bitta narsa yetishmaydimi?",
+        style: "logika",
+      },
+      {
+        text: "Ko'pchilik shunday deb boshlagan, keyin farqni ko'rib almashgan.",
+        style: "dojim",
+      },
+    ],
   },
   {
+    id: "ehtiyoj-qiziqmayman",
     type: "ehtiyoj",
     text: "Qiziqmayman.",
-    counter: "Bir og'riq nuqtasiga tegib qiziqish uyg'ot, bosim qilma.",
+    answers: [
+      {
+        text: "Bir og'iz savol: hozirgi holatingizda eng katta og'riq nima?",
+        style: "intriga",
+      },
+      {
+        text: "Xo'p, bosim qilmayman — faqat bir daqiqa vaqtingizni olsam maylimi?",
+        style: "yumor",
+      },
+    ],
   },
-
-  // --- Qaror ---
   {
+    id: "qaror-oylab",
     type: "qaror",
     text: "O'ylab ko'ramiz, keyinroq.",
-    counter: "Yashirin e'tirozni och: aniq nima to'xtatib turibdi?",
+    answers: [
+      {
+        text: "Albatta. Aniq nima sizni to'xtatib turibdi — narximi, muddatmi?",
+        style: "logika",
+      },
+      {
+        text: "Yaxshi qaror uchun vaqt kerak — qachon qayta bog'lanay?",
+        style: "dojim",
+      },
+      {
+        text: "O'ylab ko'rish — bu odatda «yo'q» degani, to'g'rimi ayting-chi?",
+        style: "bosim",
+      },
+    ],
   },
   {
+    id: "qaror-uyda",
     type: "qaror",
     text: "Uyda maslahatlashib olay.",
-    counter: "Qaror qabul qiluvchini aniqla, keyingi aniq qadam belgila.",
+    answers: [
+      {
+        text: "Albatta to'g'ri qaror. Kim bilan gaplashasiz — birga ulanamizmi?",
+        style: "logika",
+      },
+      {
+        text: "Ularga aytadigan 3 asosiy foydani birga tayyorlab beray.",
+        style: "ekspertlik",
+      },
+    ],
   },
-
-  // --- Raqobat ---
   {
+    id: "raqobat-arzon",
     type: "raqobat",
     text: "Falon kompaniyada arzonroq va yaxshiroq.",
-    counter: "Bahslashma — farqingni aniq ustunlik bilan ko'rsat.",
+    answers: [
+      {
+        text: "Bahslashmayman — farqimizni ko'rsataman, o'zingiz solishtirasiz.",
+        style: "logika",
+      },
+      {
+        text: "Ular haqida bilaman. Bizda ular bermaydigan narsa bor.",
+        style: "ekspertlik",
+      },
+      {
+        text: "Odamlar tez-tez ulardan bizga o'tadi — sababini aytaymi?",
+        style: "intriga",
+      },
+    ],
   },
   {
+    id: "raqobat-bepul",
     type: "raqobat",
     text: "Ular bepul yetkazadi-ku.",
-    counter: "To'liq qiymatni (kafolat, xizmat) taqqoslab qayta ramkalash.",
+    answers: [
+      {
+        text: "To'liq qiymatni solishtirsak — kafolat, xizmat, muddat — qaysi biri arzon?",
+        style: "logika",
+      },
+      {
+        text: "Bepul hech narsa yo'q — narx boshqa joyga yashiringan bo'ladi.",
+        style: "yumor",
+      },
+    ],
   },
 
-  // --- Qo'shimcha (30+ kutubxona) ---
+  // --- Qo'shimcha (kengaytirilgan kutubxona, 2 javob) ---
   {
+    id: "narx-chegirma2",
     type: "narx",
     text: "Naq pulga chegirma qancha?",
-    counter: "Chegirmani shartga bog'la (hajm, muddat) — bepul berma.",
+    answers: [
+      {
+        text: "Naq pulga alohida shart bor — hajmga qarab aytaman.",
+        style: "logika",
+      },
+      {
+        text: "Chegirmani bepul bermayman, lekin bonusni qo'shib beraman.",
+        style: "dojim",
+      },
+    ],
   },
   {
+    id: "narx-keyingi-oy",
     type: "narx",
     text: "Keyingi oy maoshdan keyin olaman.",
-    counter: "Bugungi qaror uchun sabab yarat; bo'lib to'lashni eslat.",
+    answers: [
+      {
+        text: "Bugun bron qilib, to'lovni keyingi oyga qoldirsak bo'ladi.",
+        style: "bosim",
+      },
+      {
+        text: "Bo'lib to'lash bilan bugundan foydalanishni boshlaysiz.",
+        style: "logika",
+      },
+    ],
   },
   {
+    id: "narx-dostimga",
     type: "narx",
     text: "Do'stimga arzonroq bergansizlar-ku.",
-    counter: "Adolatli narx siyosatini tushuntir, qiymatga qaytar.",
+    answers: [
+      {
+        text: "Har mijozga shart individual — sizga ham eng yaxshisini taklif qilaman.",
+        style: "ekspertlik",
+      },
+      {
+        text: "Adolatli narx siyosatimiz bor, lekin qiymatga qaytaylik.",
+        style: "logika",
+      },
+    ],
   },
   {
+    id: "ishonch-onlayn",
     type: "ishonch",
     text: "Onlayn to'lasam pulim yo'qolmaydimi?",
-    counter: "Xavfsiz to'lov va qaytarish kafolatini konkret ko'rsat.",
+    answers: [
+      {
+        text: "Xavfsiz to'lov tizimi + qaytarish kafolati — risk yo'q.",
+        style: "logika",
+      },
+      {
+        text: "Naqd to'lov ham mumkin, agar shunday qulay bo'lsa.",
+        style: "yumor",
+      },
+    ],
   },
   {
+    id: "ishonch-birinchi",
     type: "ishonch",
     text: "Sizni birinchi marta ko'ryapman.",
-    counter: "Ijtimoiy isbot, portfolio, kichik sinov taklif qil.",
+    answers: [
+      {
+        text: "Portfolio va mijozlar fikrini ko'rsataman — o'zingiz baholaysiz.",
+        style: "ekspertlik",
+      },
+      {
+        text: "Kichik sinov buyurtma bilan boshlaylik — ishonch keyin keladi.",
+        style: "intriga",
+      },
+    ],
   },
   {
+    id: "ishonch-reklama",
     type: "ishonch",
     text: "Reklama-ku bularning hammasi.",
-    counter: "Da'vo emas — o'lchanadigan natija va mijoz misolini ber.",
+    answers: [
+      {
+        text: "Da'vo emas — o'lchanadigan natija va real mijoz misolini ko'rsataman.",
+        style: "ekspertlik",
+      },
+      {
+        text: "To'g'ri, reklama ko'p — shuning uchun dalil bilan gapiraman.",
+        style: "logika",
+      },
+    ],
   },
   {
+    id: "vaqt-yigilish",
     type: "vaqt",
     text: "Yig'ilishdaman, keyin yozing.",
-    counter: "Aniq vaqt kelish; bir jumlali qiymatni qoldir.",
+    answers: [
+      {
+        text: "Albatta. Bitta jumlada qiymatni qoldiray — qolganini yozib yuboraman.",
+        style: "logika",
+      },
+      { text: "Qaysi vaqt qulay — kechqurunmi?", style: "dojim" },
+    ],
   },
   {
+    id: "vaqt-telegram",
     type: "vaqt",
     text: "Telegramga tashlang, ko'raman.",
-    counter: "Kanalga o'tishga rozi bo'l, lekin keyingi qadamni belgila.",
+    answers: [
+      {
+        text: "Tashlayman, lekin ertaga qisqa qo'ng'iroq qilib tasdiqlab olsam maylimi?",
+        style: "dojim",
+      },
+      {
+        text: "Yaxshi, materialni yuboraman — savol chiqsa yozing.",
+        style: "yumor",
+      },
+    ],
   },
   {
+    id: "ehtiyoj-joyida",
     type: "ehtiyoj",
     text: "Bizda hammasi joyida, kerak emas.",
-    counter: "Joriy holatdagi yashirin xarajat/og'riqni savol bilan och.",
+    answers: [
+      {
+        text: "Zo'r. Faqat bitta narsa so'rasam — hozirgi jarayonda nima ko'proq vaqt oladi?",
+        style: "intriga",
+      },
+      {
+        text: "Yashirin xarajatlar ko'pincha ko'zga tashlanmaydi — birga tekshirib ko'raylik.",
+        style: "logika",
+      },
+    ],
   },
   {
+    id: "ehtiyoj-tugri-kelmaydi",
     type: "ehtiyoj",
     text: "Bu biznesimizga to'g'ri kelmaydi.",
-    counter: "Segmentiga mos konkret foydani ko'rsat, umumiy gapirma.",
+    answers: [
+      {
+        text: "Sizning segmentga mos konkret misolni ko'rsataman.",
+        style: "ekspertlik",
+      },
+      {
+        text: "Qaysi jihati mos kelmayapti — shuni birga ko'rib chiqamiz.",
+        style: "logika",
+      },
+    ],
   },
   {
+    id: "qaror-sherik",
     type: "qaror",
     text: "Sherigim bilan gaplashib olay.",
-    counter: "Qaror qabul qiluvchini birga suhbatga chaqirishni taklif qil.",
+    answers: [
+      {
+        text: "To'g'ri. Uni ham suhbatga taklif qilsak, tezroq qaror bo'ladi.",
+        style: "logika",
+      },
+      { text: "Qachon ikkalangiz bilan gaplasha olaman?", style: "dojim" },
+    ],
   },
   {
+    id: "qaror-shoshilmayapmiz",
     type: "qaror",
     text: "Hozircha shoshilmayapmiz.",
-    counter: "Kechikish narxini (yo'qotilgan foyda) ko'rsat, yumshoq deadline.",
+    answers: [
+      {
+        text: "Tushunarli. Lekin kechikish qancha xarajat qilishi mumkinligini hisoblab ko'raylikmi?",
+        style: "dojim",
+      },
+      {
+        text: "Shoshilmang, faqat muddatni birga belgilab qo'yaylik.",
+        style: "yumor",
+      },
+    ],
   },
   {
+    id: "qaror-material",
     type: "qaror",
-    text: "Materiallaringizni yuboring, o'qiб chiqamiz.",
-    counter: "Yuborishga rozi bo'l + aniq follow-up sana kelish.",
+    text: "Materiallaringizni yuboring, o'qib chiqamiz.",
+    answers: [
+      {
+        text: "Yuboraman. Qachon qayta bog'lanishim mumkin — sana belgilaymizmi?",
+        style: "logika",
+      },
+      {
+        text: "Yuboraman + eng muhim 3 nuqtani belgilab beraman, tez o'qiysiz.",
+        style: "ekspertlik",
+      },
+    ],
   },
   {
+    id: "raqobat-yetkazib-beruvchi",
     type: "raqobat",
     text: "Bizda allaqachon yetkazib beruvchi bor.",
-    counter: "Almashtirishga emas, qo'shimcha qiymatga fokusla.",
+    answers: [
+      {
+        text: "Almashtirishga chaqirmayapman — qo'shimcha zaxira sifatida sinab ko'ring.",
+        style: "yumor",
+      },
+      {
+        text: "Ularni almashtirish shart emas — biz bilan qo'shimcha qiymat qo'shasiz.",
+        style: "logika",
+      },
+    ],
   },
   {
+    id: "raqobat-uzum",
     type: "raqobat",
     text: "Uzum'da o'zim sotaman, vositachi kerakmas.",
-    counter: "Vaqt/logistika tejamini raqam bilan ko'rsat.",
+    answers: [
+      {
+        text: "To'g'ri, lekin vaqt va logistikangizni qancha tejashimizni hisoblaymizmi?",
+        style: "logika",
+      },
+      {
+        text: "Ko'pchilik ham shunday deb boshlagan, keyin vaqti yetmay bizga o'tgan.",
+        style: "dojim",
+      },
+    ],
   },
   {
+    id: "narx-bozor",
     type: "narx",
     text: "Bozorda bundan arzon full bor.",
-    counter: "Sifat/kafolat farqini aniq ajratib, qiymatni qayta ramkala.",
+    answers: [
+      {
+        text: "Sifat va kafolat farqini aniq ajratib ko'rsataman.",
+        style: "ekspertlik",
+      },
+      {
+        text: "Arzonining narxi qayerdan kelishini so'rab ko'rdingizmi?",
+        style: "intriga",
+      },
+    ],
   },
 ];
 

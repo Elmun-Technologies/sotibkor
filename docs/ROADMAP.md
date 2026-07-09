@@ -85,6 +85,19 @@ Sprint rejasi: [docs/SPRINT-GAMIFICATION.md](SPRINT-GAMIFICATION.md) (rollar, ac
 
 ---
 
-## Joriy holat (2026-07-08)
+## Joriy holat (2026-07-09)
 
-Skafold tugadi: repo strukturasi, CLAUDE.md, docs, skills, agents, hooks, Next.js boilerplate, CI. Keyingi qadam — **1-bosqich, issue #1: ovoz aylanasi POC**.
+Skafold + mock-rejim ilovasi tayyor: ro'yxatdan o'tish (menejer/ROP), onboarding, dashboard, ta'lim yo'li, qo'ng'iroq trenajori (mock ovoz aylanasi), reyting, profil.
+
+Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
+
+- ✅ **Sidebar ilova qobig'i** (`(app)` route-group + `AppShell`) — chapda doimiy navigatsiya, bepul suhbat hisoblagichi, foydalanuvchi kartasi; mobilda drawer.
+- ✅ **E'tirozlar playbook** (`/etirozlar`) — ikki panelli ro'yxat+tafsilot (closeme uslubida), har e'tirozga bir nechta uslub teglangan javob (Logika/Ekspertlik/Intriga/Dojim/Bosim/Yumor), sevimli/nusxalash, "o'z javobingni sina" (mock AI baho).
+- ✅ **Tezkor mashq** (`/etirozlar` → drill) — closeme "Тренировка"ga o'xshash: e'tirozlarni checkbox + takror-hisoblagich bilan tanlash, qiyinlik darajasi, ketma-ket savol-javob (har javobga darhol mock AI ball+feedback), yakunda o'rtacha ball va eng kuchli/zaif tur.
+- ✅ **Qo'ng'iroq ssenariylari** (`/qongiroq`) — nomli mijoz katalogi (soha × persona × qiyinlik), filtrlar, "o'z mijozingni yarat".
+- ✅ **Vazifalar** (`/vazifalar`) — menejer topshiriqlari + ROP topshiriq biriktirish va jamoa holati (rol bo'yicha).
+- ✅ **Muzokaralar** (`/muzokaralar`) — closeme "Переговоры"ga o'xshash: bitim yakuniy bosqichi ssenariylari (chegirma/to'lov/yetkazish talablari), qidiruv, "Barcha/Mening ssenariylarim" tab, progressiv qulflangan ilg'or ssenariylar (daraja bo'yicha ochiladi), "o'z ssenariyingni yarat".
+- ✅ **Analitika** (`/analitika`) — closeme "Аналитика"ga o'xshash dashboard: daraja/trening/o'rtacha ball statistikasi, ball trendi, suhbat voronkasi (5 bosqich), e'tiroz turi bo'yicha muvaffaqiyat foizi, xulq-atvor xatolari, AI xulosalari + "ko'nikmani oshirish" CTA (mock ma'lumot bilan — closeme'ning o'zi ham demo hisobda bo'sh ko'rsatadi, bizniki mazmunli).
+- ✅ **Yutuqlar** (`/yutuqlar`) — closeme "Достижения"ga o'xshash: 6 ta kategoriya (Sovuq qo'ng'iroqlar, Qo'ng'iroq sifati, Progress, Intizom, Muzokaralar, Afsonaviy), 22 ta yutuq, umumiy ochilgan/XP hisoblagichi. `/profil` va `/reyting` endi qisqa preview (6/3 ta) + "Barchasini ko'rish" havolasi ko'rsatadi — dublikat saqlanmaydi.
+
+Keyingi qadam — **1-bosqich, issue #1: real Aisha STT/TTS + Claude persona aylanasi** (kalitlar kerak), so'ng **Supabase** (real auth + ROP jamoa dashboard + to'lov, #8/#9).

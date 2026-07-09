@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Stat } from "@/components/ui";
 import {
@@ -32,6 +33,9 @@ function formatDate(iso: string | null): string {
 export default function ProfilPage() {
   const earnedCount = MOCK_ACHIEVEMENTS.filter((a) => a.earned).length;
   const totalCount = MOCK_ACHIEVEMENTS.length;
+  const preview = [...MOCK_ACHIEVEMENTS]
+    .sort((a, b) => Number(b.earned) - Number(a.earned))
+    .slice(0, 6);
 
   return (
     <PageShell title={t.profil.title} lead={t.profil.subtitle}>
@@ -108,12 +112,15 @@ export default function ProfilPage() {
         <h2 className="text-xl font-semibold tracking-tight text-foreground">
           {t.profil.achievementsTitle}
         </h2>
-        <span className="font-mono text-xs tabular-nums text-muted">
-          {earnedCount}/{totalCount} {t.profil.achievementsProgress}
-        </span>
+        <Link
+          href="/yutuqlar"
+          className="text-sm text-muted hover:text-foreground"
+        >
+          {earnedCount}/{totalCount} {t.profil.achievementsProgress} →
+        </Link>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {MOCK_ACHIEVEMENTS.map((a, i) => (
+        {preview.map((a, i) => (
           <AchievementCard
             key={a.code}
             code={a.code}

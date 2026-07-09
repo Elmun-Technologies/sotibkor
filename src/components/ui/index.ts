@@ -14,6 +14,7 @@ export type { BadgeProps } from "./Badge";
 export { PageShell } from "./PageShell";
 export type { PageShellProps } from "./PageShell";
 export { Nav } from "./Nav";
+export { AppShell } from "./AppShell";
 export { ThemeToggle } from "./ThemeToggle";
 export { Eyebrow } from "./Eyebrow";
 export type { EyebrowProps } from "./Eyebrow";

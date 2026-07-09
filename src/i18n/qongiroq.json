@@ -1,0 +1,39 @@
+{
+  "title": "Qo'ng'iroq ssenariylari",
+  "subtitle": "Nomli mijoz tanla — har biri o'z xarakteri, sohasi va qiyinligi bilan. Sozla va qo'ng'iroqni boshla.",
+  "allSoha": "Barcha sohalar",
+  "allDiff": "Barcha darajalar",
+  "difficulty": {
+    "oson": "Oson",
+    "orta": "O'rta",
+    "qiyin": "Qiyin"
+  },
+  "focusLabel": "Asosiy e'tiroz",
+  "focus": {
+    "narx": "Narx",
+    "ishonch": "Ishonch",
+    "vaqt": "Vaqt",
+    "ehtiyoj": "Ehtiyoj",
+    "qaror": "Qaror",
+    "raqobat": "Raqobat"
+  },
+  "setup": "Sozlash",
+  "call": "Qo'ng'iroq",
+  "levelLabel": "Daraja",
+  "personaHint": {
+    "qimmatchi": "Narxni cho'zadi, chegirma so'raydi",
+    "shubhali": "Har narsaga shubha, dalil so'raydi",
+    "bandman": "Shoshadi, vaqti yo'q",
+    "bilagon": "Hammasini biladi, o'rgatishni yoqtirmaydi",
+    "yumshoq-lekin-olmaydi": "Iliq gapiradi, lekin qaror qilmaydi"
+  },
+  "customTitle": "O'z mijozingni yarat",
+  "customLead": "Kompaniyangdagi real mijoz portretini kiritib, shunga mos qo'ng'iroq mashq qil.",
+  "customName": "Mijoz ismi",
+  "customNamePh": "Masalan: Karim aka",
+  "customDesc": "Xarakteri va e'tirozi",
+  "customDescPh": "Masalan: doim narxni cho'zadi, raqobatchini ro'kach qiladi, qaror qilishga shoshmaydi...",
+  "customBtn": "Ssenariy sifatida qo'shish",
+  "customHint": "Hozircha demo — saqlangan ssenariylar keyingi bosqichda Supabase'da turadi.",
+  "resultEmpty": "Bu filtrga mos ssenariy yo'q."
+}

@@ -11,14 +11,45 @@ import type {
   UserStats,
 } from "../types";
 
-/** Achievement ta'riflari (single source of truth). i18n: achievements.<code>.title/.desc */
+/**
+ * Achievement ta'riflari (single source of truth) — closeme'ning 25 ta
+ * kategoriyalangan yutug'idan ilhomlangan, bizning voronka/muzokara
+ * tushunchalariga moslashtirilgan. i18n: achievements.<code>.title/.desc
+ */
 export const ACHIEVEMENTS: AchievementDef[] = [
-  { code: "birinchi_suhbat", xp: 50 },
-  { code: "ketma_ket_3", xp: 75 },
-  { code: "ketma_ket_7", xp: 150 },
-  { code: "yuqori_ball", xp: 100 },
-  { code: "birinchi_yopish", xp: 80 },
-  { code: "qiyin_persona", xp: 120 },
+  // --- Sovuq qo'ng'iroqlar ---
+  { code: "birinchi_qongiroq", xp: 30, category: "sovuq_qongiroq" },
+  { code: "on_qongiroq", xp: 60, category: "sovuq_qongiroq" },
+  { code: "ellik_qongiroq", xp: 160, category: "sovuq_qongiroq" },
+  { code: "yuz_qongiroq", xp: 320, category: "sovuq_qongiroq" },
+  { code: "besh_yuz_qongiroq", xp: 970, category: "sovuq_qongiroq" },
+
+  // --- Qo'ng'iroq sifati ---
+  { code: "ball_70", xp: 100, category: "sifat" },
+  { code: "ball_85", xp: 160, category: "sifat" },
+  { code: "ball_100", xp: 320, category: "sifat" },
+  { code: "barqaror_sifat", xp: 640, category: "sifat" },
+
+  // --- Progress ---
+  { code: "osish_boshlandi", xp: 80, category: "progress" },
+  { code: "ishonchli_osish", xp: 180, category: "progress" },
+  { code: "uch_qadam_yuqoriga", xp: 140, category: "progress" },
+
+  // --- Intizom ---
+  { code: "uch_kun_ketma_ket", xp: 60, category: "intizom" },
+  { code: "yetti_kun_ketma_ket", xp: 160, category: "intizom" },
+  { code: "ottiz_kun_ketma_ket", xp: 960, category: "intizom" },
+  { code: "toqson_kun_ketma_ket", xp: 3200, category: "intizom" },
+
+  // --- Muzokaralar ---
+  { code: "birinchi_muzokara", xp: 60, category: "muzokaralar" },
+  { code: "birinchi_chegirma", xp: 100, category: "muzokaralar" },
+  { code: "birinchi_otsrochka", xp: 100, category: "muzokaralar" },
+  { code: "shartlar_ustasi", xp: 1600, category: "muzokaralar" },
+
+  // --- Afsonaviy ---
+  { code: "million_argument", xp: 6400, category: "afsonaviy" },
+  { code: "toliq_kolleksiya", xp: 4600, category: "afsonaviy" },
 ];
 
 export const MOCK_USER: UserStats = {
@@ -56,11 +87,57 @@ export const MOCK_DAILY = { doneMin: 8, goalMin: 15 };
 /** Eng uzun streak. */
 export const MOCK_LONGEST = { days: 6, weeks: 2 };
 
+/** Suhbat voronkasi — bosqichdan bosqichga o'tgan suhbatlar foizi (Analitika). */
+export const MOCK_FUNNEL: Record<
+  "kontakt" | "ehtiyoj" | "prezentatsiya" | "etiroz" | "yopish",
+  number
+> = {
+  kontakt: 100,
+  ehtiyoj: 86,
+  prezentatsiya: 71,
+  etiroz: 58,
+  yopish: 34,
+};
+
+/** E'tiroz turi bo'yicha: nechta suhbatda uchragan va nechtasi muvaffaqiyatli yopilgan. */
+export const MOCK_OBJECTION_STATS: Record<
+  "narx" | "ishonch" | "vaqt" | "ehtiyoj" | "qaror" | "raqobat",
+  { met: number; resolved: number }
+> = {
+  narx: { met: 14, resolved: 9 },
+  ishonch: { met: 8, resolved: 6 },
+  vaqt: { met: 11, resolved: 8 },
+  ehtiyoj: { met: 6, resolved: 3 },
+  qaror: { met: 9, resolved: 4 },
+  raqobat: { met: 5, resolved: 3 },
+};
+
 export const MOCK_ACHIEVEMENTS: AchievementState[] = [
-  { code: "birinchi_suhbat", earned: true, earnedAt: "2026-06-20" },
-  { code: "ketma_ket_3", earned: true, earnedAt: "2026-06-24" },
-  { code: "ketma_ket_7", earned: false, earnedAt: null },
-  { code: "yuqori_ball", earned: true, earnedAt: "2026-07-02" },
-  { code: "birinchi_yopish", earned: true, earnedAt: "2026-06-28" },
-  { code: "qiyin_persona", earned: false, earnedAt: null },
+  { code: "birinchi_qongiroq", earned: true, earnedAt: "2026-06-20" },
+  { code: "on_qongiroq", earned: true, earnedAt: "2026-06-27" },
+  { code: "ellik_qongiroq", earned: false, earnedAt: null },
+  { code: "yuz_qongiroq", earned: false, earnedAt: null },
+  { code: "besh_yuz_qongiroq", earned: false, earnedAt: null },
+
+  { code: "ball_70", earned: true, earnedAt: "2026-07-02" },
+  { code: "ball_85", earned: false, earnedAt: null },
+  { code: "ball_100", earned: false, earnedAt: null },
+  { code: "barqaror_sifat", earned: false, earnedAt: null },
+
+  { code: "osish_boshlandi", earned: true, earnedAt: "2026-06-30" },
+  { code: "ishonchli_osish", earned: false, earnedAt: null },
+  { code: "uch_qadam_yuqoriga", earned: true, earnedAt: "2026-07-05" },
+
+  { code: "uch_kun_ketma_ket", earned: true, earnedAt: "2026-06-23" },
+  { code: "yetti_kun_ketma_ket", earned: false, earnedAt: null },
+  { code: "ottiz_kun_ketma_ket", earned: false, earnedAt: null },
+  { code: "toqson_kun_ketma_ket", earned: false, earnedAt: null },
+
+  { code: "birinchi_muzokara", earned: false, earnedAt: null },
+  { code: "birinchi_chegirma", earned: false, earnedAt: null },
+  { code: "birinchi_otsrochka", earned: false, earnedAt: null },
+  { code: "shartlar_ustasi", earned: false, earnedAt: null },
+
+  { code: "million_argument", earned: false, earnedAt: null },
+  { code: "toliq_kolleksiya", earned: false, earnedAt: null },
 ];

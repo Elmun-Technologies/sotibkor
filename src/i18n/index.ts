@@ -23,6 +23,12 @@ import dars from "./dars.json";
 import boshlash from "./boshlash.json";
 import onboarding from "./onboarding.json";
 import home from "./home.json";
+import etirozlar from "./etirozlar.json";
+import qongiroq from "./qongiroq.json";
+import vazifalar from "./vazifalar.json";
+import muzokaralar from "./muzokaralar.json";
+import analitika from "./analitika.json";
+import yutuqlar from "./yutuqlar.json";
 
 export type Locale = "uz" | "ru";
 export const DEFAULT_LOCALE: Locale = "uz";
@@ -44,6 +50,12 @@ const messages = {
   boshlash,
   onboarding,
   home,
+  etirozlar,
+  qongiroq,
+  vazifalar,
+  muzokaralar,
+  analitika,
+  yutuqlar,
 } as const;
 
 export type Messages = typeof messages;
