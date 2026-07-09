@@ -103,7 +103,9 @@ export default function HomePage() {
             <Eyebrow className="text-[color:var(--good)]">
               {t.home.objBest}
             </Eyebrow>
-            <p className="mt-1.5 text-[15px] text-foreground">{obj.counter}</p>
+            <p className="mt-1.5 text-[15px] text-foreground">
+              {obj.answers[0].text}
+            </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link href={trainHref(obj.type)}>
