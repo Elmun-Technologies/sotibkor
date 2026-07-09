@@ -233,9 +233,32 @@ export function CallView(p: CallViewProps) {
             </span>
           </div>
         )}
+
+        {/* Kontekst chiplari — suhbat davomida kim bilan gaplashayotganini eslatib turadi */}
+        <div className="mt-2 flex w-full max-w-xs flex-col gap-2">
+          <div className="inset flex items-center gap-2 px-4 py-2.5 text-sm">
+            <span aria-hidden>🏠</span>
+            <span className="text-muted">{t.trener.chipSoha}:</span>
+            <span className="font-medium text-foreground">{p.sohaLabel}</span>
+          </div>
+          <div className="inset flex items-center gap-2 px-4 py-2.5 text-sm">
+            <span aria-hidden>👤</span>
+            <span className="text-muted">{t.trener.chipMijoz}:</span>
+            <span className="font-medium text-foreground">
+              {p.personaLabel}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Jonli transkript (qo'ng'iroq yozib borilishi) */}
+      <div className="flex items-center gap-1.5 px-1 text-xs text-faint">
+        <span
+          className="h-1.5 w-1.5 rounded-full bg-[color:var(--live)]"
+          aria-hidden
+        />
+        {t.trener.transcriptTitle} — {t.trener.transcriptNote}
+      </div>
       <div
         ref={scrollRef}
         className="inset flex-1 space-y-2 overflow-y-auto p-4"
