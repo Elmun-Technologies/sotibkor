@@ -266,7 +266,7 @@ export default function Home() {
         <section className="mt-24">
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div>
-              <Eyebrow>Moat</Eyebrow>
+              <Eyebrow>{t.landing.eyebrowMoat}</Eyebrow>
               <h2 className="display mt-3 text-4xl sm:text-5xl">
                 {t.landing.moatTitle}
               </h2>
@@ -293,7 +293,7 @@ export default function Home() {
         <section className="mt-24">
           <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
             <div>
-              <Eyebrow>Skills</Eyebrow>
+              <Eyebrow>{t.landing.eyebrowSkills}</Eyebrow>
               <h2 className="display mt-3 text-4xl sm:text-5xl">
                 {t.landing.capabilitiesTitle}
               </h2>
@@ -331,7 +331,7 @@ export default function Home() {
 
         {/* ---------- BIZ NIMA QILMAYMIZ (halol pozitsiya) ---------- */}
         <section className="mt-24">
-          <Eyebrow>Halollik</Eyebrow>
+          <Eyebrow>{t.landing.eyebrowHalollik}</Eyebrow>
           <h2 className="display mt-3 text-4xl sm:text-5xl">
             {t.landing.notDoTitle}
           </h2>

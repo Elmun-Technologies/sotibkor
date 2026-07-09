@@ -35,5 +35,9 @@
   "callTalk": "Gapirish",
   "callStop": "To'xtatish",
   "callOrType": "yoki yozing",
-  "callHint": "Mikrofonni bosib gapiring — mijoz javob beradi"
+  "callHint": "Mikrofonni bosib gapiring — mijoz javob beradi",
+  "chipSoha": "Soha",
+  "chipMijoz": "Mijoz turi",
+  "transcriptTitle": "Transkript",
+  "transcriptNote": "Mikrofon eshitgan hamma narsa yoziladi — fon shovqini va yaqin atrofdagi ovozlar ham."
 }

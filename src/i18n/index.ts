@@ -29,6 +29,8 @@ import vazifalar from "./vazifalar.json";
 import muzokaralar from "./muzokaralar.json";
 import analitika from "./analitika.json";
 import yutuqlar from "./yutuqlar.json";
+import tariflar from "./tariflar.json";
+import yordam from "./yordam.json";
 
 export type Locale = "uz" | "ru";
 export const DEFAULT_LOCALE: Locale = "uz";
@@ -56,6 +58,8 @@ const messages = {
   muzokaralar,
   analitika,
   yutuqlar,
+  tariflar,
+  yordam,
 } as const;
 
 export type Messages = typeof messages;

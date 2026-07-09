@@ -47,3 +47,23 @@ export interface LeaderboardEntry {
   xpWeek: number;
   isMe?: boolean;
 }
+
+export type TaskStatus = "new" | "progress" | "done";
+
+export interface Assignment {
+  id: string;
+  title: string;
+  by: string;
+  target: number;
+  done: number;
+  dueDays: number;
+  status: TaskStatus;
+  focus: string;
+}
+
+export interface TeamRow {
+  name: string;
+  done: number;
+  target: number;
+  avg: number;
+}

@@ -99,5 +99,28 @@ Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
 - ✅ **Muzokaralar** (`/muzokaralar`) — closeme "Переговоры"ga o'xshash: bitim yakuniy bosqichi ssenariylari (chegirma/to'lov/yetkazish talablari), qidiruv, "Barcha/Mening ssenariylarim" tab, progressiv qulflangan ilg'or ssenariylar (daraja bo'yicha ochiladi), "o'z ssenariyingni yarat".
 - ✅ **Analitika** (`/analitika`) — closeme "Аналитика"ga o'xshash dashboard: daraja/trening/o'rtacha ball statistikasi, ball trendi, suhbat voronkasi (5 bosqich), e'tiroz turi bo'yicha muvaffaqiyat foizi, xulq-atvor xatolari, AI xulosalari + "ko'nikmani oshirish" CTA (mock ma'lumot bilan — closeme'ning o'zi ham demo hisobda bo'sh ko'rsatadi, bizniki mazmunli).
 - ✅ **Yutuqlar** (`/yutuqlar`) — closeme "Достижения"ga o'xshash: 6 ta kategoriya (Sovuq qo'ng'iroqlar, Qo'ng'iroq sifati, Progress, Intizom, Muzokaralar, Afsonaviy), 22 ta yutuq, umumiy ochilgan/XP hisoblagichi. `/profil` va `/reyting` endi qisqa preview (6/3 ta) + "Barchasini ko'rish" havolasi ko'rsatadi — dublikat saqlanmaydi.
+- ✅ **Tariflar** (`/tariflar`) — closeme'ning tarif kartalaridan moslashtirilgan (so'mda): Bepul/Amaliyot/Profi/Cheksiz, joriy tarif + suhbat statistikasi. Sidebar'dagi "Tariflarni ko'rish" tugmasi endi shu sahifaga olib boradi (avval /reyting'ga noto'g'ri yo'naltirilgan edi). To'lov tugmalari hozircha mock — Payme/Click ulanmagan (#5).
+- ✅ **Profil → Mahsulot ma'lumotlari** — onboarding'da bir marta kiritilgan mahsulot/UTP/auditoriya/soha endi `/profil`da tahrirlanadi va saqlanadi (avval faqat write-once edi). `/profil`ga standart auth gating ham qo'shildi (avvalgi holatda yo'q edi).
+- ✅ **Yordam vidjeti** — closeme'ning global "Поддержка" tugmasidan moslashtirilgan: `(app)` qobig'ining har qanday sahifasida pastki o'ng burchakda suzuvchi tugma, bosilganda telefon/Telegram/email + nusxalash bilan modal ochiladi (demo kontakt, real kanal keyingi bosqichda).
+- ✅ **Qo'ng'iroq → O'z mijozingni yarat (funksional)** — avval faqat kosmetik (2 maydonli, hech qayerga ulanmagan) edi. Endi to'liq forma: ism, kompaniya, soha, xarakter (persona) tanlovi + kontekst — yaratilgan mijoz haqiqiy kartaga aylanadi va "Qo'ng'iroq" tugmasi to'g'ridan-to'g'ri shu soha/persona bilan `/trener`ga olib boradi.
+- ✅ **CallView kontekst chiplari** — closeme'ning qo'ng'iroq ekranidagi "Отрасль/Должность" chiplaridan ilhomlangan: suhbat davomida avatar kartasida doimiy ko'rinadigan "Soha" va "Mijoz turi" chiplari (kim bilan gaplashayotganini eslatib turadi) + transkript ustida "mikrofon fon shovqinini ham yozadi" ogohlantirishi. Faqat vizual qatlam — ovoz aylanasi (STT/LLM/TTS) o'zgarmadi, latency riski yo'q.
+- ✅ **UI taste-audit + to'liqlik tekshiruvi** — github.com/Leonxlnx/taste-skill'ning ochiq qo'llanmasi (o'rnatish `npx` orqali xavfsizlik siyosati bilan bloklandi, shuning uchun SKILL.md matni o'qilib qo'lda qo'llanildi) va ikkita fon agent (to'liqlik + xavfsizlik auditi) natijasida:
+  - Button/Chip/ThemeToggle/AppShell nav/SupportWidget — barchasiga `active:scale` bosim feedback qo'shildi; `Card`ga ixtiyoriy `interactive` prop (hover lift + chuqur soya, ikkala mavzu uchun CSS token orqali).
+  - 7 ta hardcode UI matni topildi va tuzatildi (i18n qoidasi buzilishi): landing sahifa 3 ta Eyebrow ("Moat"/"Skills"/"Halollik"), `/boshlash` orqaga havolasi + telefon/email placeholder'lari + fallback ism, `/tariflar` valyuta so'zi.
+  - `/vazifalar` sahifasidagi joyida yozilgan mock ma'lumot (topshiriqlar, jamoa) `src/lib/mock/index.ts` va `src/lib/types.ts`ga ko'chirildi — endi barcha demo ma'lumot bitta manbada (achievements/leaderboard bilan bir xil pattern).
+  - Xavfsizlik auditi: kritik topilma yo'q — API kalitlar faqat `process.env` orqali, server-only kalitlar client bundle'ga sizmaydi, `.env*` git'dan tashqarida, `dangerouslySetInnerHTML` faqat statik tema-init skriptida.
+  - Dead link yo'q, bo'sh/"coming soon" sahifa yo'q, i18n fayllarida bo'sh qiymat yo'q (24 ta namespace to'liq tekshirildi).
+
+### Mock-rejimda "100%" nimani anglatadi
+
+Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugallangan: 15 sahifa (landing, ro'yxatdan o'tish, onboarding, bosh sahifa, trener/qo'ng'iroq, e'tirozlar+tezkor mashq, qo'ng'iroq ssenariylari, muzokaralar, vazifalar, analitika, reyting, yutuqlar, tariflar, profil+sozlash), sidebar ilova qobig'i, yordam vidjeti — barchasi ishlaydi, o'zaro bog'langan, i18n orqali, typecheck/lint/69 test/build doim yashil.
+
+**Quyidagilar FAQAT tashqi hisob ma'lumotlari (API kalit/loyihalar) bilan davom etadi — men ularsiz "tugata olmayman":**
+
+- **Real ovoz aylanasi** — `AISHA_API_KEY` (STT/TTS) va `ANTHROPIC_API_KEY` (persona/baholovchi). Hozir mock: matn kiritish + brauzer ovozi.
+- **Real autentifikatsiya va ma'lumotlar bazasi** — Supabase loyihasi (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_KEY`). Hozir: localStorage mock, ROP jamoa/topshiriq biriktiruvi demo.
+- **To'lov** — Payme/Click merchant ma'lumotlari. Hozir: `/tariflar` UI tayyor, tugmalar bosilganda "tez orada" xabari.
+
+Bular sozlanganda: `voice-test` skili bilan latency o'lchanadi, keyin Supabase migratsiya + RLS, keyin to'lov ulanadi — kod tomoni (adapterlar, DB helper'lar, env o'qish) allaqachon tayyor turibdi.
 
 Keyingi qadam — **1-bosqich, issue #1: real Aisha STT/TTS + Claude persona aylanasi** (kalitlar kerak), so'ng **Supabase** (real auth + ROP jamoa dashboard + to'lov, #8/#9).

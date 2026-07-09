@@ -31,9 +31,14 @@
   "customLead": "Kompaniyangdagi real mijoz portretini kiritib, shunga mos qo'ng'iroq mashq qil.",
   "customName": "Mijoz ismi",
   "customNamePh": "Masalan: Karim aka",
-  "customDesc": "Xarakteri va e'tirozi",
+  "customCompany": "Kompaniya · ixtiyoriy",
+  "customCompanyPh": "Masalan: Toshkent Savdo",
+  "customSoha": "Soha",
+  "customXarakter": "Xarakter",
+  "customDesc": "Qo'shimcha kontekst · ixtiyoriy",
   "customDescPh": "Masalan: doim narxni cho'zadi, raqobatchini ro'kach qiladi, qaror qilishga shoshmaydi...",
-  "customBtn": "Ssenariy sifatida qo'shish",
-  "customHint": "Hozircha demo — saqlangan ssenariylar keyingi bosqichda Supabase'da turadi.",
+  "customBtn": "Mijoz yaratish",
+  "customHint": "Hozircha demo — saqlangan mijozlar keyingi bosqichda Supabase'da turadi.",
+  "createdTitle": "Yaratilgan mijozlaringiz",
   "resultEmpty": "Bu filtrga mos ssenariy yo'q."
 }

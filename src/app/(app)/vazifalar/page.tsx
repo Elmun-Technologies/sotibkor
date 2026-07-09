@@ -6,72 +6,14 @@ import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Button, ProgressBar } from "@/components/ui";
 import { getUser, isRegistered, isOnboarded, type Role } from "@/lib/auth";
+import {
+  MOCK_ASSIGNMENTS_ACTIVE,
+  MOCK_ASSIGNMENTS_DONE,
+  MOCK_TEAM,
+} from "@/lib/mock";
+import type { Assignment, TaskStatus } from "@/lib/types";
 
 const t = getMessages();
-
-type TaskStatus = "new" | "progress" | "done";
-
-interface Assignment {
-  id: string;
-  title: string;
-  by: string;
-  target: number;
-  done: number;
-  dueDays: number;
-  status: TaskStatus;
-  focus: string;
-}
-
-/** Menejer demo topshiriqlari (ROP biriktirgan). Real: Supabase (#8). */
-const MENEJER_TASKS: Assignment[] = [
-  {
-    id: "a1",
-    title: "Narx e'tirozini yopish",
-    by: "ROP Jasur",
-    target: 10,
-    done: 6,
-    dueDays: 3,
-    status: "progress",
-    focus: "narx",
-  },
-  {
-    id: "a2",
-    title: "Sovuq qo'ng'iroq: birinchi 30 soniya",
-    by: "ROP Jasur",
-    target: 8,
-    done: 0,
-    dueDays: 5,
-    status: "new",
-    focus: "vaqt",
-  },
-];
-
-const MENEJER_DONE: Assignment[] = [
-  {
-    id: "d1",
-    title: "Ishonch e'tirozi bilan ishlash",
-    by: "ROP Jasur",
-    target: 6,
-    done: 6,
-    dueDays: 0,
-    status: "done",
-    focus: "ishonch",
-  },
-];
-
-interface TeamRow {
-  name: string;
-  done: number;
-  target: number;
-  avg: number;
-}
-
-const TEAM: TeamRow[] = [
-  { name: "Aziz", done: 8, target: 10, avg: 74 },
-  { name: "Dilnoza", done: 10, target: 10, avg: 81 },
-  { name: "Sardor", done: 4, target: 10, avg: 63 },
-  { name: "Nodira", done: 6, target: 10, avg: 69 },
-];
 
 function StatusDot({ status }: { status: TaskStatus }) {
   const map: Record<TaskStatus, { c: string; label: string }> = {
@@ -95,7 +37,7 @@ function TaskCard({ task }: { task: Assignment }) {
   const pct = Math.round((task.done / task.target) * 100);
   const isDone = task.status === "done";
   return (
-    <Card className="flex flex-col gap-4">
+    <Card interactive className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="font-semibold tracking-tight text-foreground">
@@ -160,7 +102,7 @@ export default function VazifalarPage() {
   }, [router]);
 
   const teamAvg = useMemo(
-    () => Math.round(TEAM.reduce((s, m) => s + m.avg, 0) / TEAM.length),
+    () => Math.round(MOCK_TEAM.reduce((s, m) => s + m.avg, 0) / MOCK_TEAM.length),
     [],
   );
 
@@ -248,7 +190,7 @@ export default function VazifalarPage() {
               </span>
             </div>
             <div className="divide-y divide-hair">
-              {TEAM.map((m) => {
+              {MOCK_TEAM.map((m) => {
                 const pct = Math.round((m.done / m.target) * 100);
                 return (
                   <div key={m.name} className="flex items-center gap-4 py-3">
@@ -292,7 +234,7 @@ export default function VazifalarPage() {
   }
 
   // ---------- Menejer ko'rinishi ----------
-  const list = tab === "active" ? MENEJER_TASKS : MENEJER_DONE;
+  const list = tab === "active" ? MOCK_ASSIGNMENTS_ACTIVE : MOCK_ASSIGNMENTS_DONE;
 
   return (
     <PageShell title={t.vazifalar.title} lead={t.vazifalar.subtitleMenejer}>

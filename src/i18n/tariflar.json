@@ -1,0 +1,66 @@
+{
+  "title": "Tariflar",
+  "subtitle": "Bepul — 5 suhbat. Keyin bir martalik paket yoki oylik cheksiz obuna.",
+  "currency": "so'm",
+  "currentPlan": "Joriy tarif",
+  "callsUsed": "O'tkazilgan suhbatlar",
+  "callsUnit": "ta",
+  "freeLeft": "Bepul qoldi",
+  "current": "Joriy",
+  "popular": "Ommabop",
+  "perMonth": "/oy",
+  "notExpiring": "sarflanmaydi",
+  "selectBtn": "Tarifni tanlash",
+  "currentBtn": "Joriy tarif",
+  "connectBtn": "Ulash",
+  "comingSoon": "Payme / Click tez orada ulanadi — hozircha bu demo ko'rinish.",
+  "plans": {
+    "bepul": {
+      "name": "Bepul",
+      "tagline": "Boshlash uchun",
+      "calls": "5",
+      "price": "0",
+      "features": [
+        "Barcha e'tirozlar",
+        "Suhbat analitikasi",
+        "Kuchli/zaif tomonlar tahlili"
+      ]
+    },
+    "amaliyot": {
+      "name": "Amaliyot",
+      "tagline": "20 suhbat",
+      "calls": "20",
+      "price": "49 000",
+      "features": [
+        "Barcha e'tirozlar",
+        "Suhbat analitikasi",
+        "Kuchli/zaif tomonlar tahlili",
+        "Suhbatlar tarixi",
+        "Email qo'llab-quvvatlash"
+      ]
+    },
+    "profi": {
+      "name": "Profi",
+      "tagline": "100 suhbat",
+      "calls": "100",
+      "price": "149 000",
+      "features": [
+        "«Amaliyot»dagi hammasi",
+        "100 ta suhbat, sarflanmaydi",
+        "Ustuvor qo'llab-quvvatlash"
+      ]
+    },
+    "solo": {
+      "name": "Cheksiz",
+      "tagline": "Oylik obuna",
+      "calls": null,
+      "price": "199 000",
+      "features": [
+        "Cheksiz suhbat va muzokara",
+        "Barcha e'tirozlar",
+        "Har suhbat analitikasi",
+        "Ustuvor qo'llab-quvvatlash"
+      ]
+    }
+  }
+}

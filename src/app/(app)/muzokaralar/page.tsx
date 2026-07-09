@@ -97,7 +97,10 @@ function ScenarioCard({ s }: { s: NegotiationScenario }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <Card className={`flex flex-col gap-4 ${s.locked ? "opacity-70" : ""}`}>
+    <Card
+      interactive={!s.locked}
+      className={`flex flex-col gap-4 ${s.locked ? "opacity-70" : ""}`}
+    >
       <div className="flex items-start justify-between gap-3">
         <span
           className={`grid h-11 w-11 place-items-center rounded-xl ${
@@ -221,7 +224,7 @@ export default function MuzokaralarPage() {
               key={k}
               type="button"
               onClick={() => setTab(k)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
                 tab === k
                   ? "bg-ink text-onink"
                   : "text-muted hover:text-foreground"

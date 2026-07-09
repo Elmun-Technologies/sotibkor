@@ -7,7 +7,9 @@
 import type {
   AchievementDef,
   AchievementState,
+  Assignment,
   LeaderboardEntry,
+  TeamRow,
   UserStats,
 } from "../types";
 
@@ -140,4 +142,48 @@ export const MOCK_ACHIEVEMENTS: AchievementState[] = [
 
   { code: "million_argument", earned: false, earnedAt: null },
   { code: "toliq_kolleksiya", earned: false, earnedAt: null },
+];
+
+/** Menejer demo topshiriqlari (ROP biriktirgan). Real: Supabase (#8). */
+export const MOCK_ASSIGNMENTS_ACTIVE: Assignment[] = [
+  {
+    id: "a1",
+    title: "Narx e'tirozini yopish",
+    by: "ROP Jasur",
+    target: 10,
+    done: 6,
+    dueDays: 3,
+    status: "progress",
+    focus: "narx",
+  },
+  {
+    id: "a2",
+    title: "Sovuq qo'ng'iroq: birinchi 30 soniya",
+    by: "ROP Jasur",
+    target: 8,
+    done: 0,
+    dueDays: 5,
+    status: "new",
+    focus: "vaqt",
+  },
+];
+
+export const MOCK_ASSIGNMENTS_DONE: Assignment[] = [
+  {
+    id: "d1",
+    title: "Ishonch e'tirozi bilan ishlash",
+    by: "ROP Jasur",
+    target: 6,
+    done: 6,
+    dueDays: 0,
+    status: "done",
+    focus: "ishonch",
+  },
+];
+
+export const MOCK_TEAM: TeamRow[] = [
+  { name: "Aziz", done: 8, target: 10, avg: 74 },
+  { name: "Dilnoza", done: 10, target: 10, avg: 81 },
+  { name: "Sardor", done: 4, target: 10, avg: 63 },
+  { name: "Nodira", done: 6, target: 10, avg: 69 },
 ];
