@@ -21,6 +21,7 @@ import achievements from "./achievements.json";
 import common from "./common.json";
 import dars from "./dars.json";
 import boshlash from "./boshlash.json";
+import kirish from "./kirish.json";
 import onboarding from "./onboarding.json";
 import home from "./home.json";
 import etirozlar from "./etirozlar.json";
@@ -50,6 +51,7 @@ const messages = {
   common,
   dars,
   boshlash,
+  kirish,
   onboarding,
   home,
   etirozlar,
