@@ -143,7 +143,7 @@ export default function QongiroqPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((s) => (
-            <Card key={s.id} className="flex flex-col gap-4">
+            <Card key={s.id} interactive className="flex flex-col gap-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <span className="grid h-12 w-12 place-items-center rounded-full bg-ink text-base font-semibold text-onink">
@@ -205,7 +205,7 @@ export default function QongiroqPage() {
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {created.map((c) => (
-              <Card key={c.id} className="flex flex-col gap-4">
+              <Card key={c.id} interactive className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                   <span className="grid h-12 w-12 place-items-center rounded-full bg-ink text-base font-semibold text-onink">
                     {initials(c.name)}

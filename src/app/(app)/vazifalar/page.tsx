@@ -95,7 +95,7 @@ function TaskCard({ task }: { task: Assignment }) {
   const pct = Math.round((task.done / task.target) * 100);
   const isDone = task.status === "done";
   return (
-    <Card className="flex flex-col gap-4">
+    <Card interactive className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="font-semibold tracking-tight text-foreground">
