@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { getMessages } from "@/i18n";
-import { Nav } from "@/components/ui";
 
 // FOUC yo'q: paint'dan oldin localStorage 'theme' -> <html data-theme>.
 // Tanlov bo'lmasa data-theme qo'yilmaydi — CSS system afzalligini ishlatadi.
@@ -39,7 +38,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Nav />
         {children}
       </body>
     </html>

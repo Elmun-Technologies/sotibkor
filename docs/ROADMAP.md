@@ -85,6 +85,15 @@ Sprint rejasi: [docs/SPRINT-GAMIFICATION.md](SPRINT-GAMIFICATION.md) (rollar, ac
 
 ---
 
-## Joriy holat (2026-07-08)
+## Joriy holat (2026-07-09)
 
-Skafold tugadi: repo strukturasi, CLAUDE.md, docs, skills, agents, hooks, Next.js boilerplate, CI. Keyingi qadam — **1-bosqich, issue #1: ovoz aylanasi POC**.
+Skafold + mock-rejim ilovasi tayyor: ro'yxatdan o'tish (menejer/ROP), onboarding, dashboard, ta'lim yo'li, qo'ng'iroq trenajori (mock ovoz aylanasi), reyting, profil.
+
+Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
+
+- ✅ **Sidebar ilova qobig'i** (`(app)` route-group + `AppShell`) — chapda doimiy navigatsiya, bepul suhbat hisoblagichi, foydalanuvchi kartasi; mobilda drawer.
+- ✅ **E'tirozlar playbook** (`/etirozlar`) — tur bo'yicha filtr, uslub teglari (Logika/Ekspertlik/Intriga/Dojim/Bosim), "o'z javobingni sina" (mock AI baho).
+- ✅ **Qo'ng'iroq ssenariylari** (`/qongiroq`) — nomli mijoz katalogi (soha × persona × qiyinlik), filtrlar, "o'z mijozingni yarat".
+- ✅ **Vazifalar** (`/vazifalar`) — menejer topshiriqlari + ROP topshiriq biriktirish va jamoa holati (rol bo'yicha).
+
+Keyingi qadam — **1-bosqich, issue #1: real Aisha STT/TTS + Claude persona aylanasi** (kalitlar kerak), so'ng **Supabase** (real auth + ROP jamoa dashboard + to'lov, #8/#9).
