@@ -13,6 +13,7 @@
     "bench:voice": "node scripts/bench-voice.mjs"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.45.4",
     "framer-motion": "^11.11.9",
     "next": "14.2.35",

@@ -110,6 +110,7 @@ Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
   - `/vazifalar` sahifasidagi joyida yozilgan mock ma'lumot (topshiriqlar, jamoa) `src/lib/mock/index.ts` va `src/lib/types.ts`ga ko'chirildi — endi barcha demo ma'lumot bitta manbada (achievements/leaderboard bilan bir xil pattern).
   - Xavfsizlik auditi: kritik topilma yo'q — API kalitlar faqat `process.env` orqali, server-only kalitlar client bundle'ga sizmaydi, `.env*` git'dan tashqarida, `dangerouslySetInnerHTML` faqat statik tema-init skriptida.
   - Dead link yo'q, bo'sh/"coming soon" sahifa yo'q, i18n fayllarida bo'sh qiymat yo'q (24 ta namespace to'liq tekshirildi).
+- ✅ **Google orqali kirish (Supabase Auth)** — `@supabase/ssr` bilan haqiqiy OAuth oqimi: `/boshlash`da "Google orqali kirish" tugmasi (faqat `hasSupabaseAuth()` bo'lganda ko'rinadi), `GET /auth/callback` kod almashinuvi + birinchi marta kirgan foydalanuvchi uchun rol tanlash qadami (`?step=role`), `src/middleware.ts` sessiya cookie yangilash. Mavjud ~15 sahifaning sinxron auth-gating kodi butunlay o'zgarmadi — Supabase `users` jadvali localStorage keshiga ko'chiriladi (`syncFromSupabase`), profil o'zgarishlari fonda orqaga suriladi (`pushProfileToSupabase`). `supabase/migrations/0002_google_auth.sql` — `users`ga yangi ustunlar (email, avatar, company, team, mahsulot profili, onboarded), `role` CHECK (`'menejer'|'rop'`) va "faqat o'zini" RLS siyosatlari. Kod tomoni to'liq tayyor — ishga tushishi uchun foydalanuvchiga Supabase loyihasi + Google Cloud OAuth client kerak (qadamlar: `supabase/README.md` § Google OAuth sozlash).
 
 ### Mock-rejimda "100%" nimani anglatadi
 
@@ -118,9 +119,10 @@ Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugalla
 **Quyidagilar FAQAT tashqi hisob ma'lumotlari (API kalit/loyihalar) bilan davom etadi — men ularsiz "tugata olmayman":**
 
 - **Real ovoz aylanasi** — `AISHA_API_KEY` (STT/TTS) va `OPENAI_API_KEY` (persona/baholovchi, `gpt-4o-mini`). Hozir mock: matn kiritish + brauzer ovozi.
-- **Real autentifikatsiya va ma'lumotlar bazasi** — Supabase loyihasi (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_KEY`). Hozir: localStorage mock, ROP jamoa/topshiriq biriktiruvi demo.
+- **Google orqali kirish** — kod tomoni tayyor (`@supabase/ssr`, `/auth/callback`, `0002_google_auth.sql`). Ishlashi uchun foydalanuvchi Supabase loyihasi (`NEXT_PUBLIC_SUPABASE_URL/ANON_KEY`) ochib, Google Cloud'da OAuth client yaratib, Supabase Dashboard'da Google provayderni yoqishi kerak — qadamlar `supabase/README.md`da.
+- **Ma'lumotlar bazasi (sessiya/transkript/baho saqlash)** — `SUPABASE_SERVICE_KEY`. Hozir: sessiyalar saqlanmaydi, faqat joriy oynada ko'rinadi.
 - **To'lov** — Payme/Click merchant ma'lumotlari. Hozir: `/tariflar` UI tayyor, tugmalar bosilganda "tez orada" xabari.
 
-Bular sozlanganda: `voice-test` skili bilan latency o'lchanadi, keyin Supabase migratsiya + RLS, keyin to'lov ulanadi — kod tomoni (adapterlar, DB helper'lar, env o'qish) allaqachon tayyor turibdi.
+Bular sozlanganda: `voice-test` skili bilan latency o'lchanadi, keyin ROP jamoa/topshiriq biriktiruvini haqiqiy DB'ga ko'chirish, keyin to'lov ulanadi — kod tomoni (adapterlar, DB helper'lar, env o'qish) allaqachon tayyor turibdi.
 
-Keyingi qadam — **1-bosqich, issue #1: real Aisha STT/TTS + Claude persona aylanasi** (kalitlar kerak), so'ng **Supabase** (real auth + ROP jamoa dashboard + to'lov, #8/#9).
+Keyingi qadam — **1-bosqich, issue #1: real Aisha STT/TTS + OpenAI persona aylanasi** (kalitlar kerak), so'ng sessiya/transkript persistensiyasi + to'lov (#8/#9).

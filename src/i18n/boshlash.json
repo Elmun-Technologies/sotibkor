@@ -27,6 +27,16 @@
   "password": "Parol",
   "passwordHint": "kamida 8 belgi",
   "agree": "Ro'yxatdan o'tib, ma'lumotlarni qayta ishlashga rozilik bildirasiz.",
+  "googleCta": "Google orqali kirish",
+  "googleBusy": "Yo'naltirilmoqda...",
+  "googleError": "Google orqali kirishda xatolik. Qaytadan urinib ko'ring.",
+  "orDivider": "yoki",
+  "roleStepEyebrow": "Deyarli tayyor",
+  "roleStepTitle": "Kim sifatida davom etasiz?",
+  "roleStepLead": "Google hisobingiz ulandi — endi rolingizni tanlang.",
+  "roleStepContinue": "Davom etish",
+  "roleStepBusy": "Saqlanmoqda...",
+  "roleStepError": "Saqlashda xatolik yuz berdi. Qaytadan urinib ko'ring.",
   "benefitsMenejer": [
     {
       "t": "Ovoz, matn emas",
