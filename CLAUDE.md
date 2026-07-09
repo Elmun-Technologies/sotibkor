@@ -7,14 +7,14 @@ Sotuvchilar uchun ovozli AI trenajor: sotuvchi soha tanlaydi, AI mijoz rolini o'
 - **Next.js 14** App Router + **TypeScript strict**
 - **Supabase** (Postgres + Auth)
 - **Aisha.ai** (`mo.aisha.group`) — o'zbek STT/TTS
-- **Claude API** (`claude-sonnet`) — mijoz personasi + baholovchi
+- **OpenAI API** (`gpt-4o-mini`, sifat kerak bo'lsa `gpt-4o`) — mijoz personasi + baholovchi
 - **Tailwind + Framer Motion** — dark mode asosiy, neon aksentlar
 - **Payme / Click** subscription (keyingi bosqichlarda)
 
 ## Ovoz aylanasi (kritik yo'l)
 
 ```
-mikrofon → Aisha.ai STT → Claude API (persona, streaming) → Aisha.ai TTS → dinamik
+mikrofon → Aisha.ai STT → OpenAI API (persona, streaming) → Aisha.ai TTS → dinamik
 ```
 
 To'liq aylana **< 2 soniya** bo'lishi shart. Byudjet: STT ~500ms, LLM first-token ~400ms, TTS ~500ms. Batafsil: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

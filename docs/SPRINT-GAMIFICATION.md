@@ -19,7 +19,7 @@ Bu qoidalar CLAUDE.md dan keladi va sprint davomida **buzilmaydi**:
 2. **Promptlar** — LLM prompt kerak bo'lsa FAQAT `/prompts` papkada `.md` fayl. (Bu sprintda
    yangi LLM prompt kutilmaydi; kerak bo'lsa `/prompts` ga qo'shiladi.)
 3. **API kalitlar** — faqat `process.env` (server-only). `NEXT_PUBLIC_*` faqat public qiymat uchun.
-   `SUPABASE_SERVICE_KEY`, `ANTHROPIC_API_KEY`, `AISHA_API_KEY` brauzerga chiqmaydi.
+   `SUPABASE_SERVICE_KEY`, `OPENAI_API_KEY`, `AISHA_API_KEY` brauzerga chiqmaydi.
 4. **Latency** — ovoz aylanasi (STT→LLM→TTS) yo'liga og'ir sinxron ish qo'shilmaydi.
    XP hisoblash, DB yozish, leaderboard yangilash — suhbatdan keyin yoki fonda.
 5. **Streaming** — mavjud `/api/chat` oqim mantig'i buzilmaydi.

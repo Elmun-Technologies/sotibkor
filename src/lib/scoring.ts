@@ -138,7 +138,7 @@ export async function scoreSession(opts: {
 }
 
 /**
- * MOCK baho: ANTHROPIC_API_KEY bo'lmaganda kalitsiz demo uchun. Transkript
+ * MOCK baho: OPENAI_API_KEY bo'lmaganda kalitsiz demo uchun. Transkript
  * uzunligiga qarab taxminiy ball beradi — real baholovchi EMAS.
  */
 export function mockScore(transcript: ChatTurn[]): ScoreResult {
@@ -169,7 +169,7 @@ export function mockScore(transcript: ChatTurn[]): ScoreResult {
     mistakes: [
       {
         quote: sellerTurns[0]?.content ?? "(sotuvchi gapirmadi)",
-        why: "Bu demo baho (kalitsiz rejim). Real, aniq tahlil uchun ANTHROPIC_API_KEY qo'shing.",
+        why: "Bu demo baho (kalitsiz rejim). Real, aniq tahlil uchun OPENAI_API_KEY qo'shing.",
         better:
           "Ehtiyojni aniqlab, otkazga qiymat bilan javob bering; darrov chegirma bermang.",
       },

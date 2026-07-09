@@ -1,34 +1,32 @@
 /**
- * Claude (Anthropic) klienti — mijoz personasi va baholovchi uchun.
+ * OpenAI klienti — mijoz personasi va baholovchi uchun.
  *
  * SKELETON: asosiy skelet va streaming helper. Real prompt to'ldirish va
  * to'liq oqim pipeline'i issue #1 (persona) va #4 (baholovchi) da yakunlanadi.
  *
  * Qat'iy qoidalar (CLAUDE.md):
- *  - ANTHROPIC_API_KEY faqat process.env dan (server-only).
+ *  - OPENAI_API_KEY faqat process.env dan (server-only).
  *  - Promptlar FAQAT /prompts papkadan yuklanadi — bu yerda string prompt YO'Q.
  *  - LLM chaqiruvlar STREAMING: birinchi to'liq gap tayyor bo'lishi bilan TTS'ga.
  *  - Latency: first-token ~400ms byudjeti.
  */
 
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { PERSONALAR, type PersonaKey } from "./content";
 
-/** CLAUDE.md: claude-sonnet. Aniq model IDsi env yoki config orqali sozlanadi. */
-const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
+/** Latency byudjeti uchun kichik/tez model; sifat kerak bo'lsa OPENAI_MODEL=gpt-4o. */
+const DEFAULT_MODEL = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
 
-let client: Anthropic | null = null;
+let client: OpenAI | null = null;
 
-function getClient(): Anthropic {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error(
-      "ANTHROPIC_API_KEY sozlanmagan (.env.local ni tekshiring).",
-    );
+function getClient(): OpenAI {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY sozlanmagan (.env.local ni tekshiring).");
   }
   if (!client) {
-    client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
   return client;
 }
@@ -69,26 +67,25 @@ export async function* streamPersona(opts: {
   model?: string;
   maxTokens?: number;
 }): AsyncGenerator<string, void, unknown> {
-  const anthropic = getClient();
-  const stream = anthropic.messages.stream({
+  const openai = getClient();
+  const stream = await openai.chat.completions.create({
     model: opts.model ?? DEFAULT_MODEL,
     max_tokens: opts.maxTokens ?? 512,
-    system: opts.systemPrompt,
-    messages: opts.history.map((t) => ({ role: t.role, content: t.content })),
+    stream: true,
+    messages: [
+      { role: "system", content: opts.systemPrompt },
+      ...opts.history.map((t) => ({ role: t.role, content: t.content })),
+    ],
   });
 
-  for await (const event of stream) {
-    if (
-      event.type === "content_block_delta" &&
-      event.delta.type === "text_delta"
-    ) {
-      yield event.delta.text;
-    }
+  for await (const chunk of stream) {
+    const delta = chunk.choices[0]?.delta?.content;
+    if (delta) yield delta;
   }
 }
 
 /**
- * MOCK rejim: ANTHROPIC_API_KEY bo'lmasa, persona demo javoblarini (content.ts
+ * MOCK rejim: OPENAI_API_KEY bo'lmasa, persona demo javoblarini (content.ts
  * `mockLines`) so'zma-so'z oqim qilib qaytaradi — real LLM emas, faqat kalitsiz
  * loyihani ishlatib ko'rish uchun. Har chaqiruvda oldingi mijoz replikalari
  * soniga qarab keyingi qatorni tanlaydi.
@@ -134,19 +131,18 @@ export async function completeOnce(opts: {
   model?: string;
   maxTokens?: number;
 }): Promise<string> {
-  const anthropic = getClient();
+  const openai = getClient();
   const res = await withRetry(
     () =>
-      anthropic.messages.create({
+      openai.chat.completions.create({
         model: opts.model ?? DEFAULT_MODEL,
         max_tokens: opts.maxTokens ?? 1024,
-        system: opts.systemPrompt,
-        messages: [{ role: "user", content: opts.userContent }],
+        messages: [
+          { role: "system", content: opts.systemPrompt },
+          { role: "user", content: opts.userContent },
+        ],
       }),
     "completeOnce",
   );
-  return res.content
-    .filter((b): b is Anthropic.TextBlock => b.type === "text")
-    .map((b) => b.text)
-    .join("");
+  return res.choices[0]?.message?.content ?? "";
 }

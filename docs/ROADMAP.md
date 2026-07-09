@@ -25,11 +25,11 @@ Plumbing tayyor (provider abstraktsiyasi + mock rejim, kalitsiz ishlaydi):
 
 - ✅ Suhbat sahifasi (`/trener`): soha/persona/level tanlash, jonli transkript, latency badge.
 - ✅ Mikrofon yozib olish (`MediaRecorder`) → `/api/stt` (Aisha sozlanmagan bo'lsa matn kiritish fallback).
-- ✅ Persona chaqiruvi streaming (`/api/chat`, `src/lib/llm.ts`): Claude (kalit bo'lsa) yoki mock oqim.
+- ✅ Persona chaqiruvi streaming (`/api/chat`, `src/lib/llm.ts`): OpenAI (kalit bo'lsa) yoki mock oqim.
 - ✅ Gap-gap TTS: `SentenceStreamer` birinchi gapni darrov ovozga (Aisha `/api/tts` yoki brauzer Web Speech fallback).
 - ✅ Latency o'lchagich (LLM first-token, TTS boshlanishi, to'liq aylana) + `npm run bench:voice`.
 - ⬜ **Aisha.ai STT/TTS real endpoint** (`src/lib/aisha.ts` TODO) — rasmiy hujjat kelgach.
-- ⬜ Real ANTHROPIC_API_KEY bilan jonli Claude persona sinovi va latency o'lchash.
+- ⬜ Real OPENAI_API_KEY bilan jonli OpenAI persona sinovi va latency o'lchash.
 
 **Yakun mezoni:** Qimmatchi bilan ovozli suhbat, aylana < 2s (real kalitlar bilan).
 
@@ -117,7 +117,7 @@ Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugalla
 
 **Quyidagilar FAQAT tashqi hisob ma'lumotlari (API kalit/loyihalar) bilan davom etadi — men ularsiz "tugata olmayman":**
 
-- **Real ovoz aylanasi** — `AISHA_API_KEY` (STT/TTS) va `ANTHROPIC_API_KEY` (persona/baholovchi). Hozir mock: matn kiritish + brauzer ovozi.
+- **Real ovoz aylanasi** — `AISHA_API_KEY` (STT/TTS) va `OPENAI_API_KEY` (persona/baholovchi, `gpt-4o-mini`). Hozir mock: matn kiritish + brauzer ovozi.
 - **Real autentifikatsiya va ma'lumotlar bazasi** — Supabase loyihasi (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_KEY`). Hozir: localStorage mock, ROP jamoa/topshiriq biriktiruvi demo.
 - **To'lov** — Payme/Click merchant ma'lumotlari. Hozir: `/tariflar` UI tayyor, tugmalar bosilganda "tez orada" xabari.
 

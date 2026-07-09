@@ -8,7 +8,7 @@ Bu loyihaning yuragi. Foydalanuvchi gapiradi → matnga aylanadi → persona jav
 
 ```
 ┌──────────┐   audio     ┌───────────┐   text      ┌──────────────┐
-│ Mikrofon │ ──────────▶ │ Aisha STT │ ──────────▶ │  Claude API  │
+│ Mikrofon │ ──────────▶ │ Aisha STT │ ──────────▶ │  OpenAI API  │
 │ (brauzer)│  (webm/opus)│ mo.aisha  │  (o'zbek)   │  persona     │
 └──────────┘             └───────────┘             │  (streaming) │
      ▲                                             └──────┬───────┘
@@ -19,7 +19,7 @@ Bu loyihaning yuragi. Foydalanuvchi gapiradi → matnga aylanadi → persona jav
                          └───────────┘  bilan darrov TTS'ga
 ```
 
-**Muhim optimizatsiya — streaming pipeline:** Claude javobini to'liq kutmaymiz. Streamdan birinchi **to'liq gap** (`.`/`?`/`!` bo'yicha ajratish) kelishi bilan uni darrov TTS'ga yuboramiz va o'ynay boshlaymiz; qolgan gaplar fonda tayyorlanadi. Bu perceived latency'ni keskin kamaytiradi.
+**Muhim optimizatsiya — streaming pipeline:** OpenAI javobini to'liq kutmaymiz. Streamdan birinchi **to'liq gap** (`.`/`?`/`!` bo'yicha ajratish) kelishi bilan uni darrov TTS'ga yuboramiz va o'ynay boshlaymiz; qolgan gaplar fonda tayyorlanadi. Bu perceived latency'ni keskin kamaytiradi.
 
 **Barge-in (kelajak):** foydalanuvchi persona gapirayotganda gapira boshlasa, TTS to'xtaydi va yangi STT boshlanadi.
 
@@ -32,19 +32,19 @@ Bu loyihaning yuragi. Foydalanuvchi gapiradi → matnga aylanadi → persona jav
 
 ### Backend (`src/app/api` — Next.js Route Handlers)
 - `POST /api/stt` — audio → matn (Aisha STT proxy). Kalitlar server tomonda.
-- `POST /api/chat` — transkript kontekst → Claude persona javobi (**streaming**, `ReadableStream`).
+- `POST /api/chat` — transkript kontekst → OpenAI persona javobi (**streaming**, `ReadableStream`).
 - `POST /api/tts` — matn → audio (Aisha TTS proxy).
 - `POST /api/score` — tugagan suhbat transkripti → baholovchi LLM → JSON natija.
 - `POST /api/session` — suhbat boshlash/yakunlash, transkriptni saqlash.
 
 ### Kutubxona qatlami (`src/lib`)
 - `aisha.ts` — Aisha.ai STT/TTS klient (interfeys + TODO, real integratsiya issue #1'da).
-- `llm.ts` — Claude klient. Streaming helper, promptni `/prompts`'dan yuklaydi.
+- `llm.ts` — OpenAI klient. Streaming helper, promptni `/prompts`'dan yuklaydi.
 - `scoring.ts` — transkriptni baholovchi promptga uzatadi, JSON'ni parse/validatsiya qiladi.
 
 ### Tashqi servislar
 - **Aisha.ai** (`mo.aisha.group`) — o'zbek STT/TTS.
-- **Anthropic Claude** — persona + baholovchi.
+- **OpenAI** — persona + baholovchi.
 - **Supabase** — Postgres + Auth.
 
 ## 3. Ma'lumotlar bazasi sxemasi (draft)
@@ -150,7 +150,7 @@ achievements (
 | `/api/leaderboard` | GET | Haftalik reyting | — |
 | `/api/subscription/webhook` | POST | Payme/Click callback | — |
 
-Barcha route'lar server tomonda; Aisha/Anthropic kalitlari hech qachon brauzerga chiqmaydi.
+Barcha route'lar server tomonda; Aisha/OpenAI kalitlari hech qachon brauzerga chiqmaydi.
 
 ## 5. Latency byudjeti
 
