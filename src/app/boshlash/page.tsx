@@ -5,14 +5,20 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { Card, Button } from "@/components/ui";
-import { getUser, register, type Role } from "@/lib/auth";
+import { getUser, register, isOnboarded, type Role } from "@/lib/auth";
 
 const t = getMessages();
 
 function nextUrl(): string {
-  if (typeof window === "undefined") return "/dars";
+  if (typeof window === "undefined") return "/home";
   const n = new URLSearchParams(window.location.search).get("next");
-  return n && n.startsWith("/") ? n : "/dars";
+  return n && n.startsWith("/") ? n : "/home";
+}
+
+/** Ro'yxatdan keyin: onboarding tugamagan bo'lsa avval /onboarding. */
+function afterAuthDest(): string {
+  if (isOnboarded()) return nextUrl();
+  return `/onboarding?next=${encodeURIComponent(nextUrl())}`;
 }
 
 function Field({
@@ -46,7 +52,7 @@ export default function BoshlashPage() {
 
   // Allaqachon ro'yxatdan o'tган bo'lsa — o'tkazib yuboramiz
   useEffect(() => {
-    if (getUser()) router.replace(nextUrl());
+    if (getUser()) router.replace(afterAuthDest());
   }, [router]);
 
   const submit = () => {
@@ -57,7 +63,7 @@ export default function BoshlashPage() {
       company: company.trim() || undefined,
       team: role === "rop" ? team.trim() || undefined : undefined,
     });
-    router.push(nextUrl());
+    router.push(afterAuthDest());
   };
 
   const isRop = role === "rop";

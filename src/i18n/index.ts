@@ -21,6 +21,8 @@ import achievements from "./achievements.json";
 import common from "./common.json";
 import dars from "./dars.json";
 import boshlash from "./boshlash.json";
+import onboarding from "./onboarding.json";
+import home from "./home.json";
 
 export type Locale = "uz" | "ru";
 export const DEFAULT_LOCALE: Locale = "uz";
@@ -40,6 +42,8 @@ const messages = {
   common,
   dars,
   boshlash,
+  onboarding,
+  home,
 } as const;
 
 export type Messages = typeof messages;
