@@ -1,0 +1,46 @@
+{
+  "greetMorning": "Xayrli tong",
+  "greetDay": "Xayrli kun",
+  "greetEve": "Xayrli kech",
+  "greetNight": "Xayrli tun",
+  "subtitle": "Har kuni mashq qil va kuchliroq bo'l.",
+  "streakTitle": "Trening seriyasi",
+  "streakStart": "bugun boshla",
+  "objTitle": "Kun e'tirozi",
+  "objBest": "Eng yaxshi javob",
+  "repeat": "Takrorlash",
+  "favorite": "Sevimlilarga",
+  "train": "Mashq qilish",
+  "quoteTitle": "Kun fikri",
+  "callsTitle": "Mening qo'ng'iroqlarim",
+  "callsSeeAll": "Barchasini ko'rish",
+  "callsEmpty": "Hozircha qo'ng'iroq yo'q.",
+  "startTraining": "Trening boshlash",
+  "levelUpTitle": "Bugun nimani prokachat qilish kerak",
+  "weakStage": "Zaif bosqich",
+  "weakStageValue": "E'tirozlar bilan ishlash",
+  "skills": "Mashq qilinadigan ko'nikmalar",
+  "skillsList": [
+    "Texnika \"Ha, va...\"",
+    "Narx bilan ishlash",
+    "Qayta ramkalash"
+  ],
+  "quotes": [
+    {
+      "t": "Mijoz \"qimmat\" demaydi, agar qiymatni ko'rsa. Narx bilan emas, qiymat bilan ishla.",
+      "a": "Gevin Kennedi"
+    },
+    {
+      "t": "Odamlar sotib olishni yaxshi ko'radi, lekin ularga sotishni yoqtirmaydi.",
+      "a": "Jeffri Gitomer"
+    },
+    {
+      "t": "Eng yaxshi sotuvchilar — eng yaxshi tinglovchilar.",
+      "a": "Sotuv qoidasi"
+    },
+    {
+      "t": "\"Yo'q\" — bu \"hozircha yetarli ma'lumot yo'q\" degani.",
+      "a": "Sotuv qoidasi"
+    }
+  ]
+}
