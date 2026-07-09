@@ -6,12 +6,16 @@ import {
   ProgressMap,
   AchievementCard,
   TrendChart,
+  ActivityCalendar,
 } from "@/components/gamification";
 import {
   ACHIEVEMENTS,
   MOCK_USER,
   MOCK_ACHIEVEMENTS,
   MOCK_SCORE_HISTORY,
+  MOCK_ACTIVE_DAYS,
+  MOCK_DAILY,
+  MOCK_LONGEST,
 } from "@/lib/mock";
 
 const t = getMessages();
@@ -83,6 +87,20 @@ export default function ProfilPage() {
           <span className="text-sm text-muted">{t.profil.trendHint}</span>
         </div>
         <TrendChart data={MOCK_SCORE_HISTORY} />
+      </Card>
+
+      {/* Faollik kalendari + kunlik maqsad */}
+      <Card className="mb-6">
+        <div className="mb-4 flex items-baseline justify-between">
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            {t.profil.activityTitle}
+          </h2>
+          <span className="text-sm text-muted">
+            {t.profil.longestStreak}: {MOCK_LONGEST.days} {t.profil.streakDays}{" "}
+            · {MOCK_LONGEST.weeks} {t.profil.streakWeeks}
+          </span>
+        </div>
+        <ActivityCalendar activeDays={MOCK_ACTIVE_DAYS} daily={MOCK_DAILY} />
       </Card>
 
       {/* Yutuqlar */}

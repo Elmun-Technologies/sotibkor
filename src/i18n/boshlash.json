@@ -1,0 +1,53 @@
+{
+  "eyebrow": "5 ta bepul suhbat",
+  "heroMenejer": "Ro'yxatdan o'tish — 30 soniya. Birinchi suhbat — 2 daqiqada.",
+  "heroRop": "Jamoa och — 30 soniya. Treninglarni tayinla — bo'shliqlarni yop.",
+  "roleMenejer": "Menejer",
+  "roleRop": "ROP — jamoa",
+  "createMenejer": "Akkaunt yaratish",
+  "createRop": "Jamoa yaratish",
+  "formTitleMenejer": "Akkaunt yaratish",
+  "formTitleRop": "Jamoa yaratish",
+  "haveAccount": "Akkaunt bormi?",
+  "login": "Kirish",
+  "name": "Ism",
+  "namePlaceholder": "Sizga qanday murojaat qilaylik",
+  "phone": "Telefon",
+  "email": "Email",
+  "company": "Kompaniya",
+  "companyPlaceholder": "MChJ \"Sizning kompaniya\"",
+  "team": "Jamoa nomi",
+  "teamPlaceholder": "Sotuv bo'limi",
+  "teamHint": "sotuvchilaringizga ko'rinadi",
+  "password": "Parol",
+  "passwordHint": "kamida 8 belgi",
+  "agree": "Ro'yxatdan o'tib, ma'lumotlarni qayta ishlashga rozilik bildirasiz.",
+  "benefitsMenejer": [
+    {
+      "t": "Ovoz, matn emas",
+      "d": "Real ovozli suhbat. Mijoz pauza ushlaydi, gapni bo'ladi."
+    },
+    {
+      "t": "30 soniyada tahlil",
+      "d": "Voronka bosqichlari, xatolar, keyingi mashq tavsiyasi."
+    },
+    {
+      "t": "5 suhbat bepul",
+      "d": "Kartasiz. To'lov faqat haqiqatan kerak bo'lganda."
+    }
+  ],
+  "benefitsRop": [
+    {
+      "t": "Doimiy taklif havolasi",
+      "d": "Nusxa ol — Telegramga tashla. Sotuvchilar qo'shiladi."
+    },
+    {
+      "t": "Deadline bilan tayinlash",
+      "d": "\"Bu 3 trening jumagacha\". Kim o'tdi, kim qoldi — ko'rasan."
+    },
+    {
+      "t": "Har biriga analitika",
+      "d": "Ball trendi, oxirgi suhbatlar, ochiq vazifalar, zaif joylar."
+    }
+  ]
+}

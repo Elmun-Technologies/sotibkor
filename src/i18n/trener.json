@@ -26,5 +26,14 @@
   "rejim": "Rejim",
   "rejimQongiroq": "Sovuq qo'ng'iroq",
   "rejimYuzmaYuz": "Yuzma-yuz savdo",
-  "interrupted": "Siz mijozni bo'ldingiz"
+  "interrupted": "Siz mijozni bo'ldingiz",
+  "callSpeaking": "Gapiryapti...",
+  "callListening": "Sizni tinglayapti",
+  "callThinking": "O'ylayapti...",
+  "callReady": "Suhbatga tayyor",
+  "callLive": "JONLI",
+  "callTalk": "Gapirish",
+  "callStop": "To'xtatish",
+  "callOrType": "yoki yozing",
+  "callHint": "Mikrofonni bosib gapiring — mijoz javob beradi"
 }

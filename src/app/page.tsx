@@ -72,7 +72,7 @@ export default function Home() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/trener">
+            <Link href="/boshlash">
               <Button variant="primary">{t.landing.ctaPrimary}</Button>
             </Link>
             <Link href="/reyting">
@@ -315,7 +315,7 @@ export default function Home() {
             {t.landing.trialLine}
           </span>
           <Link
-            href="/trener"
+            href="/boshlash"
             className="inline-flex items-center justify-center rounded-full bg-[color:var(--on-ink)] px-7 py-3 text-[15px] font-medium text-[color:var(--ink)] transition hover:opacity-90"
           >
             {t.landing.ctaPrimary}

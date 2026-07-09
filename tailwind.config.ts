@@ -22,6 +22,8 @@ const config: Config = {
         accent: "var(--accent)",
         good: "var(--good)",
         warn: "var(--warn)",
+        bad: "var(--bad)",
+        live: "var(--live)",
         neon: "var(--fg)",
         neon2: "var(--accent)",
       },

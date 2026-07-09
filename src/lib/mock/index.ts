@@ -47,6 +47,15 @@ export const MOCK_SCORE_HISTORY: number[] = [
   38, 45, 52, 49, 61, 58, 67, 72, 78,
 ];
 
+/** Faollik kalendari uchun — shu oyda mashq qilingan kunlar (1-based). */
+export const MOCK_ACTIVE_DAYS: number[] = [1, 2, 3, 5, 6, 8];
+
+/** Kunlik maqsad (typing.com uslubida). */
+export const MOCK_DAILY = { doneMin: 8, goalMin: 15 };
+
+/** Eng uzun streak. */
+export const MOCK_LONGEST = { days: 6, weeks: 2 };
+
 export const MOCK_ACHIEVEMENTS: AchievementState[] = [
   { code: "birinchi_suhbat", earned: true, earnedAt: "2026-06-20" },
   { code: "ketma_ket_3", earned: true, earnedAt: "2026-06-24" },
