@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, useReducedMotion, animate } from "framer-motion";
 import { getMessages } from "@/i18n";
 import { Card, ProgressBar, Badge, Button } from "@/components/ui";
 import { TranscriptReview } from "./TranscriptReview";
@@ -14,6 +15,25 @@ import {
 } from "@/lib/coach";
 
 const t = getMessages();
+
+/** 0'dan `to`gacha sanaydigan raqam (natija "nagrada" hissi). */
+function CountUp({ to }: { to: number }) {
+  const reduce = useReducedMotion();
+  const [val, setVal] = useState(reduce ? to : 0);
+  useEffect(() => {
+    if (reduce) {
+      setVal(to);
+      return;
+    }
+    const controls = animate(0, to, {
+      duration: 0.9,
+      ease: [0.22, 1, 0.36, 1],
+      onUpdate: (v) => setVal(Math.round(v)),
+    });
+    return () => controls.stop();
+  }, [to, reduce]);
+  return <>{val}</>;
+}
 
 export interface ResultViewProps {
   score: ScoreResult;
@@ -35,6 +55,7 @@ export function ResultView({
   onAgain,
   transcript = [],
 }: ResultViewProps) {
+  const reduce = useReducedMotion();
   const v = verdict(score.total);
   const b = score.breakdown;
   const rows: [string, number, number][] = [
@@ -76,7 +97,7 @@ export function ResultView({
           <div className="eyebrow">{t.natija.total}</div>
           <div className="flex items-end gap-2">
             <span className="text-8xl font-semibold tabular-nums tracking-tight">
-              {score.total}
+              <CountUp to={score.total} />
             </span>
             <span className="mb-3 text-lg text-muted">{t.natija.outOf}</span>
           </div>
@@ -97,7 +118,7 @@ export function ResultView({
         </h2>
         <Card className="overflow-x-auto">
           <div className="flex min-w-[520px] items-end gap-2">
-            {FUNNEL_STAGES.map((s) => {
+            {FUNNEL_STAGES.map((s, idx) => {
               const pct = Math.round(funnelRatio[s] * 100);
               const weak = s === rec.weakestStage;
               return (
@@ -114,12 +135,20 @@ export function ResultView({
                         {pct}%
                       </span>
                       <div className="h-20 w-full overflow-hidden rounded-lg2 bg-foreground/[.06]">
-                        <div
+                        <motion.div
                           className="w-full rounded-lg2"
                           style={{
                             height: `${pct}%`,
                             marginTop: `${100 - pct}%`,
                             background: weak ? "var(--warn)" : "var(--ink)",
+                            transformOrigin: "bottom",
+                          }}
+                          initial={reduce ? false : { scaleY: 0 }}
+                          animate={{ scaleY: 1 }}
+                          transition={{
+                            duration: 0.5,
+                            delay: reduce ? 0 : idx * 0.07,
+                            ease: [0.22, 1, 0.36, 1],
                           }}
                         />
                       </div>
@@ -166,7 +195,7 @@ export function ResultView({
                 className="h-full w-full"
                 aria-hidden
               >
-                <polyline
+                <motion.polyline
                   points={spark}
                   fill="none"
                   stroke="var(--accent)"
@@ -174,6 +203,9 @@ export function ResultView({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   vectorEffect="non-scaling-stroke"
+                  initial={reduce ? false : { pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
                 />
               </svg>
             </div>

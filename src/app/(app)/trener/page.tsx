@@ -47,6 +47,7 @@ export default function TrenerPage() {
     total: null,
   });
   const [recording, setRecording] = useState(false);
+  const [recognizing, setRecognizing] = useState(false);
   const [sttHint, setSttHint] = useState<string | null>(null);
   const [score, setScore] = useState<ScoreResult | null>(null);
   const [scoring, setScoring] = useState(false);
@@ -252,6 +253,7 @@ export default function TrenerPage() {
       rec.onstop = async () => {
         mediaStream.getTracks().forEach((tr) => tr.stop());
         setRecording(false);
+        setRecognizing(true); // STT javobini kutayapmiz — foydalanuvchiga feedback
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
         const form = new FormData();
         form.append("audio", blob, "rec.webm");
@@ -265,6 +267,8 @@ export default function TrenerPage() {
           }
         } catch {
           setSttHint(t.trener.sttUnavailable);
+        } finally {
+          setRecognizing(false);
         }
       };
       recorderRef.current = rec;
@@ -359,6 +363,7 @@ export default function TrenerPage() {
           input={input}
           busy={busy}
           recording={recording}
+          recognizing={recognizing}
           speaking={speaking}
           scoring={scoring}
           onInput={setInput}
