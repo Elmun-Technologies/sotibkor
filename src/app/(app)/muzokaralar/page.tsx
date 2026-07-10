@@ -211,6 +211,7 @@ export default function MuzokaralarPage() {
               key={k}
               type="button"
               onClick={() => setTab(k)}
+              aria-pressed={tab === k}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
                 tab === k
                   ? "bg-ink text-onink"

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { getMessages } from "@/i18n";
 import { getUser, logout, type AuthUser } from "@/lib/auth";
 import { ThemeToggle } from "./ThemeToggle";
@@ -265,7 +266,7 @@ function SidebarInner({
           type="button"
           onClick={onLogout}
           aria-label={t.nav.logout}
-          className="grid h-8 w-8 place-items-center rounded-full text-faint transition-all duration-150 hover:bg-foreground/[.05] hover:text-foreground active:scale-[0.93]"
+          className="grid h-10 w-10 place-items-center rounded-full text-faint transition-all duration-150 hover:bg-foreground/[.05] hover:text-foreground active:scale-[0.93]"
         >
           <svg
             width="16"
@@ -301,6 +302,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [open, setOpen] = useState(false);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     setUser(getUser());
@@ -310,6 +312,21 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  // Drawer ochiq bo'lsa: Esc bilan yopish + orqa fon scroll'ini bloklash.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
 
   const onLogout = () => {
     void logout().finally(() => router.replace("/"));
@@ -336,7 +353,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             type="button"
             onClick={() => setOpen(true)}
             aria-label={t.nav.menu}
-            className="grid h-9 w-9 place-items-center rounded-full border border-border text-foreground transition-all duration-150 hover:bg-foreground/[.05] active:scale-[0.93]"
+            className="grid h-10 w-10 place-items-center rounded-full border border-border text-foreground transition-all duration-150 hover:bg-foreground/[.05] active:scale-[0.93]"
           >
             <svg
               width="18"
@@ -355,23 +372,40 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       {/* Mobil drawer */}
-      {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            aria-label={t.nav.close}
-            onClick={() => setOpen(false)}
-            className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
-          />
-          <div className="absolute inset-y-0 left-0 w-[280px] max-w-[85%] border-r border-border bg-surface px-3 py-4 shadow-xl">
-            <SidebarInner
-              user={user}
-              onNavigate={() => setOpen(false)}
-              onLogout={onLogout}
+      <AnimatePresence>
+        {open && (
+          <div
+            className="fixed inset-0 z-50 lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t.nav.menu}
+          >
+            <motion.button
+              type="button"
+              aria-label={t.nav.close}
+              onClick={() => setOpen(false)}
+              className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
             />
+            <motion.div
+              className="absolute inset-y-0 left-0 w-[280px] max-w-[85%] border-r border-border bg-surface px-3 py-4 shadow-xl"
+              initial={reduce ? { opacity: 0 } : { x: "-100%" }}
+              animate={reduce ? { opacity: 1 } : { x: 0 }}
+              exit={reduce ? { opacity: 0 } : { x: "-100%" }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <SidebarInner
+                user={user}
+                onNavigate={() => setOpen(false)}
+                onLogout={onLogout}
+              />
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Kontent */}
       <div className="min-w-0 flex-1">{children}</div>

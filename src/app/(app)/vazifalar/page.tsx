@@ -242,7 +242,8 @@ export default function VazifalarPage() {
             key={k}
             type="button"
             onClick={() => setTab(k)}
-            className={`rounded-full px-5 py-2 text-sm font-medium transition ${
+            aria-pressed={tab === k}
+            className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
               tab === k
                 ? "bg-ink text-onink"
                 : "text-muted hover:text-foreground"

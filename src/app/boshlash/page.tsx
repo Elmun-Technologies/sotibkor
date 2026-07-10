@@ -115,6 +115,7 @@ function RoleStep() {
               key={r}
               type="button"
               onClick={() => setRole(r)}
+              aria-pressed={role === r}
               className={`rounded-full py-2.5 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
                 role === r
                   ? "bg-ink text-onink"
@@ -247,6 +248,7 @@ function BoshlashForm() {
               key={r}
               type="button"
               onClick={() => setRole(r)}
+              aria-pressed={role === r}
               className={`rounded-full py-2.5 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
                 role === r
                   ? "bg-ink text-onink"
@@ -277,7 +279,7 @@ function BoshlashForm() {
               type="button"
               onClick={google}
               disabled={googleBusy}
-              className="flex w-full items-center justify-center gap-3 rounded-full border border-border py-3 text-sm font-medium text-foreground transition-all duration-150 hover:bg-foreground/[.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--surface)] active:scale-[0.98] disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-3 rounded-full border border-border py-3 text-sm font-medium text-foreground transition-all duration-150 hover:bg-foreground/[.04] active:scale-[0.98] disabled:opacity-60"
             >
               <GoogleIcon />
               {googleBusy ? t.boshlash.googleBusy : t.boshlash.googleCta}

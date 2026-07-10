@@ -254,7 +254,7 @@ function PlaybookView() {
                       aria-label={
                         isFav ? t.etirozlar.unfavBtn : t.etirozlar.favBtn
                       }
-                      className={`grid h-8 w-8 place-items-center rounded-full transition hover:bg-foreground/[.06] ${
+                      className={`grid h-10 w-10 place-items-center rounded-full transition-all duration-150 active:scale-[0.9] hover:bg-foreground/[.06] ${
                         isFav ? "text-[color:var(--warn)]" : "text-faint"
                       }`}
                     >
@@ -264,7 +264,7 @@ function PlaybookView() {
                       type="button"
                       onClick={() => copy(favKey, a.text)}
                       aria-label={t.etirozlar.copyBtn}
-                      className="grid h-8 w-8 place-items-center rounded-full text-faint transition hover:bg-foreground/[.06] hover:text-foreground"
+                      className="grid h-10 w-10 place-items-center rounded-full text-faint transition-all duration-150 active:scale-[0.9] hover:bg-foreground/[.06] hover:text-foreground"
                     >
                       {copiedKey === favKey ? "✓" : "⧉"}
                     </button>
@@ -363,6 +363,7 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
         active
           ? "bg-ink text-onink"
@@ -732,7 +733,8 @@ export default function EtirozlarPage() {
             key={k}
             type="button"
             onClick={() => setTab(k)}
-            className={`rounded-full px-5 py-2 text-sm font-medium transition ${
+            aria-pressed={tab === k}
+            className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
               tab === k
                 ? "bg-ink text-onink"
                 : "text-muted hover:text-foreground"
