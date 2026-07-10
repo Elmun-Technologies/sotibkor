@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button } from "@/components/ui";
-import { isRegistered, isOnboarded } from "@/lib/auth";
+import { PageShell, Card, Button, AppLoading } from "@/components/ui";
+import { useAuthGate } from "@/lib/useAuthGate";
 import {
   NEGOTIATIONS,
   negotiationHref,
@@ -168,9 +166,7 @@ function ScenarioCard({ s }: { s: NegotiationScenario }) {
             {t.muzokaralar.levelLabel} {s.level} {t.muzokaralar.lockedLabel}
           </span>
         ) : (
-          <Link href={negotiationHref(s)}>
-            <Button>▶ {t.muzokaralar.start}</Button>
-          </Link>
+          <Button href={negotiationHref(s)}>▶ {t.muzokaralar.start}</Button>
         )}
       </div>
     </Card>
@@ -178,24 +174,12 @@ function ScenarioCard({ s }: { s: NegotiationScenario }) {
 }
 
 export default function MuzokaralarPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
   const [tab, setTab] = useState<"all" | "mine">("all");
   const [query, setQuery] = useState("");
   const [desc, setDesc] = useState("");
   const [created, setCreated] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/muzokaralar");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/muzokaralar");
-      return;
-    }
-    setReady(true);
-  }, [router]);
+  const ready = useAuthGate("/muzokaralar");
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -208,7 +192,7 @@ export default function MuzokaralarPage() {
     );
   }, [query]);
 
-  if (!ready) return null;
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.muzokaralar.title} lead={t.muzokaralar.subtitle}>
@@ -224,6 +208,7 @@ export default function MuzokaralarPage() {
               key={k}
               type="button"
               onClick={() => setTab(k)}
+              aria-pressed={tab === k}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
                 tab === k
                   ? "bg-ink text-onink"

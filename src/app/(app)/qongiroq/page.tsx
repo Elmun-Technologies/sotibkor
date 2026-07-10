@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button } from "@/components/ui";
-import { isRegistered, isOnboarded } from "@/lib/auth";
+import { PageShell, Card, Button, AppLoading } from "@/components/ui";
+import { useAuthGate } from "@/lib/useAuthGate";
 import {
   SCENARIOS,
   DIFFICULTIES,
@@ -71,8 +69,6 @@ function customHref(c: CustomClient): string {
 }
 
 export default function QongiroqPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
   const [soha, setSoha] = useState<SohaKey | "all">("all");
   const [diff, setDiff] = useState<Difficulty | "all">("all");
 
@@ -85,17 +81,7 @@ export default function QongiroqPage() {
   const [desc, setDesc] = useState("");
   const [created, setCreated] = useState<CustomClient[]>([]);
 
-  useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/qongiroq");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/qongiroq");
-      return;
-    }
-    setReady(true);
-  }, [router]);
+  const ready = useAuthGate("/qongiroq");
 
   const list = useMemo(
     () =>
@@ -107,7 +93,7 @@ export default function QongiroqPage() {
     [soha, diff],
   );
 
-  if (!ready) return null;
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.qongiroq.title} lead={t.qongiroq.subtitle}>
@@ -185,12 +171,10 @@ export default function QongiroqPage() {
                 <span className="mr-auto font-mono text-xs tabular-nums text-faint">
                   {t.qongiroq.levelLabel} {s.level}
                 </span>
-                <Link href={scenarioHref(s)}>
-                  <Button variant="ghost">{t.qongiroq.setup}</Button>
-                </Link>
-                <Link href={scenarioHref(s)}>
-                  <Button>{t.qongiroq.call}</Button>
-                </Link>
+                <Button href={scenarioHref(s)} variant="ghost">
+                  {t.qongiroq.setup}
+                </Button>
+                <Button href={scenarioHref(s)}>{t.qongiroq.call}</Button>
               </div>
             </Card>
           ))}
@@ -224,9 +208,7 @@ export default function QongiroqPage() {
                   <p className="text-sm leading-relaxed text-muted">{c.desc}</p>
                 )}
                 <div className="mt-auto flex items-center justify-end border-t border-hair pt-4">
-                  <Link href={customHref(c)}>
-                    <Button>▶ {t.qongiroq.call}</Button>
-                  </Link>
+                  <Button href={customHref(c)}>▶ {t.qongiroq.call}</Button>
                 </div>
               </Card>
             ))}
@@ -358,6 +340,7 @@ function Pill({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
         active
           ? subtle

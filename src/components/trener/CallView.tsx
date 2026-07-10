@@ -21,6 +21,7 @@ export interface CallViewProps {
   input: string;
   busy: boolean;
   recording: boolean;
+  recognizing: boolean;
   speaking: boolean;
   scoring: boolean;
   onInput: (v: string) => void;
@@ -93,26 +94,30 @@ export function CallView(p: CallViewProps) {
 
   const state = p.recording
     ? "listening"
-    : p.speaking
-      ? "speaking"
-      : p.busy
-        ? "thinking"
-        : "ready";
+    : p.recognizing
+      ? "recognizing"
+      : p.speaking
+        ? "speaking"
+        : p.busy
+          ? "thinking"
+          : "ready";
   const stateLabel =
     state === "speaking"
       ? t.trener.callSpeaking
       : state === "listening"
         ? t.trener.callListening
-        : state === "thinking"
-          ? t.trener.callThinking
-          : t.trener.callReady;
+        : state === "recognizing"
+          ? t.trener.callRecognizing
+          : state === "thinking"
+            ? t.trener.callThinking
+            : t.trener.callReady;
 
   const tone = toneVar(p.interest);
   const initial = p.personaLabel.trim().charAt(0).toUpperCase() || "M";
   const auraActive = state === "speaking" || state === "listening";
 
   return (
-    <div className="flex min-h-[calc(100vh-9rem)] flex-col gap-4">
+    <div className="flex min-h-[calc(100dvh-9rem)] flex-col gap-4">
       {/* Yuqori: kontekst + timer + yakunlash */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-muted">
@@ -218,10 +223,12 @@ export function CallView(p: CallViewProps) {
               {t.trener.interest}
             </span>
             <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-foreground/[.08]">
+              {/* scaleX (transform) — width EMAS: GPU kompozitor, main thread'ni
+                  band qilmaydi (kritik ovoz ekranida turadi). */}
               <motion.div
-                className="h-full rounded-full"
-                style={{ background: tone }}
-                animate={{ width: `${p.interest}%` }}
+                className="h-full w-full rounded-full"
+                style={{ background: tone, transformOrigin: "left" }}
+                animate={{ scaleX: p.interest / 100 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
               />
             </div>
@@ -271,7 +278,16 @@ export function CallView(p: CallViewProps) {
         {p.turns.map((turn, i) => {
           const isSeller = turn.role === "user";
           return (
-            <div key={i} className="flex gap-2 text-[15px] leading-relaxed">
+            // Faqat YAKUNLANGAN turn'lar animatsiyalanadi (streaming buferi emas —
+            // u har token'da qayta render bo'ladi). key={i} — yangi turn yangi
+            // indeks bilan bir marta mount bo'lib kiradi, eskisi qayta animatsiyalanmaydi.
+            <motion.div
+              key={i}
+              className="flex gap-2 text-[15px] leading-relaxed"
+              initial={reduce ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
               <span
                 className={`shrink-0 font-mono text-[10px] uppercase tracking-wider ${
                   isSeller ? "text-foreground/50" : "text-[color:var(--accent)]"
@@ -281,11 +297,11 @@ export function CallView(p: CallViewProps) {
                 {isSeller ? t.trener.you : t.trener.client}
               </span>
               <span
-                className={isSeller ? "text-foreground" : "text-foreground"}
+                className={isSeller ? "text-foreground/75" : "text-foreground"}
               >
                 {turn.content}
               </span>
-            </div>
+            </motion.div>
           );
         })}
         {p.streaming && (
@@ -310,7 +326,8 @@ export function CallView(p: CallViewProps) {
           type="button"
           onClick={p.onMic}
           aria-pressed={p.recording}
-          className="relative grid h-16 w-16 place-items-center rounded-full text-2xl transition"
+          disabled={p.recognizing}
+          className="relative grid h-16 w-16 place-items-center rounded-full text-2xl transition disabled:opacity-60"
           style={{
             background: p.recording ? "var(--bad)" : "var(--ink)",
             color: p.recording ? "#fff" : "var(--on-ink)",
@@ -324,10 +341,24 @@ export function CallView(p: CallViewProps) {
               transition={{ duration: 1.1, repeat: Infinity }}
             />
           )}
-          <span aria-hidden>{p.recording ? "■" : "🎙"}</span>
+          {p.recognizing && !reduce && (
+            <motion.span
+              className="absolute inset-0 rounded-full"
+              style={{ border: "2px solid var(--accent)" }}
+              animate={{ scale: [1, 1.4], opacity: [0.5, 0] }}
+              transition={{ duration: 1, repeat: Infinity }}
+            />
+          )}
+          <span aria-hidden>
+            {p.recording ? "■" : p.recognizing ? "…" : "🎙"}
+          </span>
         </button>
         <span className="text-xs text-muted">
-          {p.recording ? t.trener.callStop : t.trener.callTalk}
+          {p.recording
+            ? t.trener.callStop
+            : p.recognizing
+              ? t.trener.callRecognizing
+              : t.trener.callTalk}
         </span>
 
         <div className="mt-1 flex w-full items-center gap-2">

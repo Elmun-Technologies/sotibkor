@@ -16,10 +16,11 @@
   --surface: #ffffff;
   --surface-2: #f2f2f5;
   --fg: #0d0d10;
-  --muted: #86868e;
-  --faint: #a9a9b2;
+  --muted: #6d6d76; /* WCAG AA uchun to'qroq (avval #86868e — kichik matnda yiqilardi) */
+  --faint: #8a8a93; /* avval #a9a9b2 — oq fonda juda past kontrast edi */
   --border: rgba(15, 15, 25, 0.1);
   --hair: rgba(15, 15, 25, 0.07);
+  --ring: #2f7bff; /* klaviatura fokus halqasi — brend yashilidan ajralib turadi */
 
   /* Kontrast (qora) panel + undagi matn */
   --ink: #0b0b0d;
@@ -68,6 +69,7 @@
   --warn: #f2b23a;
   --bad: #ff5a5c;
   --live: #ff5a5c;
+  --ring: #5b9dff;
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 40px rgba(0, 0, 0, 0.35);
   --shadow-card-hover:
@@ -98,6 +100,7 @@
     --warn: #f2b23a;
     --bad: #ff5a5c;
     --live: #ff5a5c;
+    --ring: #5b9dff;
     --shadow-card:
       0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 40px rgba(0, 0, 0, 0.35);
     --shadow-card-hover:
@@ -120,6 +123,16 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* ---- Klaviatura fokusi (a11y) ----
+ * Sichqoncha bosishida ko'rinmaydi (:focus-visible faqat klaviatura/dastur
+ * fokusida), lekin Tab bilan yurganda har bir interaktiv element ajralib
+ * turadi. @tailwind utilities'dan keyin turgani uchun `outline-none`ni
+ * ham ustma-ust yozadi (input'lar ham ko'rinadigan fokus oladi). */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 
 /* ---- Tipografiya yordamchilari ---- */

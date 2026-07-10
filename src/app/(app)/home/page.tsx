@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { Card, Button, Eyebrow } from "@/components/ui";
-import { getUser, isRegistered, isOnboarded } from "@/lib/auth";
+import { Card, Button, Eyebrow, AppLoading } from "@/components/ui";
+import { getUser } from "@/lib/auth";
+import { useAuthGate } from "@/lib/useAuthGate";
 import { OBJECTION_LIBRARY } from "@/lib/objections";
 import type { ObjectionType } from "@/lib/coach";
 import type { PersonaKey } from "@/lib/content";
@@ -33,20 +33,13 @@ function trainHref(type: ObjectionType): string {
 }
 
 export default function HomePage() {
-  const router = useRouter();
+  const ready = useAuthGate("/home");
   const [name, setName] = useState("");
   const [greet, setGreet] = useState(t.home.greetDay);
   const [dayIdx, setDayIdx] = useState(0);
 
   useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/home");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/home");
-      return;
-    }
+    if (!ready) return;
     setName(getUser()?.name ?? "");
     const now = new Date();
     const h = now.getHours();
@@ -60,10 +53,12 @@ export default function HomePage() {
             : t.home.greetEve,
     );
     setDayIdx(now.getDate());
-  }, [router]);
+  }, [ready]);
 
   const obj = OBJECTION_LIBRARY[dayIdx % OBJECTION_LIBRARY.length];
   const quote = t.home.quotes[dayIdx % t.home.quotes.length];
+
+  if (!ready) return <AppLoading />;
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -108,9 +103,7 @@ export default function HomePage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href={trainHref(obj.type)}>
-              <Button>{t.home.train}</Button>
-            </Link>
+            <Button href={trainHref(obj.type)}>{t.home.train}</Button>
             <Button variant="ghost">☆ {t.home.favorite}</Button>
           </div>
         </Card>
@@ -147,9 +140,9 @@ export default function HomePage() {
           </div>
           <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
             <p className="text-sm text-muted">{t.home.callsEmpty}</p>
-            <Link href="/dars">
-              <Button variant="ghost">{t.home.startTraining}</Button>
-            </Link>
+            <Button href="/dars" variant="ghost">
+              {t.home.startTraining}
+            </Button>
           </div>
         </Card>
 
@@ -180,11 +173,9 @@ export default function HomePage() {
               </ul>
             </div>
           </div>
-          <Link href="/dars">
-            <Button className="w-full sm:w-auto">
-              {t.home.startTraining} →
-            </Button>
-          </Link>
+          <Button href="/dars" className="w-full sm:w-auto">
+            {t.home.startTraining} →
+          </Button>
         </Card>
       </div>
     </main>

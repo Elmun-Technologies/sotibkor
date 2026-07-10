@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Stat, Chip, Button } from "@/components/ui";
+import {
+  PageShell,
+  Card,
+  Stat,
+  Chip,
+  Button,
+  AppLoading,
+} from "@/components/ui";
 import {
   LevelBadge,
   StreakFlame,
@@ -22,13 +28,8 @@ import {
   MOCK_DAILY,
   MOCK_LONGEST,
 } from "@/lib/mock";
-import {
-  isRegistered,
-  isOnboarded,
-  getProfile,
-  saveProfile,
-  type Profile,
-} from "@/lib/auth";
+import { getProfile, saveProfile, type Profile } from "@/lib/auth";
+import { useAuthGate } from "@/lib/useAuthGate";
 
 const t = getMessages();
 
@@ -180,20 +181,7 @@ function ProductSettingsCard() {
 }
 
 export default function ProfilPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/profil");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/profil");
-      return;
-    }
-    setReady(true);
-  }, [router]);
+  const ready = useAuthGate("/profil");
 
   const earnedCount = MOCK_ACHIEVEMENTS.filter((a) => a.earned).length;
   const totalCount = MOCK_ACHIEVEMENTS.length;
@@ -201,7 +189,7 @@ export default function ProfilPage() {
     .sort((a, b) => Number(b.earned) - Number(a.earned))
     .slice(0, 6);
 
-  if (!ready) return null;
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.profil.title} lead={t.profil.subtitle}>

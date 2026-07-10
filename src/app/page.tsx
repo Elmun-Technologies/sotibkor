@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { getMessages } from "@/i18n";
 import { SOHA_KEYS, PERSONA_KEYS, type SohaKey } from "@/lib/content";
 import {
@@ -52,6 +52,7 @@ function DemoLine({ role, text }: { role: "seller" | "client"; text: string }) {
 }
 
 export default function Home() {
+  const reduce = useReducedMotion();
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-border bg-surface/85 backdrop-blur">
@@ -102,7 +103,7 @@ export default function Home() {
         {/* ---------- HERO ---------- */}
         <section className="grid items-stretch gap-5 lg:grid-cols-[1.05fr_0.95fr]">
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={reduce ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="flex flex-col justify-between gap-8"
@@ -117,17 +118,17 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <Link href="/boshlash">
-                <Button variant="primary">{t.landing.ctaPrimary}</Button>
-              </Link>
-              <Link href="/reyting">
-                <Button variant="ghost">{t.landing.ctaSecondary}</Button>
-              </Link>
+              <Button href="/boshlash" variant="primary">
+                {t.landing.ctaPrimary}
+              </Button>
+              <Button href="/reyting" variant="ghost">
+                {t.landing.ctaSecondary}
+              </Button>
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={reduce ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.12, ease: "easeOut" }}
           >
@@ -144,14 +145,18 @@ export default function Home() {
                     <motion.span
                       key={i}
                       className="w-[3px] rounded-full bg-foreground/70"
-                      style={{ height: 16 }}
-                      animate={{ scaleY: [h, 0.3, h] }}
-                      transition={{
-                        duration: 0.9,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: i * 0.12,
-                      }}
+                      style={{ height: 16, transformOrigin: "bottom" }}
+                      animate={reduce ? { scaleY: h } : { scaleY: [h, 0.3, h] }}
+                      transition={
+                        reduce
+                          ? undefined
+                          : {
+                              duration: 0.9,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                              delay: i * 0.12,
+                            }
+                      }
                     />
                   ))}
                 </span>

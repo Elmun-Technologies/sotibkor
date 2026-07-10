@@ -3,8 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getMessages } from "@/i18n";
-import { Card, Button, Chip } from "@/components/ui";
-import { isRegistered, isOnboarded, saveProfile } from "@/lib/auth";
+import { Card, Button, Chip, AppLoading } from "@/components/ui";
+import {
+  getUser,
+  isOnboarded,
+  saveProfile,
+  syncFromSupabase,
+} from "@/lib/auth";
+import { hasSupabaseAuth } from "@/lib/config";
 
 const t = getMessages();
 
@@ -23,13 +29,30 @@ export default function OnboardingPage() {
   const [spheres, setSpheres] = useState<string[]>([]);
   const [custom, setCustom] = useState("");
   const [customList, setCustomList] = useState<string[]>([]);
+  const [ready, setReady] = useState(false);
 
+  // Onboarding: registered bo'lishi shart, lekin ONBOARDED bo'lmasligi kerak.
+  // Kesh bo'sh + Supabase yoqilgan bo'lsa — avval real sessiyani kutamiz
+  // (Google bilan qaytgan foydalanuvchi yangi brauzerda qamalib qolmasin).
   useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash");
-      return;
-    }
-    if (isOnboarded()) router.replace(nextUrl());
+    let active = true;
+    const decide = () => {
+      if (!active) return;
+      if (!getUser()) {
+        router.replace("/boshlash");
+        return;
+      }
+      if (isOnboarded()) {
+        router.replace(nextUrl());
+        return;
+      }
+      setReady(true);
+    };
+    if (getUser() || !hasSupabaseAuth()) decide();
+    else void syncFromSupabase().finally(decide);
+    return () => {
+      active = false;
+    };
   }, [router]);
 
   const toggle = (s: string) =>
@@ -57,6 +80,8 @@ export default function OnboardingPage() {
   };
 
   const total = 2;
+
+  if (!ready) return <AppLoading />;
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14">

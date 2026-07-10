@@ -1,9 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { getMessages } from "@/i18n";
-import { isRegistered } from "@/lib/auth";
+import { useAuthGate } from "@/lib/useAuthGate";
 import {
   isPersonaKey,
   isRejimKey,
@@ -15,7 +14,7 @@ import {
 import { SentenceStreamer } from "@/lib/sentence";
 import { interestScore } from "@/lib/coach";
 import type { ScoreResult } from "@/lib/scoring";
-import { PageShell } from "@/components/ui";
+import { PageShell, AppLoading } from "@/components/ui";
 import { ResultView, SetupPanel, CallView } from "@/components/trener";
 
 const t = getMessages();
@@ -29,7 +28,7 @@ type Metrics = {
 };
 
 export default function TrenerPage() {
-  const router = useRouter();
+  const ready = useAuthGate(undefined, { requireOnboarded: false });
   const [stage, setStage] = useState<Stage>("setup");
   const [soha, setSoha] = useState<SohaKey>("mebel");
   const [persona, setPersona] = useState<PersonaKey>("qimmatchi");
@@ -48,6 +47,7 @@ export default function TrenerPage() {
     total: null,
   });
   const [recording, setRecording] = useState(false);
+  const [recognizing, setRecognizing] = useState(false);
   const [sttHint, setSttHint] = useState<string | null>(null);
   const [score, setScore] = useState<ScoreResult | null>(null);
   const [scoring, setScoring] = useState(false);
@@ -60,13 +60,10 @@ export default function TrenerPage() {
 
   // Dars sahifasidan preset (/trener?soha=..&persona=..&level=..&rejim=..):
   // to'g'ri parametrlar bo'lsa sozlash tayyor va suhbat darrov boshlanadi.
+  // Dars sahifasidan preset (/trener?soha=..&persona=..&level=..&rejim=..):
+  // auth tasdiqlangach query'ni o'qib, to'g'ri bo'lsa suhbatni darrov boshlaydi.
   useEffect(() => {
-    // Trening boshlashdan oldin ro'yxatdan o'tish majburiy (Menejer/ROP).
-    if (!isRegistered()) {
-      const next = window.location.pathname + window.location.search;
-      router.replace(`/boshlash?next=${encodeURIComponent(next)}`);
-      return;
-    }
+    if (!ready) return;
     const p = new URLSearchParams(window.location.search);
     const qs = p.get("soha");
     const qp = p.get("persona");
@@ -78,9 +75,7 @@ export default function TrenerPage() {
     const qr = p.get("rejim");
     if (qr && isRejimKey(qr)) setRejim(qr);
     setStage("chat");
-    // faqat mount'da
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ready]);
 
   /** Barge-in: mijoz gapirayotganda uni darrov to'xtatadi (realizm). */
   const stopSpeaking = useCallback(() => {
@@ -258,6 +253,7 @@ export default function TrenerPage() {
       rec.onstop = async () => {
         mediaStream.getTracks().forEach((tr) => tr.stop());
         setRecording(false);
+        setRecognizing(true); // STT javobini kutayapmiz — foydalanuvchiga feedback
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
         const form = new FormData();
         form.append("audio", blob, "rec.webm");
@@ -271,6 +267,8 @@ export default function TrenerPage() {
           }
         } catch {
           setSttHint(t.trener.sttUnavailable);
+        } finally {
+          setRecognizing(false);
         }
       };
       recorderRef.current = rec;
@@ -298,9 +296,17 @@ export default function TrenerPage() {
           transcript: turns,
         }),
       });
-      const data = (await res.json()) as ScoreResult;
-      setScore(data);
+      // Xato javob (502/400) yoki noto'g'ri shakl bo'lsa — result ekraniga
+      // o'tmaymiz (aks holda ResultView undefined breakdown'da qulaydi).
+      const data = res.ok ? ((await res.json()) as Partial<ScoreResult>) : null;
+      if (!data || typeof data.total !== "number" || !data.breakdown) {
+        setSttHint(t.trener.scoreError);
+        return;
+      }
+      setScore(data as ScoreResult);
       setStage("result");
+    } catch {
+      setSttHint(t.trener.scoreError);
     } finally {
       setScoring(false);
     }
@@ -318,6 +324,8 @@ export default function TrenerPage() {
   };
 
   // ---------- render ----------
+  if (!ready) return <AppLoading />;
+
   if (stage === "setup") {
     return (
       <PageShell>
@@ -355,6 +363,7 @@ export default function TrenerPage() {
           input={input}
           busy={busy}
           recording={recording}
+          recognizing={recognizing}
           speaking={speaking}
           scoring={scoring}
           onInput={setInput}

@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button } from "@/components/ui";
-import { isRegistered, isOnboarded } from "@/lib/auth";
+import { PageShell, Card, Button, AppLoading } from "@/components/ui";
+import { useAuthGate } from "@/lib/useAuthGate";
 import {
   OBJECTION_LIBRARY,
   type ObjectionEntry,
@@ -255,7 +253,7 @@ function PlaybookView() {
                       aria-label={
                         isFav ? t.etirozlar.unfavBtn : t.etirozlar.favBtn
                       }
-                      className={`grid h-8 w-8 place-items-center rounded-full transition hover:bg-foreground/[.06] ${
+                      className={`grid h-10 w-10 place-items-center rounded-full transition-all duration-150 active:scale-[0.9] hover:bg-foreground/[.06] ${
                         isFav ? "text-[color:var(--warn)]" : "text-faint"
                       }`}
                     >
@@ -265,7 +263,7 @@ function PlaybookView() {
                       type="button"
                       onClick={() => copy(favKey, a.text)}
                       aria-label={t.etirozlar.copyBtn}
-                      className="grid h-8 w-8 place-items-center rounded-full text-faint transition hover:bg-foreground/[.06] hover:text-foreground"
+                      className="grid h-10 w-10 place-items-center rounded-full text-faint transition-all duration-150 active:scale-[0.9] hover:bg-foreground/[.06] hover:text-foreground"
                     >
                       {copiedKey === favKey ? "✓" : "⧉"}
                     </button>
@@ -276,9 +274,9 @@ function PlaybookView() {
           </div>
 
           <div>
-            <Link href={trainHref(selected.type)}>
-              <Button variant="ghost">▶ {t.etirozlar.practice}</Button>
-            </Link>
+            <Button href={trainHref(selected.type)} variant="ghost">
+              ▶ {t.etirozlar.practice}
+            </Button>
           </div>
         </Card>
 
@@ -364,6 +362,7 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
         active
           ? "bg-ink text-onink"
@@ -714,23 +713,11 @@ function DrillView() {
 /* ---------------- Sahifa ---------------- */
 
 export default function EtirozlarPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
   const [tab, setTab] = useState<"playbook" | "drill">("playbook");
 
-  useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/etirozlar");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/etirozlar");
-      return;
-    }
-    setReady(true);
-  }, [router]);
+  const ready = useAuthGate("/etirozlar");
 
-  if (!ready) return null;
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.etirozlar.title} lead={t.etirozlar.subtitle}>
@@ -745,7 +732,8 @@ export default function EtirozlarPage() {
             key={k}
             type="button"
             onClick={() => setTab(k)}
-            className={`rounded-full px-5 py-2 text-sm font-medium transition ${
+            aria-pressed={tab === k}
+            className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97] ${
               tab === k
                 ? "bg-ink text-onink"
                 : "text-muted hover:text-foreground"

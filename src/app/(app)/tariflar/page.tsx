@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, Eyebrow } from "@/components/ui";
-import { isRegistered, isOnboarded } from "@/lib/auth";
+import { PageShell, Card, Button, Eyebrow, AppLoading } from "@/components/ui";
+import { useAuthGate } from "@/lib/useAuthGate";
 
 const t = getMessages();
 
@@ -13,23 +12,11 @@ const PLAN_ORDER: PlanKey[] = ["bepul", "amaliyot", "profi", "solo"];
 const CURRENT_PLAN: PlanKey = "bepul";
 
 export default function TariflarPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
   const [notice, setNotice] = useState(false);
 
-  useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/tariflar");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/tariflar");
-      return;
-    }
-    setReady(true);
-  }, [router]);
+  const ready = useAuthGate("/tariflar");
 
-  if (!ready) return null;
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.tariflar.title} lead={t.tariflar.subtitle}>

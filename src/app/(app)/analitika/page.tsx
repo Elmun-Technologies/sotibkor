@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useMemo } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, Eyebrow } from "@/components/ui";
+import { PageShell, Card, Button, Eyebrow, AppLoading } from "@/components/ui";
 import { TrendChart } from "@/components/gamification";
-import { isRegistered, isOnboarded } from "@/lib/auth";
+import { useAuthGate } from "@/lib/useAuthGate";
 import {
   MOCK_USER,
   MOCK_SCORE_HISTORY,
@@ -23,20 +21,7 @@ function scoreColor(pct: number): string {
 }
 
 export default function AnalitikaPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/analitika");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/analitika");
-      return;
-    }
-    setReady(true);
-  }, [router]);
+  const ready = useAuthGate("/analitika");
 
   const avgScore = useMemo(
     () =>
@@ -59,7 +44,7 @@ export default function AnalitikaPage() {
     return entries[0].type;
   }, []);
 
-  if (!ready) return null;
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.analitika.title} lead={t.analitika.subtitle}>
@@ -219,9 +204,9 @@ export default function AnalitikaPage() {
           ))}
         </ul>
         <div>
-          <Link href={`/etirozlar?focus=${weakestType}`}>
-            <Button>{t.analitika.insightsCta} →</Button>
-          </Link>
+          <Button href={`/etirozlar?focus=${weakestType}`}>
+            {t.analitika.insightsCta} →
+          </Button>
         </div>
       </Card>
     </PageShell>
