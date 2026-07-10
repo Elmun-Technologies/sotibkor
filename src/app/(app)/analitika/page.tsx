@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Button, Eyebrow, AppLoading } from "@/components/ui";
 import { TrendChart } from "@/components/gamification";
@@ -205,9 +204,9 @@ export default function AnalitikaPage() {
           ))}
         </ul>
         <div>
-          <Link href={`/etirozlar?focus=${weakestType}`}>
-            <Button>{t.analitika.insightsCta} →</Button>
-          </Link>
+          <Button href={`/etirozlar?focus=${weakestType}`}>
+            {t.analitika.insightsCta} →
+          </Button>
         </div>
       </Card>
     </PageShell>

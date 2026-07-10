@@ -103,9 +103,7 @@ export default function HomePage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href={trainHref(obj.type)}>
-              <Button>{t.home.train}</Button>
-            </Link>
+            <Button href={trainHref(obj.type)}>{t.home.train}</Button>
             <Button variant="ghost">☆ {t.home.favorite}</Button>
           </div>
         </Card>
@@ -142,9 +140,9 @@ export default function HomePage() {
           </div>
           <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
             <p className="text-sm text-muted">{t.home.callsEmpty}</p>
-            <Link href="/dars">
-              <Button variant="ghost">{t.home.startTraining}</Button>
-            </Link>
+            <Button href="/dars" variant="ghost">
+              {t.home.startTraining}
+            </Button>
           </div>
         </Card>
 
@@ -175,11 +173,9 @@ export default function HomePage() {
               </ul>
             </div>
           </div>
-          <Link href="/dars">
-            <Button className="w-full sm:w-auto">
-              {t.home.startTraining} →
-            </Button>
-          </Link>
+          <Button href="/dars" className="w-full sm:w-auto">
+            {t.home.startTraining} →
+          </Button>
         </Card>
       </div>
     </main>

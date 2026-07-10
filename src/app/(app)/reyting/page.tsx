@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Chip, Button } from "@/components/ui";
 import { LeaderboardRow, AchievementCard } from "@/components/gamification";
@@ -87,9 +86,9 @@ export default function ReytingPage() {
             ))}
           </div>
           <div className="mt-5">
-            <Link href="/yutuqlar">
-              <Button variant="ghost">{t.yutuqlar.seeAllFromReyting} →</Button>
-            </Link>
+            <Button href="/yutuqlar" variant="ghost">
+              {t.yutuqlar.seeAllFromReyting} →
+            </Button>
           </div>
         </div>
       )}

@@ -267,9 +267,9 @@ export default function VazifalarPage() {
               {t.vazifalar.emptyMenejerLead}
             </p>
           </div>
-          <Link href="/qongiroq">
-            <Button variant="ghost">{t.vazifalar.emptyMenejerCta}</Button>
-          </Link>
+          <Button href="/qongiroq" variant="ghost">
+            {t.vazifalar.emptyMenejerCta}
+          </Button>
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">

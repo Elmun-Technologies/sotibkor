@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Button, AppLoading } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
@@ -167,9 +166,7 @@ function ScenarioCard({ s }: { s: NegotiationScenario }) {
             {t.muzokaralar.levelLabel} {s.level} {t.muzokaralar.lockedLabel}
           </span>
         ) : (
-          <Link href={negotiationHref(s)}>
-            <Button>▶ {t.muzokaralar.start}</Button>
-          </Link>
+          <Button href={negotiationHref(s)}>▶ {t.muzokaralar.start}</Button>
         )}
       </div>
     </Card>

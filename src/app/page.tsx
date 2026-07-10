@@ -118,12 +118,12 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <Link href="/boshlash">
-                <Button variant="primary">{t.landing.ctaPrimary}</Button>
-              </Link>
-              <Link href="/reyting">
-                <Button variant="ghost">{t.landing.ctaSecondary}</Button>
-              </Link>
+              <Button href="/boshlash" variant="primary">
+                {t.landing.ctaPrimary}
+              </Button>
+              <Button href="/reyting" variant="ghost">
+                {t.landing.ctaSecondary}
+              </Button>
             </div>
           </motion.div>
 

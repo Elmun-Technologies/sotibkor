@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Button, AppLoading } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
@@ -275,9 +274,9 @@ function PlaybookView() {
           </div>
 
           <div>
-            <Link href={trainHref(selected.type)}>
-              <Button variant="ghost">▶ {t.etirozlar.practice}</Button>
-            </Link>
+            <Button href={trainHref(selected.type)} variant="ghost">
+              ▶ {t.etirozlar.practice}
+            </Button>
           </div>
         </Card>
 

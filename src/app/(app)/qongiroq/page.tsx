@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Button, AppLoading } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
@@ -172,12 +171,10 @@ export default function QongiroqPage() {
                 <span className="mr-auto font-mono text-xs tabular-nums text-faint">
                   {t.qongiroq.levelLabel} {s.level}
                 </span>
-                <Link href={scenarioHref(s)}>
-                  <Button variant="ghost">{t.qongiroq.setup}</Button>
-                </Link>
-                <Link href={scenarioHref(s)}>
-                  <Button>{t.qongiroq.call}</Button>
-                </Link>
+                <Button href={scenarioHref(s)} variant="ghost">
+                  {t.qongiroq.setup}
+                </Button>
+                <Button href={scenarioHref(s)}>{t.qongiroq.call}</Button>
               </div>
             </Card>
           ))}
@@ -211,9 +208,7 @@ export default function QongiroqPage() {
                   <p className="text-sm leading-relaxed text-muted">{c.desc}</p>
                 )}
                 <div className="mt-auto flex items-center justify-end border-t border-hair pt-4">
-                  <Link href={customHref(c)}>
-                    <Button>▶ {t.qongiroq.call}</Button>
-                  </Link>
+                  <Button href={customHref(c)}>▶ {t.qongiroq.call}</Button>
                 </div>
               </Card>
             ))}
