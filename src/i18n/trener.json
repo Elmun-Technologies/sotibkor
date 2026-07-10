@@ -8,6 +8,7 @@
   "micRecording": "Yozilmoqda... to'xtatish",
   "stop": "To'xtatish",
   "finish": "Suhbatni yakunlash",
+  "scoreError": "Baholab bo'lmadi — internet yoki server bilan muammo bo'ldi. Qaytadan urinib ko'ring.",
   "thinking": "Mijoz o'ylayapti...",
   "listening": "Tinglayapman...",
   "empty": "Suhbatni boshlash uchun birinchi gapni yozing yoki mikrofonni bosib gapiring.",

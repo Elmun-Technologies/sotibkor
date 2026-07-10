@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button } from "@/components/ui";
-import { isRegistered, isOnboarded } from "@/lib/auth";
+import { PageShell, Card, Button, AppLoading } from "@/components/ui";
+import { useAuthGate } from "@/lib/useAuthGate";
 import {
   SCENARIOS,
   DIFFICULTIES,
@@ -71,8 +70,6 @@ function customHref(c: CustomClient): string {
 }
 
 export default function QongiroqPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
   const [soha, setSoha] = useState<SohaKey | "all">("all");
   const [diff, setDiff] = useState<Difficulty | "all">("all");
 
@@ -85,17 +82,7 @@ export default function QongiroqPage() {
   const [desc, setDesc] = useState("");
   const [created, setCreated] = useState<CustomClient[]>([]);
 
-  useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/qongiroq");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/qongiroq");
-      return;
-    }
-    setReady(true);
-  }, [router]);
+  const ready = useAuthGate("/qongiroq");
 
   const list = useMemo(
     () =>
@@ -107,7 +94,7 @@ export default function QongiroqPage() {
     [soha, diff],
   );
 
-  if (!ready) return null;
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.qongiroq.title} lead={t.qongiroq.subtitle}>

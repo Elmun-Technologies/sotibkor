@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, ProgressBar } from "@/components/ui";
-import { getUser, isRegistered, isOnboarded, type Role } from "@/lib/auth";
+import {
+  PageShell,
+  Card,
+  Button,
+  ProgressBar,
+  AppLoading,
+} from "@/components/ui";
+import { getUser, type Role } from "@/lib/auth";
+import { useAuthGate } from "@/lib/useAuthGate";
 import {
   MOCK_ASSIGNMENTS_ACTIVE,
   MOCK_ASSIGNMENTS_DONE,
@@ -78,8 +84,7 @@ function TaskCard({ task }: { task: Assignment }) {
 }
 
 export default function VazifalarPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
+  const ready = useAuthGate("/vazifalar");
   const [role, setRole] = useState<Role>("menejer");
   const [tab, setTab] = useState<"active" | "done">("active");
 
@@ -89,24 +94,16 @@ export default function VazifalarPage() {
   const [assigned, setAssigned] = useState(false);
 
   useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/vazifalar");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/vazifalar");
-      return;
-    }
-    setRole(getUser()?.role ?? "menejer");
-    setReady(true);
-  }, [router]);
+    if (ready) setRole(getUser()?.role ?? "menejer");
+  }, [ready]);
 
   const teamAvg = useMemo(
-    () => Math.round(MOCK_TEAM.reduce((s, m) => s + m.avg, 0) / MOCK_TEAM.length),
+    () =>
+      Math.round(MOCK_TEAM.reduce((s, m) => s + m.avg, 0) / MOCK_TEAM.length),
     [],
   );
 
-  if (!ready) return null;
+  if (!ready) return <AppLoading />;
 
   // ---------- ROP ko'rinishi ----------
   if (role === "rop") {
@@ -234,7 +231,8 @@ export default function VazifalarPage() {
   }
 
   // ---------- Menejer ko'rinishi ----------
-  const list = tab === "active" ? MOCK_ASSIGNMENTS_ACTIVE : MOCK_ASSIGNMENTS_DONE;
+  const list =
+    tab === "active" ? MOCK_ASSIGNMENTS_ACTIVE : MOCK_ASSIGNMENTS_DONE;
 
   return (
     <PageShell title={t.vazifalar.title} lead={t.vazifalar.subtitleMenejer}>

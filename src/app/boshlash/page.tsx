@@ -11,6 +11,7 @@ import {
   isOnboarded,
   signInWithGoogle,
   completeGoogleSignup,
+  syncFromSupabase,
   type Role,
 } from "@/lib/auth";
 import { hasSupabaseAuth } from "@/lib/config";
@@ -166,9 +167,19 @@ function BoshlashForm() {
   const [team, setTeam] = useState("");
   const [googleBusy, setGoogleBusy] = useState(false);
 
-  // Allaqachon ro'yxatdan o'tган bo'lsa — o'tkazib yuboramiz
+  // Allaqachon ro'yxatdan o'tgan bo'lsa — o'tkazib yuboramiz. Kesh bo'sh +
+  // Supabase yoqilgan bo'lsa avval real sessiyani kutamiz (Google bilan
+  // qaytgan foydalanuvchi yangi brauzerda ilovaga darrov kirsin).
   useEffect(() => {
-    if (getUser()) router.replace(afterAuthDest());
+    let active = true;
+    const check = () => {
+      if (active && getUser()) router.replace(afterAuthDest());
+    };
+    if (getUser() || !hasSupabaseAuth()) check();
+    else void syncFromSupabase().finally(check);
+    return () => {
+      active = false;
+    };
   }, [router]);
 
   const submit = () => {
@@ -257,85 +268,90 @@ function BoshlashForm() {
           </span>
         </p>
 
-        {hasSupabaseAuth() && (
-          <div className="mt-6">
+        {hasSupabaseAuth() ? (
+          // Supabase Auth yoqilgan — yagona haqiqiy yo'l Google. Rolni Google'dan
+          // keyingi qadam (RoleStep) so'raydi, shuning uchun bu yerda email/parol
+          // formasi ko'rsatilmaydi (u hech qanday hisob yaratmasdi — chalg'ituvchi).
+          <div className="mt-6 space-y-4">
             <button
               type="button"
               onClick={google}
               disabled={googleBusy}
-              className="flex w-full items-center justify-center gap-3 rounded-full border border-border py-3 text-sm font-medium text-foreground transition-all duration-150 hover:bg-foreground/[.04] active:scale-[0.98] disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-3 rounded-full border border-border py-3 text-sm font-medium text-foreground transition-all duration-150 hover:bg-foreground/[.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--surface)] active:scale-[0.98] disabled:opacity-60"
             >
               <GoogleIcon />
               {googleBusy ? t.boshlash.googleBusy : t.boshlash.googleCta}
             </button>
             {authError && (
-              <p className="mt-2 text-center text-xs text-[color:var(--bad)]">
+              <p className="text-center text-xs text-[color:var(--bad)]">
                 {t.boshlash.googleError}
               </p>
             )}
-            <div className="my-5 flex items-center gap-3">
-              <span className="h-px flex-1 bg-hair" />
-              <span className="text-xs text-faint">{t.boshlash.orDivider}</span>
-              <span className="h-px flex-1 bg-hair" />
-            </div>
+            <p className="text-center text-xs text-muted">{t.boshlash.agree}</p>
+            <p className="text-center text-xs text-faint">
+              <Link href="/" className="underline">
+                ← {t.boshlash.backHome}
+              </Link>
+            </p>
           </div>
-        )}
-
-        <form
-          className={hasSupabaseAuth() ? "space-y-4" : "mt-6 space-y-4"}
-          onSubmit={(e) => {
-            e.preventDefault();
-            submit();
-          }}
-        >
-          {isRop && (
+        ) : (
+          // Mock rejim (kalitsiz demo) — localStorage'ga yoziladigan forma.
+          <form
+            className="mt-6 space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit();
+            }}
+          >
+            {isRop && (
+              <Field
+                label={t.boshlash.team}
+                hint={t.boshlash.teamHint}
+                placeholder={t.boshlash.teamPlaceholder}
+                value={team}
+                onChange={(e) => setTeam(e.target.value)}
+              />
+            )}
             <Field
-              label={t.boshlash.team}
-              hint={t.boshlash.teamHint}
-              placeholder={t.boshlash.teamPlaceholder}
-              value={team}
-              onChange={(e) => setTeam(e.target.value)}
+              label={t.boshlash.name}
+              placeholder={t.boshlash.namePlaceholder}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
-          )}
-          <Field
-            label={t.boshlash.name}
-            placeholder={t.boshlash.namePlaceholder}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <Field
-            label={t.boshlash.phone}
-            placeholder={t.boshlash.phonePlaceholder}
-            inputMode="tel"
-          />
-          <Field
-            label={t.boshlash.email}
-            placeholder={t.boshlash.emailPlaceholder}
-            type="email"
-          />
-          <Field
-            label={t.boshlash.company}
-            placeholder={t.boshlash.companyPlaceholder}
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-          />
-          <Field
-            label={t.boshlash.password}
-            hint={t.boshlash.passwordHint}
-            type="password"
-            placeholder="••••••••"
-          />
+            <Field
+              label={t.boshlash.phone}
+              placeholder={t.boshlash.phonePlaceholder}
+              inputMode="tel"
+            />
+            <Field
+              label={t.boshlash.email}
+              placeholder={t.boshlash.emailPlaceholder}
+              type="email"
+            />
+            <Field
+              label={t.boshlash.company}
+              placeholder={t.boshlash.companyPlaceholder}
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+            />
+            <Field
+              label={t.boshlash.password}
+              hint={t.boshlash.passwordHint}
+              type="password"
+              placeholder="••••••••"
+            />
 
-          <Button type="submit" className="w-full">
-            {isRop ? t.boshlash.createRop : t.boshlash.createMenejer}
-          </Button>
-          <p className="text-center text-xs text-muted">{t.boshlash.agree}</p>
-          <p className="text-center text-xs text-faint">
-            <Link href="/" className="underline">
-              ← {t.boshlash.backHome}
-            </Link>
-          </p>
-        </form>
+            <Button type="submit" className="w-full">
+              {isRop ? t.boshlash.createRop : t.boshlash.createMenejer}
+            </Button>
+            <p className="text-center text-xs text-muted">{t.boshlash.agree}</p>
+            <p className="text-center text-xs text-faint">
+              <Link href="/" className="underline">
+                ← {t.boshlash.backHome}
+              </Link>
+            </p>
+          </form>
+        )}
       </Card>
     </main>
   );

@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button } from "@/components/ui";
-import { isRegistered, isOnboarded } from "@/lib/auth";
+import { PageShell, Card, Button, AppLoading } from "@/components/ui";
+import { useAuthGate } from "@/lib/useAuthGate";
 import {
   OBJECTION_LIBRARY,
   type ObjectionEntry,
@@ -714,23 +713,11 @@ function DrillView() {
 /* ---------------- Sahifa ---------------- */
 
 export default function EtirozlarPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
   const [tab, setTab] = useState<"playbook" | "drill">("playbook");
 
-  useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/etirozlar");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/etirozlar");
-      return;
-    }
-    setReady(true);
-  }, [router]);
+  const ready = useAuthGate("/etirozlar");
 
-  if (!ready) return null;
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.etirozlar.title} lead={t.etirozlar.subtitle}>

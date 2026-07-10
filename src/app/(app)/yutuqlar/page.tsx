@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card } from "@/components/ui";
+import { PageShell, Card, AppLoading } from "@/components/ui";
 import { AchievementCard } from "@/components/gamification";
-import { isRegistered, isOnboarded } from "@/lib/auth";
+import { useAuthGate } from "@/lib/useAuthGate";
 import { ACHIEVEMENTS, MOCK_ACHIEVEMENTS } from "@/lib/mock";
 import type { AchievementCategory } from "@/lib/types";
 
@@ -24,20 +23,7 @@ const XP_BY_CODE = new Map(ACHIEVEMENTS.map((a) => [a.code, a.xp]));
 const CATEGORY_BY_CODE = new Map(ACHIEVEMENTS.map((a) => [a.code, a.category]));
 
 export default function YutuqlarPage() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    if (!isRegistered()) {
-      router.replace("/boshlash?next=/yutuqlar");
-      return;
-    }
-    if (!isOnboarded()) {
-      router.replace("/onboarding?next=/yutuqlar");
-      return;
-    }
-    setReady(true);
-  }, [router]);
+  const ready = useAuthGate("/yutuqlar");
 
   const earnedCount = MOCK_ACHIEVEMENTS.filter((a) => a.earned).length;
   const totalCount = MOCK_ACHIEVEMENTS.length;
@@ -56,7 +42,7 @@ export default function YutuqlarPage() {
     return groups;
   }, []);
 
-  if (!ready) return null;
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.yutuqlar.title} lead={t.yutuqlar.subtitle}>
