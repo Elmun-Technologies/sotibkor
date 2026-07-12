@@ -79,7 +79,7 @@ export function SupportWidget() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border border-[color:var(--good)]/30 bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-lg transition-all duration-150 hover:bg-[color:var(--good)]/[.08] active:scale-[0.96]"
+        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border border-[color:var(--good)]/30 bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-[var(--shadow-card)] transition-all duration-150 hover:bg-[color:var(--good)]/[.08] active:scale-[0.96]"
       >
         <span aria-hidden className="text-[color:var(--good)]">
           <svg
@@ -120,7 +120,7 @@ export function SupportWidget() {
               transition={{ duration: 0.18 }}
             />
             <motion.div
-              className="relative w-full max-w-sm rounded-2xl border border-border bg-surface p-6 shadow-2xl"
+              className="relative w-full max-w-sm rounded-2xl border border-border bg-surface p-6 shadow-[var(--shadow-card-hover)]"
               initial={
                 reduce ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.98 }
               }

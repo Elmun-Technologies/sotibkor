@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, ProgressBar, Badge } from "@/components/ui";
+import { PageShell, Card, ProgressBar, Badge, Button } from "@/components/ui";
 import {
   CURRICULUM,
   lessonProgress,
@@ -77,17 +77,13 @@ function LessonRow({ lesson, index }: { lesson: Lesson; index: number }) {
           <ProgressBar value={p.completion} max={100} />
         </div>
         {unlocked ? (
-          <Link href={lessonHref(lesson)} className="shrink-0">
-            <span
-              className={`inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-medium transition ${
-                cta.variant === "primary"
-                  ? "bg-ink text-onink hover:opacity-90"
-                  : "border border-border text-foreground hover:bg-foreground/[.04]"
-              }`}
-            >
-              {cta.label}
-            </span>
-          </Link>
+          <Button
+            href={lessonHref(lesson)}
+            variant={cta.variant}
+            className="shrink-0"
+          >
+            {cta.label}
+          </Button>
         ) : (
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-5 py-2.5 text-sm text-faint">
             🔒 {t.dars.locked}

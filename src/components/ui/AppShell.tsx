@@ -391,7 +391,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               transition={{ duration: 0.18 }}
             />
             <motion.div
-              className="absolute inset-y-0 left-0 w-[280px] max-w-[85%] border-r border-border bg-surface px-3 py-4 shadow-xl"
+              className="absolute inset-y-0 left-0 w-[280px] max-w-[85%] border-r border-border bg-surface px-3 py-4 shadow-[var(--shadow-card-hover)]"
               initial={reduce ? { opacity: 0 } : { x: "-100%" }}
               animate={reduce ? { opacity: 1 } : { x: 0 }}
               exit={reduce ? { opacity: 0 } : { x: "-100%" }}
