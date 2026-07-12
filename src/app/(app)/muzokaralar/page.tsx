@@ -115,9 +115,9 @@ function ScenarioCard({ s }: { s: NegotiationScenario }) {
       </div>
 
       <div>
-        <h3 className="font-semibold tracking-tight text-foreground">
+        <p className="font-semibold tracking-tight text-foreground">
           {s.title}
-        </h3>
+        </p>
         <div className="mt-2 flex items-center gap-2.5">
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-surface2 text-xs font-semibold">
             {initials(s.clientName)}
@@ -136,7 +136,7 @@ function ScenarioCard({ s }: { s: NegotiationScenario }) {
       <p className="text-sm leading-relaxed text-muted">{s.description}</p>
 
       {expanded && (
-        <div className="inset p-3">
+        <div id={`scenario-objective-${s.id}`} className="inset p-3">
           <div className="eyebrow">{t.muzokaralar.objectiveLabel}</div>
           <p className="mt-1 text-sm text-foreground">{s.objective}</p>
         </div>
@@ -157,6 +157,8 @@ function ScenarioCard({ s }: { s: NegotiationScenario }) {
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          aria-controls={`scenario-objective-${s.id}`}
           className="mr-auto text-sm text-muted underline-offset-2 transition hover:text-foreground hover:underline"
         >
           {t.muzokaralar.details}
@@ -223,6 +225,7 @@ export default function MuzokaralarPage() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            aria-label={t.muzokaralar.searchPlaceholder}
             placeholder={t.muzokaralar.searchPlaceholder}
             className="w-full rounded-full border border-border bg-surface2 px-4 py-2.5 text-sm outline-none transition placeholder:text-faint focus:border-foreground/40 sm:w-80"
           />

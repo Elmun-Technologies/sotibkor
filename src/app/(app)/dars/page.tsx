@@ -59,9 +59,9 @@ function LessonRow({ lesson, index }: { lesson: Lesson; index: number }) {
         </span>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-semibold tracking-tight text-foreground">
+            <p className="font-semibold tracking-tight text-foreground">
               {meta.title}
-            </h3>
+            </p>
             {lesson.focus && <Badge tone="muted">{lesson.focus}</Badge>}
           </div>
           <p className="mt-0.5 text-sm text-muted">{meta.desc}</p>

@@ -86,7 +86,14 @@ export default function OnboardingPage() {
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       {/* Progress */}
-      <div className="mb-8 flex gap-2">
+      <div
+        className="mb-8 flex gap-2"
+        role="progressbar"
+        aria-valuenow={step}
+        aria-valuemin={1}
+        aria-valuemax={total}
+        aria-label={`${t.onboarding.step} ${step} / ${total}`}
+      >
         {Array.from({ length: total }, (_, i) => (
           <div
             key={i}
@@ -155,13 +162,17 @@ export default function OnboardingPage() {
       ) : (
         <div className="space-y-6">
           <div>
-            <h1 className="display text-4xl sm:text-5xl">
+            <h1 id="step2-title" className="display text-4xl sm:text-5xl">
               {t.onboarding.step2Title}
             </h1>
             <p className="mt-3 text-lg text-muted">{t.onboarding.step2Lead}</p>
           </div>
           <Card>
-            <div className="flex flex-wrap gap-2">
+            <div
+              className="flex flex-wrap gap-2"
+              role="group"
+              aria-labelledby="step2-title"
+            >
               {[...t.onboarding.spheres, ...customList].map((s) => (
                 <Chip
                   key={s}
@@ -188,6 +199,7 @@ export default function OnboardingPage() {
                     addCustom();
                   }
                 }}
+                aria-label={t.onboarding.customPh}
                 placeholder={t.onboarding.customPh}
                 className="min-w-0 flex-1 rounded-full border border-border bg-surface2 px-4 py-2.5 text-sm outline-none transition placeholder:text-faint focus:border-foreground/40"
               />

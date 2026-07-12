@@ -52,7 +52,10 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.redirect(`${origin}${next}`);
   } catch (err) {
-    console.error("[auth/callback] xato:", (err as Error).message);
+    console.error(
+      "[auth/callback] xato:",
+      err instanceof Error ? err.message : err,
+    );
     return NextResponse.redirect(`${origin}/boshlash?error=auth`);
   }
 }

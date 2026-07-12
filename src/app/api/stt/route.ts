@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     // Aisha'dan kelgan xom xato matnini klientga chiqarmaymiz (info-leak) —
     // faqat serverda loglaymiz.
-    console.error("[api/stt] xato:", (err as Error).message);
+    console.error("[api/stt] xato:", err instanceof Error ? err.message : err);
     return Response.json({ error: "stt_failed" }, { status: 502 });
   }
 }

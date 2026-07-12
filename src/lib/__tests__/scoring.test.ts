@@ -16,6 +16,7 @@ const validScore = {
     { quote: "q2", why: "w2", better: "b2" },
   ],
   strengths: ["yaxshi ohang"],
+  closed: true,
   xp_awarded: 90,
 };
 
@@ -69,6 +70,21 @@ describe("parseScore — noto'g'ri JSON / sxema", () => {
   it("total breakdown yig'indisiga mos kelmasa (>1 farq) xato", () => {
     // yig'indi 72, total 99 -> farq 27, rad etilishi kerak.
     const bad = { ...validScore, total: 99 };
+    expect(() => parseScore(JSON.stringify(bad))).toThrow();
+  });
+
+  it("mistakes yo'q yoki bo'sh bo'lsa xato", () => {
+    const bad = { ...validScore, mistakes: [] };
+    expect(() => parseScore(JSON.stringify(bad))).toThrow();
+  });
+
+  it("strengths yo'q yoki bo'sh bo'lsa xato", () => {
+    const bad = { ...validScore, strengths: [] };
+    expect(() => parseScore(JSON.stringify(bad))).toThrow();
+  });
+
+  it("closed maydoni yo'q yoki boolean emas bo'lsa xato", () => {
+    const bad = { ...validScore, closed: "ha" };
     expect(() => parseScore(JSON.stringify(bad))).toThrow();
   });
 });

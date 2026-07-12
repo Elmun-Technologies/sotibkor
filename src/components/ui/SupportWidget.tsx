@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { getMessages } from "@/i18n";
 
@@ -51,6 +51,9 @@ function ContactRow({
       >
         {copied ? `✓ ${t.yordam.copied}` : t.yordam.copyBtn}
       </button>
+      <span className="sr-only" role="status" aria-live="polite">
+        {copied ? t.yordam.copied : ""}
+      </span>
     </div>
   );
 }
@@ -58,12 +61,37 @@ function ContactRow({
 export function SupportWidget() {
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
 
-  // Modal ochiq bo'lsa: Esc bilan yopish + orqa fon scroll'ini bloklash.
+  // Modal ochiq bo'lsa: Esc bilan yopish, orqa fon scroll'ini bloklash,
+  // fokusni ichkariga o'tkazish + Tab'ni dialog ichida ushlab turish,
+  // yopilganda fokusni ochgan elementga qaytarish.
   useEffect(() => {
     if (!open) return;
+    const prevActive = document.activeElement as HTMLElement | null;
+    closeBtnRef.current?.focus();
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key === "Tab" && dialogRef.current) {
+        const focusables = dialogRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -71,6 +99,7 @@ export function SupportWidget() {
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+      prevActive?.focus();
     };
   }, [open]);
 
@@ -111,6 +140,7 @@ export function SupportWidget() {
           >
             <motion.button
               type="button"
+              tabIndex={-1}
               aria-label={t.yordam.close}
               onClick={() => setOpen(false)}
               className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
@@ -120,6 +150,7 @@ export function SupportWidget() {
               transition={{ duration: 0.18 }}
             />
             <motion.div
+              ref={dialogRef}
               className="relative w-full max-w-sm rounded-2xl border border-border bg-surface p-6 shadow-[var(--shadow-card-hover)]"
               initial={
                 reduce ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.98 }
@@ -131,6 +162,7 @@ export function SupportWidget() {
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
               <button
+                ref={closeBtnRef}
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label={t.yordam.close}

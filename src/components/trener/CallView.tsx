@@ -234,6 +234,8 @@ export function CallView(p: CallViewProps) {
           <div
             className="flex items-center gap-2 text-sm"
             style={{ color: state === "ready" ? "var(--muted)" : tone }}
+            role="status"
+            aria-live="polite"
           >
             {(state === "speaking" || state === "listening") && (
               <Waveform active color={tone} />
@@ -295,6 +297,8 @@ export function CallView(p: CallViewProps) {
       <div
         ref={scrollRef}
         className="inset flex-1 space-y-2 overflow-y-auto p-4"
+        aria-live="polite"
+        aria-relevant="additions"
       >
         {p.turns.length === 0 && !p.streaming && !p.busy && (
           <p className="py-8 text-center text-sm text-muted">
@@ -331,7 +335,13 @@ export function CallView(p: CallViewProps) {
           );
         })}
         {p.streaming && (
-          <div className="flex gap-2 text-[15px] leading-relaxed">
+          // Har token'da yangilanadi — jonli hudud spam bo'lmasin uchun
+          // ekran o'quvchisidan yashiramiz; yakunlangan turn (yuqorida)
+          // qo'shilganda o'qiladi.
+          <div
+            className="flex gap-2 text-[15px] leading-relaxed"
+            aria-hidden="true"
+          >
             <span
               className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-[color:var(--accent)]"
               style={{ width: 56, paddingTop: 3 }}
@@ -352,6 +362,7 @@ export function CallView(p: CallViewProps) {
           type="button"
           onClick={p.onMic}
           aria-pressed={p.recording}
+          aria-label={p.recording ? t.trener.micRecording : t.trener.micIdle}
           disabled={p.recognizing}
           className="relative grid h-16 w-16 place-items-center rounded-full text-2xl transition disabled:opacity-60"
           style={{
@@ -400,6 +411,7 @@ export function CallView(p: CallViewProps) {
                 p.onSend();
               }
             }}
+            aria-label={t.trener.placeholder}
             placeholder={`${t.trener.callOrType}...`}
             className="min-w-0 flex-1 rounded-full border border-border bg-surface px-4 py-2.5 text-sm outline-none transition placeholder:text-faint focus:border-foreground/40"
           />

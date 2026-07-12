@@ -136,9 +136,9 @@ export default function QongiroqPage() {
                     {initials(s.name)}
                   </span>
                   <div>
-                    <h3 className="font-semibold tracking-tight text-foreground">
+                    <p className="font-semibold tracking-tight text-foreground">
                       {s.name}
-                    </h3>
+                    </p>
                     <p className="text-xs text-muted">
                       {t.sohalar[s.soha]} · {t.personalar[s.persona]}
                     </p>
@@ -192,9 +192,9 @@ export default function QongiroqPage() {
                     {initials(c.name)}
                   </span>
                   <div>
-                    <h3 className="font-semibold tracking-tight text-foreground">
+                    <p className="font-semibold tracking-tight text-foreground">
                       {c.name}
-                    </h3>
+                    </p>
                     <p className="text-xs text-muted">
                       {t.sohalar[c.soha]} · {t.personalar[c.persona]}
                       {c.company ? ` · ${c.company}` : ""}
