@@ -118,6 +118,14 @@ Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
   - `/trener`dagi `CallView`/`ResultView` `next/dynamic({ssr:false})` bilan lazy-load qilindi — "setup" bosqichida ovoz-aylana kodi umuman yuklanmaydi.
   - Landing "Nimani mashq qilasan" tag-cloud'da CSS `rotate()` transform kichik `gap-3` bilan qo'shni chip'larga vizual tegib turardi — `gap-x-4 gap-y-5`ga kattalashtirildi.
   - `reyting`/`yutuqlar` sahifalaridagi statik `MOCK_*` massivlar ustidagi hisob-kitoblar (`filter`/`reduce`/`sort`) komponent render funksiyasidan modul darajasiga ko'chirildi (`useMemo`dan ham arzonroq — hech qachon qayta hisoblanmaydi).
+- ✅ **Xavfsizlik + ishonchlilik, 4-bosqich** — ikkita fon agent (xavfsizlik qayta-auditi + ishonchlilik/SEO auditi) natijasida:
+  - **IDOR tuzatildi**: `/api/session` avval so'rov tanasidagi `userId`ga ishonardi (service-role klient RLS'ni chetlab o'tadi) — endi `userId` FAQAT server tomonidagi cookie-sessiyadan olinadi (`currentUserId()`).
+  - `/api/chat`, `/api/score`, `/api/stt`, `/api/tts` — kirish hajmi cheklovlari qo'shildi (tarix/transkript ≤60 ta gap, gap ≤4000 belgi, audio ≤15MB, TTS matni ≤2000 belgi) xarajat/DoS himoyasi uchun.
+  - Provayderdan (Aisha/OpenAI) kelgan xom xato matni endi klientga chiqmaydi — faqat serverda `console.error` bilan loglanadi, klient umumiy xabar oladi (immersiya/info-leak himoyasi).
+  - Open-redirect: `/boshlash` va `/onboarding`dagi `nextUrl()` endi `src/lib/safeNext.ts`dagi umumiy tekshiruvni ishlatadi (`//evil.com`-uslub protokol-nisbiy manzillar rad etiladi) — avval faqat `/auth/callback`da to'g'ri edi.
+  - `/auth/callback` Supabase chaqiruvlari try/catch bilan o'ralgan — kutilmagan xato endi 500 emas, `/boshlash?error=auth`ga yo'naltiradi.
+  - `src/app/error.tsx`, `global-error.tsx`, `not-found.tsx` qo'shildi (dizayn tizimiga mos, i18n orqali).
+  - SEO: `layout.tsx`ga `openGraph`/`twitter`/`robots` metadata + alohida `viewport` export (Next 14.2 deprecation tuzatildi); `sitemap.ts` qo'shildi; `robots.txt` endi auth-gated sahifalarni (`/home`, `/trener`, ... ) `Disallow` qiladi.
 
 ### Mock-rejimda "100%" nimani anglatadi
 

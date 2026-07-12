@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { getMessages } from "@/i18n";
@@ -24,6 +24,23 @@ const t = getMessages();
 export const metadata: Metadata = {
   title: `${t.app.name} — ${t.app.tagline}`,
   description: t.app.comingSoonDesc,
+  openGraph: {
+    title: `${t.app.name} — ${t.app.tagline}`,
+    description: t.app.comingSoonDesc,
+    locale: "uz_UZ",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: `${t.app.name} — ${t.app.tagline}`,
+    description: t.app.comingSoonDesc,
+  },
+  robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0b0b0e",
+  colorScheme: "dark light",
 };
 
 export default function RootLayout({

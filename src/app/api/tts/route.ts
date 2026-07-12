@@ -12,10 +12,16 @@ import { hasAisha } from "@/lib/config";
 
 export const runtime = "nodejs";
 
+// Bitta gap bunchalik uzun bo'lmaydi (xarajat/DoS himoyasi).
+const MAX_TEXT_LEN = 2000;
+
 export async function POST(req: NextRequest) {
   if (!hasAisha()) {
     return Response.json(
-      { error: "aisha_not_configured", message: "Aisha TTS sozlanmagan. Web Speech fallback." },
+      {
+        error: "aisha_not_configured",
+        message: "Aisha TTS sozlanmagan. Web Speech fallback.",
+      },
       { status: 501 },
     );
   }
@@ -29,6 +35,9 @@ export async function POST(req: NextRequest) {
   if (!body.text?.trim()) {
     return Response.json({ error: "text bo'sh." }, { status: 400 });
   }
+  if (body.text.length > MAX_TEXT_LEN) {
+    return Response.json({ error: "Matn juda uzun." }, { status: 413 });
+  }
 
   try {
     const result = await textToSpeech({ text: body.text, voice: body.voice });
@@ -36,7 +45,9 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": result.mimeType, "Cache-Control": "no-store" },
     });
   } catch (err) {
-    // TODO(#1) real integratsiyagacha.
-    return Response.json({ error: (err as Error).message }, { status: 501 });
+    // Aisha'dan kelgan xom xato matnini klientga chiqarmaymiz (info-leak) —
+    // faqat serverda loglaymiz.
+    console.error("[api/tts] xato:", (err as Error).message);
+    return Response.json({ error: "tts_failed" }, { status: 502 });
   }
 }

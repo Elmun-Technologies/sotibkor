@@ -1,2 +1,16 @@
 User-agent: *
 Allow: /
+Disallow: /home
+Disallow: /dars
+Disallow: /etirozlar
+Disallow: /muzokaralar
+Disallow: /profil
+Disallow: /qongiroq
+Disallow: /reyting
+Disallow: /tariflar
+Disallow: /trener
+Disallow: /vazifalar
+Disallow: /yutuqlar
+Disallow: /analitika
+Disallow: /onboarding
+Disallow: /api/

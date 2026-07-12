@@ -29,17 +29,31 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Noto'g'ri JSON." }, { status: 400 });
   }
 
-  const transcript = Array.isArray(body.transcript) ? body.transcript : [];
-  if (transcript.length === 0) {
+  const rawTranscript = Array.isArray(body.transcript) ? body.transcript : [];
+  if (rawTranscript.length === 0) {
     return Response.json({ error: "Bo'sh transkript." }, { status: 400 });
   }
+  // Kirish hajmi cheklovi (xarajat/DoS himoyasi) — /api/chat bilan bir xil.
+  if (rawTranscript.length > 60) {
+    return Response.json(
+      { error: "Suhbat tarixi juda uzun." },
+      { status: 413 },
+    );
+  }
+  const transcript = rawTranscript.map((t) => ({
+    role: t.role,
+    content: typeof t.content === "string" ? t.content.slice(0, 4000) : "",
+  }));
 
   if (!hasOpenAI()) {
     return Response.json({ ...mockScore(transcript), provider: "mock" });
   }
 
   if (!isSohaKey(body.soha) || !isPersonaKey(body.persona)) {
-    return Response.json({ error: "Noma'lum soha yoki persona." }, { status: 400 });
+    return Response.json(
+      { error: "Noma'lum soha yoki persona." },
+      { status: 400 },
+    );
   }
 
   try {
@@ -51,6 +65,8 @@ export async function POST(req: NextRequest) {
     });
     return Response.json({ ...result, provider: "openai" });
   } catch (err) {
-    return Response.json({ error: (err as Error).message }, { status: 502 });
+    // Xom xato matnini klientga chiqarmaymiz (info-leak) — faqat serverda loglaymiz.
+    console.error("[api/score] xato:", (err as Error).message);
+    return Response.json({ error: "score_failed" }, { status: 502 });
   }
 }

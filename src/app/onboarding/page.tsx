@@ -11,13 +11,13 @@ import {
   syncFromSupabase,
 } from "@/lib/auth";
 import { hasSupabaseAuth } from "@/lib/config";
+import { safeNext } from "@/lib/safeNext";
 
 const t = getMessages();
 
 function nextUrl(): string {
   if (typeof window === "undefined") return "/home";
-  const n = new URLSearchParams(window.location.search).get("next");
-  return n && n.startsWith("/") ? n : "/home";
+  return safeNext(new URLSearchParams(window.location.search).get("next"));
 }
 
 export default function OnboardingPage() {

@@ -206,11 +206,13 @@ export default function TrenerPage() {
 
       let acc = "";
       try {
+        setSttHint(null);
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ soha, persona, level, rejim, history }),
         });
+        if (!res.ok) throw new Error(`chat_failed_${res.status}`);
         const reader = res.body?.getReader();
         const dec = new TextDecoder();
         const sp = new SentenceStreamer();
@@ -236,6 +238,11 @@ export default function TrenerPage() {
           queue.push(sentence);
           void drain();
         }
+        // Tarmoq xatosisiz, lekin javob bo'sh kelsa ham foydalanuvchiga
+        // tushunarli signal beramiz (masalan stream boshlanib, darrov uzilsa).
+        if (!acc.trim()) setSttHint(t.trener.chatError);
+      } catch {
+        setSttHint(t.trener.chatError);
       } finally {
         const full: Turn[] = [
           ...history,

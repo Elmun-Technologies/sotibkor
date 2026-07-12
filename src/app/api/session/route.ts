@@ -14,7 +14,8 @@
  */
 
 import { NextRequest } from "next/server";
-import { hasSupabase } from "@/lib/config";
+import { hasSupabase, hasSupabaseAuth } from "@/lib/config";
+import { createClient } from "@/lib/supabase/server";
 import {
   saveSession,
   finishSession,
@@ -29,7 +30,6 @@ export const runtime = "nodejs";
 interface SessionBody {
   action?: "create" | "finish";
   sessionId?: string | null;
-  userId?: string | null;
   soha?: string;
   persona?: string;
   level?: number;
@@ -37,6 +37,25 @@ interface SessionBody {
   score?: ScoreResult;
   durationMs?: number | null;
   status?: "finished" | "abandoned";
+}
+
+/**
+ * Haqiqiy foydalanuvchi id'sini FAQAT server tomonidagi cookie-sessiyadan
+ * oladi — hech qachon so'rov tanasidan emas (IDOR: aks holda istalgan
+ * chaqiruvchi boshqa foydalanuvchi nomidan yozuv yasashi mumkin edi, chunki
+ * yozish service-role klient orqali RLS'ni chetlab o'tadi).
+ */
+async function currentUserId(): Promise<string | null> {
+  if (!hasSupabaseAuth()) return null;
+  try {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user?.id ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -57,6 +76,8 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  const userId = await currentUserId();
+
   if (action === "create") {
     if (!body.soha || !body.persona) {
       return Response.json(
@@ -65,7 +86,7 @@ export async function POST(req: NextRequest) {
       );
     }
     const sessionId = await saveSession({
-      userId: body.userId ?? null,
+      userId,
       soha: body.soha,
       persona: body.persona,
       level: body.level ?? 1,
@@ -80,7 +101,7 @@ export async function POST(req: NextRequest) {
   let sessionId = body.sessionId ?? null;
   if (!sessionId && body.soha && body.persona) {
     sessionId = await saveSession({
-      userId: body.userId ?? null,
+      userId,
       soha: body.soha,
       persona: body.persona,
       level: body.level ?? 1,
