@@ -250,6 +250,7 @@ function PlaybookView() {
                     <button
                       type="button"
                       onClick={() => toggleFav(favKey)}
+                      aria-pressed={isFav}
                       aria-label={
                         isFav ? t.etirozlar.unfavBtn : t.etirozlar.favBtn
                       }
@@ -267,6 +268,9 @@ function PlaybookView() {
                     >
                       {copiedKey === favKey ? "✓" : "⧉"}
                     </button>
+                    <span className="sr-only" role="status" aria-live="polite">
+                      {copiedKey === favKey ? t.etirozlar.copied : ""}
+                    </span>
                   </div>
                 </div>
               );

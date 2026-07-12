@@ -126,10 +126,18 @@ Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
   - `/auth/callback` Supabase chaqiruvlari try/catch bilan o'ralgan — kutilmagan xato endi 500 emas, `/boshlash?error=auth`ga yo'naltiradi.
   - `src/app/error.tsx`, `global-error.tsx`, `not-found.tsx` qo'shildi (dizayn tizimiga mos, i18n orqali).
   - SEO: `layout.tsx`ga `openGraph`/`twitter`/`robots` metadata + alohida `viewport` export (Next 14.2 deprecation tuzatildi); `sitemap.ts` qo'shildi; `robots.txt` endi auth-gated sahifalarni (`/home`, `/trener`, ... ) `Disallow` qiladi.
+- ✅ **A11y + kod sifati, 5-bosqich** — ikkita fon agent (accessibility auditi + o'lik-kod/to'g'rilik auditi) natijasida:
+  - **Ovoz aylanasi haqiqiy xatolar**: barge-in paytida `audio.pause()` "ended" hodisasini chaqirmagani uchun `playSentence`ning kutayotgan Promise'i abadiy osilib qolardi (har safar barge-in qilinganda birlashib boradi) — endi `dispatchEvent(new Event("ended"))` bilan darrov yechiladi. Har TTS gap uchun yaratilgan blob URL (`URL.createObjectURL`) hech qachon `revokeObjectURL` qilinmasdi (xotira sizishi) — endi ended/error/catch'da tozalanadi.
+  - **XP formula drift tuzatildi**: `xp_awarded`ni LLM o'zi hisoblab qaytarardi (prompt matnida arifmetika) — endi `ScoreResult`ga `closed` (mijoz rozi bo'ldimi) maydoni qo'shildi va `xp_awarded` har doim serverda `src/lib/gamification.ts` `xpForScore()` orqali qayta hisoblanadi (yagona manba).
+  - `parseScore` endi `mistakes`/`strengths` massivlarini ham tekshiradi — LLM ularni tashlab ketsa, natija ekrani `.map()` ustida qulamaydi.
+  - `/api/session` va `src/lib/db/sessions.ts` (o'lik kod edi — hech qayerdan chaqirilmasdi) `/trener`ning `finish()` funksiyasiga ulandi: baholash tugagach sessiya/transkript/baho fonda Supabase'ga yoziladi (Supabase sozlanmagan bo'lsa jimgina no-op).
+  - `/api/chat` va `/api/score`dagi takrorlangan kirish-tekshirish (JSON parse, hajm cheklovi, kesish) `src/lib/http.ts` `parseTurns()`ga chiqarildi; xato-matn ajratish (`(err as Error).message` → `err instanceof Error ? err.message : err`) barcha route/lib fayllarda birxillashtirildi.
+  - Dublikat test fayli (`src/lib/levels.test.ts`) o'chirildi (`__tests__/` versiyasi qoldi); `curriculum.ts` uchun test qo'shildi (avval 0% qoplama).
+  - **A11y**: mikrofon tugmasiga `aria-label` (avval faqat `aria-hidden` belgi bor edi), jonli transkript/holat `aria-live`, xato xabarlariga `role="alert"`, saqlash/nusxalash tasdig'iga `aria-live`, `SupportWidget`/`AppShell` drawer'lariga fokus-trap + fokus qaytarish, chip guruhlariga `role="group"`, qidiruv/erkin matn input'lariga `aria-label`, onboarding progress'ga `role="progressbar"`, muzokaralar "Batafsil" tugmasiga `aria-expanded`/`aria-controls`, e'tirozlar sevimli tugmasiga `aria-pressed`, karta ichidagi ortiqcha `<h3>` sarlavhalar (h1→h3 sakrashi) `<p>`ga tushirildi, `--faint` CSS tokeni ikkala mavzuda ham WCAG AA (4.5:1) ga yetkazildi.
 
 ### Mock-rejimda "100%" nimani anglatadi
 
-Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugallangan: 15 sahifa (landing, ro'yxatdan o'tish, onboarding, bosh sahifa, trener/qo'ng'iroq, e'tirozlar+tezkor mashq, qo'ng'iroq ssenariylari, muzokaralar, vazifalar, analitika, reyting, yutuqlar, tariflar, profil+sozlash), sidebar ilova qobig'i, yordam vidjeti — barchasi ishlaydi, o'zaro bog'langan, i18n orqali, typecheck/lint/69 test/build doim yashil.
+Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugallangan: 15 sahifa (landing, ro'yxatdan o'tish, onboarding, bosh sahifa, trener/qo'ng'iroq, e'tirozlar+tezkor mashq, qo'ng'iroq ssenariylari, muzokaralar, vazifalar, analitika, reyting, yutuqlar, tariflar, profil+sozlash), sidebar ilova qobig'i, yordam vidjeti — barchasi ishlaydi, o'zaro bog'langan, i18n orqali, typecheck/lint/75 test/build doim yashil.
 
 **Quyidagilar FAQAT tashqi hisob ma'lumotlari (API kalit/loyihalar) bilan davom etadi — men ularsiz "tugata olmayman":**
 

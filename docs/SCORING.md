@@ -6,13 +6,13 @@ Maqsad — sof ball emas, **o'stiruvchi feedback**: sotuvchi aniq nimani xato qi
 
 ## Rubrika (jami 100 ball)
 
-| Bo'lim | Ball | Nima baholanadi |
-|--------|------|-----------------|
-| **Salomlashish va tanishtirish** | 10 | O'zini/kompaniyani tanishtirdimi, iliq ochilishmi, ohang. |
-| **Ehtiyoj aniqlash** | 20 | Savol berdimi yoki darrov maqtay boshladimi? Mijozni tingladimi, ehtiyojni ochdimi? |
-| **Otkazlarga ishlov berish** | 30 | Otkazni inkor qilmasdan tan oldimi, qiymat/dalil bilan javob berdimi, darrov chegirmaga yugurmadimi? |
-| **Yopishga harakat (closing)** | 20 | Aniq keyingi qadam / qaror so'radimi? "O'ylab ko'ramiz"ni ishga soldimi? |
-| **Ohang, ishonch, gapni bo'lmaslik** | 20 | Ishonchli, hurmatli, mijozni bo'lmadimi, bosim qilmadimi? |
+| Bo'lim                               | Ball | Nima baholanadi                                                                                      |
+| ------------------------------------ | ---- | ---------------------------------------------------------------------------------------------------- |
+| **Salomlashish va tanishtirish**     | 10   | O'zini/kompaniyani tanishtirdimi, iliq ochilishmi, ohang.                                            |
+| **Ehtiyoj aniqlash**                 | 20   | Savol berdimi yoki darrov maqtay boshladimi? Mijozni tingladimi, ehtiyojni ochdimi?                  |
+| **Otkazlarga ishlov berish**         | 30   | Otkazni inkor qilmasdan tan oldimi, qiymat/dalil bilan javob berdimi, darrov chegirmaga yugurmadimi? |
+| **Yopishga harakat (closing)**       | 20   | Aniq keyingi qadam / qaror so'radimi? "O'ylab ko'ramiz"ni ishga soldimi?                             |
+| **Ohang, ishonch, gapni bo'lmaslik** | 20   | Ishonchli, hurmatli, mijozni bo'lmadimi, bosim qilmadimi?                                            |
 
 ### Bo'lim ichidagi mezonlar (baholovchiga yo'riqnoma)
 
@@ -60,21 +60,25 @@ Baholovchi FAQAT quyidagi JSON'ni qaytaradi (boshqa matn yo'q):
     "Ohangi ishonchli va hurmatli edi, mijozni bo'lmading.",
     "Kafolat haqida aniq ma'lumot berding."
   ],
+  "closed": true,
   "xp_awarded": 90
 }
 ```
 
 ### Maydonlar
 
-| Maydon | Tur | Izoh |
-|--------|-----|------|
-| `total` | int 0–100 | bo'lim ballari yig'indisi |
-| `breakdown` | object | har bo'lim bo'yicha ball (kalitlar yuqoridagidek) |
-| `mistakes` | array (2–3) | `{quote, why, better}` — aniq xato + namuna |
-| `strengths` | array (1–2) | to'g'ri qilingan narsalar |
-| `xp_awarded` | int | XP (pastdagi formula) |
+| Maydon       | Tur         | Izoh                                                                                                                                                 |
+| ------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `total`      | int 0–100   | bo'lim ballari yig'indisi                                                                                                                            |
+| `breakdown`  | object      | har bo'lim bo'yicha ball (kalitlar yuqoridagidek)                                                                                                    |
+| `mistakes`   | array (2–3) | `{quote, why, better}` — aniq xato + namuna                                                                                                          |
+| `strengths`  | array (1–2) | to'g'ri qilingan narsalar                                                                                                                            |
+| `closed`     | bool        | mijoz sotib olishga rozi bo'ldimi                                                                                                                    |
+| `xp_awarded` | int         | modelning taxmini (pastdagi formula) — server `total`/`closed`/level asosida qayta hisoblab, ustidan yozadi (`src/lib/gamification.ts` `xpForScore`) |
 
-## XP formulasi (draft — gamification bosqichida aniqlanadi)
+## XP formulasi
+
+Yagona manba: `src/lib/gamification.ts` `xpForScore()`. Modeldan so'ralgan taxmin ham xuddi shu formulaga amal qiladi (drift bo'lmasin uchun), lekin yakuniy qiymat har doim serverda qayta hisoblanadi — modelning arifmetikasiga ishonilmaydi:
 
 ```
 xp_awarded = round(total * 1.0)
@@ -87,6 +91,7 @@ Level chegaralari (`users.level`): Stajyor → Sotuvchi → Katta sotuvchi → M
 ## Validatsiya
 
 `src/lib/scoring.ts` baholovchi JSON'ini parse qiladi va sxema bo'yicha tekshiradi:
+
 - `total` = `breakdown` yig'indisiga teng (±1 tolerantlik).
 - `mistakes` da har element uchta maydonga ega.
 - Noto'g'ri JSON qaytsa — bir marta qayta so'raladi (retry), keyin xato loglanadi.

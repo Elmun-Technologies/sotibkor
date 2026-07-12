@@ -59,7 +59,10 @@ export async function saveSession(
     }
     return (data?.id as string) ?? null;
   } catch (err) {
-    console.error("[db] saveSession istisno:", (err as Error).message);
+    console.error(
+      "[db] saveSession istisno:",
+      err instanceof Error ? err.message : err,
+    );
     return null;
   }
 }
@@ -84,7 +87,10 @@ export async function finishSession(input: FinishSessionInput): Promise<void> {
 
     if (error) console.error("[db] finishSession xato:", error.message);
   } catch (err) {
-    console.error("[db] finishSession istisno:", (err as Error).message);
+    console.error(
+      "[db] finishSession istisno:",
+      err instanceof Error ? err.message : err,
+    );
   }
 }
 
@@ -112,7 +118,10 @@ export async function saveTranscript(
     const { error } = await db.from("transcripts").insert(rows);
     if (error) console.error("[db] saveTranscript xato:", error.message);
   } catch (err) {
-    console.error("[db] saveTranscript istisno:", (err as Error).message);
+    console.error(
+      "[db] saveTranscript istisno:",
+      err instanceof Error ? err.message : err,
+    );
   }
 }
 
@@ -143,6 +152,9 @@ export async function saveScore(
 
     if (error) console.error("[db] saveScore xato:", error.message);
   } catch (err) {
-    console.error("[db] saveScore istisno:", (err as Error).message);
+    console.error(
+      "[db] saveScore istisno:",
+      err instanceof Error ? err.message : err,
+    );
   }
 }

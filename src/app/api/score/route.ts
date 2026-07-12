@@ -11,6 +11,7 @@ import { scoreSession, mockScore } from "@/lib/scoring";
 import type { ChatTurn } from "@/lib/llm";
 import { hasOpenAI } from "@/lib/config";
 import { isPersonaKey, isSohaKey } from "@/lib/content";
+import { parseTurns } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -29,21 +30,14 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Noto'g'ri JSON." }, { status: 400 });
   }
 
-  const rawTranscript = Array.isArray(body.transcript) ? body.transcript : [];
-  if (rawTranscript.length === 0) {
+  const parsed = parseTurns(body.transcript);
+  if (!parsed.ok) {
+    return Response.json({ error: parsed.error }, { status: parsed.status });
+  }
+  const transcript = parsed.turns;
+  if (transcript.length === 0) {
     return Response.json({ error: "Bo'sh transkript." }, { status: 400 });
   }
-  // Kirish hajmi cheklovi (xarajat/DoS himoyasi) — /api/chat bilan bir xil.
-  if (rawTranscript.length > 60) {
-    return Response.json(
-      { error: "Suhbat tarixi juda uzun." },
-      { status: 413 },
-    );
-  }
-  const transcript = rawTranscript.map((t) => ({
-    role: t.role,
-    content: typeof t.content === "string" ? t.content.slice(0, 4000) : "",
-  }));
 
   if (!hasOpenAI()) {
     return Response.json({ ...mockScore(transcript), provider: "mock" });
@@ -66,7 +60,10 @@ export async function POST(req: NextRequest) {
     return Response.json({ ...result, provider: "openai" });
   } catch (err) {
     // Xom xato matnini klientga chiqarmaymiz (info-leak) — faqat serverda loglaymiz.
-    console.error("[api/score] xato:", (err as Error).message);
+    console.error(
+      "[api/score] xato:",
+      err instanceof Error ? err.message : err,
+    );
     return Response.json({ error: "score_failed" }, { status: 502 });
   }
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { getMessages } from "@/i18n";
 import { getUser, logout, type AuthUser } from "@/lib/auth";
@@ -303,6 +303,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const menuBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setUser(getUser());
@@ -313,11 +315,37 @@ export function AppShell({ children }: { children: ReactNode }) {
     setOpen(false);
   }, [pathname]);
 
-  // Drawer ochiq bo'lsa: Esc bilan yopish + orqa fon scroll'ini bloklash.
+  // Drawer ochiq bo'lsa: Esc bilan yopish, orqa fon scroll'ini bloklash,
+  // fokusni ichkariga o'tkazish + Tab'ni drawer ichida ushlab turish,
+  // yopilganda fokusni hamburger tugmasiga qaytarish.
   useEffect(() => {
     if (!open) return;
+    const menuBtn = menuBtnRef.current;
+    const prevActive = document.activeElement as HTMLElement | null;
+    const firstLink =
+      drawerRef.current?.querySelector<HTMLElement>("a, button");
+    firstLink?.focus();
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key === "Tab" && drawerRef.current) {
+        const focusables = drawerRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -325,6 +353,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+      (prevActive ?? menuBtn)?.focus();
     };
   }, [open]);
 
@@ -350,6 +379,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-1">
           <ThemeToggle />
           <button
+            ref={menuBtnRef}
             type="button"
             onClick={() => setOpen(true)}
             aria-label={t.nav.menu}
@@ -382,6 +412,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <motion.button
               type="button"
+              tabIndex={-1}
               aria-label={t.nav.close}
               onClick={() => setOpen(false)}
               className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
@@ -391,6 +422,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               transition={{ duration: 0.18 }}
             />
             <motion.div
+              ref={drawerRef}
               className="absolute inset-y-0 left-0 w-[280px] max-w-[85%] border-r border-border bg-surface px-3 py-4 shadow-[var(--shadow-card-hover)]"
               initial={reduce ? { opacity: 0 } : { x: "-100%" }}
               animate={reduce ? { opacity: 1 } : { x: 0 }}

@@ -102,6 +102,9 @@ export default function TrenerPage() {
     }
     if (audioRef.current) {
       audioRef.current.pause();
+      // pause() "ended" hodisasini chaqirmaydi — playSentence ichidagi kutayotgan
+      // Promise'ni shu bilan darrov yechamiz (aks holda barge-in'da doim osilib qoladi).
+      audioRef.current.dispatchEvent(new Event("ended"));
       audioRef.current = null;
     }
     setSpeaking(false);
@@ -121,13 +124,18 @@ export default function TrenerPage() {
             ttsModeRef.current = "aisha";
             if (cancelRef.current) return;
             const buf = await res.arrayBuffer();
-            const audio = new Audio(URL.createObjectURL(new Blob([buf])));
+            const url = URL.createObjectURL(new Blob([buf]));
+            const audio = new Audio(url);
             audioRef.current = audio;
+            const done = (resolve: () => void) => {
+              URL.revokeObjectURL(url);
+              resolve();
+            };
             return await new Promise<void>((resolve) => {
               audio.onplay = onStart;
-              audio.onended = () => resolve();
-              audio.onerror = () => resolve();
-              void audio.play().catch(() => resolve());
+              audio.onended = () => done(resolve);
+              audio.onerror = () => done(resolve);
+              void audio.play().catch(() => done(resolve));
             });
           }
           ttsModeRef.current = "web";
@@ -325,6 +333,21 @@ export default function TrenerPage() {
       }
       setScore(data as ScoreResult);
       setStage("result");
+      // Sessiyani orqa fonda saqlaymiz — Supabase sozlanmagan bo'lsa
+      // route jimgina no-op qiladi, natija ekraniga bu bog'liq emas.
+      void fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "finish",
+          soha,
+          persona,
+          level,
+          transcript: turns,
+          score: data,
+          status: "finished",
+        }),
+      }).catch(() => {});
     } catch {
       setSttHint(t.trener.scoreError);
     } finally {
@@ -395,7 +418,10 @@ export default function TrenerPage() {
           onFinish={finish}
         />
         {sttHint && (
-          <p className="mt-3 text-center text-xs text-[color:var(--warn)]">
+          <p
+            role="alert"
+            className="mt-3 text-center text-xs text-[color:var(--warn)]"
+          >
             {sttHint}
           </p>
         )}

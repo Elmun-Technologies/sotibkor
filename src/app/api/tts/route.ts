@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     // Aisha'dan kelgan xom xato matnini klientga chiqarmaymiz (info-leak) —
     // faqat serverda loglaymiz.
-    console.error("[api/tts] xato:", (err as Error).message);
+    console.error("[api/tts] xato:", err instanceof Error ? err.message : err);
     return Response.json({ error: "tts_failed" }, { status: 502 });
   }
 }

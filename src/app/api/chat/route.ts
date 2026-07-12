@@ -16,6 +16,7 @@ import {
 } from "@/lib/llm";
 import { hasOpenAI } from "@/lib/config";
 import { PERSONALAR, SOHALAR, isPersonaKey, isSohaKey } from "@/lib/content";
+import { parseTurns } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -49,19 +50,11 @@ export async function POST(req: NextRequest) {
   const level = Number.isFinite(body.level)
     ? Math.max(1, Math.floor(body.level))
     : 1;
-  // Kirish hajmi cheklovi (xarajat/DoS himoyasi) — bitta suhbat bunchalik
-  // uzun bo'lmaydi; oshsa so'rov rad etiladi.
-  const rawHistory = Array.isArray(body.history) ? body.history : [];
-  if (rawHistory.length > 60) {
-    return Response.json(
-      { error: "Suhbat tarixi juda uzun." },
-      { status: 413 },
-    );
+  const parsed = parseTurns(body.history);
+  if (!parsed.ok) {
+    return Response.json({ error: parsed.error }, { status: parsed.status });
   }
-  const history = rawHistory.map((t) => ({
-    role: t.role,
-    content: typeof t.content === "string" ? t.content.slice(0, 4000) : "",
-  }));
+  const history = parsed.turns;
 
   const encoder = new TextEncoder();
 
@@ -89,7 +82,10 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     // Oqim boshlanishidan oldingi xato (masalan prompt fayli topilmadi,
     // kalit rad etildi) — hali header yuborilmagan, toza JSON xato qaytaramiz.
-    console.error("[api/chat] source init xato:", (err as Error).message);
+    console.error(
+      "[api/chat] source init xato:",
+      err instanceof Error ? err.message : err,
+    );
     return Response.json({ error: "chat_init_failed" }, { status: 502 });
   }
 
@@ -104,7 +100,10 @@ export async function POST(req: NextRequest) {
         // bo'lmaydi. Xom xato matnini "mijoz repликаsi" sifatida yubormaymiz
         // (immersiyani buzadi) — faqat serverda loglaymiz va oqimni yopamiz;
         // klient bo'sh/qisman javobni t.trener.chatError bilan qoplaydi.
-        console.error("[api/chat] stream xato:", (err as Error).message);
+        console.error(
+          "[api/chat] stream xato:",
+          err instanceof Error ? err.message : err,
+        );
       } finally {
         controller.close();
       }

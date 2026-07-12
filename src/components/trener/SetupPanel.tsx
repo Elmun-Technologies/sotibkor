@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { getMessages } from "@/i18n";
 import { Card, Chip, Button, Badge } from "@/components/ui";
 import {
@@ -38,12 +39,18 @@ function Field({
   label: string;
   children: React.ReactNode;
 }) {
+  const labelId = useId();
   return (
     <div>
-      <div className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted">
+      <div
+        id={labelId}
+        className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted"
+      >
         {label}
       </div>
-      {children}
+      <div role="group" aria-labelledby={labelId}>
+        {children}
+      </div>
     </div>
   );
 }

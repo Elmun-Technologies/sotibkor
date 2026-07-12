@@ -8,6 +8,7 @@
 
 import { completeOnce, loadPrompt } from "./llm";
 import type { ChatTurn } from "./llm";
+import { xpForScore } from "./gamification";
 
 /** docs/SCORING.md rubrikasi bo'yicha bo'lim ballari. */
 export interface ScoreBreakdown {
@@ -29,6 +30,7 @@ export interface ScoreResult {
   breakdown: ScoreBreakdown;
   mistakes: ScoreMistake[]; // 2..3
   strengths: string[]; // 1..2
+  closed: boolean; // mijoz sotib olishga rozi bo'ldimi
   xp_awarded: number;
 }
 
@@ -80,6 +82,16 @@ export function parseScore(raw: string): ScoreResult {
     );
   }
 
+  if (!Array.isArray(d.mistakes) || d.mistakes.length === 0) {
+    throw new Error("mistakes yo'q yoki bo'sh.");
+  }
+  if (!Array.isArray(d.strengths) || d.strengths.length === 0) {
+    throw new Error("strengths yo'q yoki bo'sh.");
+  }
+  if (typeof d.closed !== "boolean") {
+    throw new Error("closed mavjud emas yoki boolean emas.");
+  }
+
   return data as ScoreResult;
 }
 
@@ -111,9 +123,20 @@ export async function scoreSession(opts: {
   // Ko'rsatma matnlari ham /prompts da (CLAUDE.md §2 — kodda prompt yozilmaydi).
   const baseUser = await loadPrompt("scoring/baholovchi.user.md");
 
+  // xp_awarded formulasi bitta manbada (src/lib/gamification.ts) — modelning
+  // o'zi hisoblagan qiymatiga ishonmaymiz (arifmetik xato/drift xavfi bor),
+  // shuning uchun har doim serverda qayta hisoblab, uning ustidan yozamiz.
+  const finalize = (r: ScoreResult): ScoreResult => ({
+    ...r,
+    xp_awarded: xpForScore(r.total, {
+      closed: r.closed,
+      personaLevel: opts.level,
+    }),
+  });
+
   try {
     const raw = await completeOnce({ systemPrompt, userContent: baseUser });
-    return parseScore(raw);
+    return finalize(parseScore(raw));
   } catch (firstErr) {
     // Birinchi urinish noto'g'ri JSON / sxema — bir marta qayta so'raymiz.
     console.warn(
@@ -126,7 +149,7 @@ export async function scoreSession(opts: {
         systemPrompt,
         userContent: retryUser,
       });
-      return parseScore(retryRaw);
+      return finalize(parseScore(retryRaw));
     } catch (secondErr) {
       console.error(
         "[scoring] retry ham muvaffaqiyatsiz:",
@@ -162,10 +185,13 @@ export function mockScore(transcript: ChatTurn[]): ScoreResult {
     breakdown.otkazlarga_ishlov +
     breakdown.closing +
     breakdown.ohang;
+  // Uzoq, ko'p replikali suhbat — mijoz "roziga o'xshab" yakunlangan taxmin.
+  const closed = sellerTurns.length >= 5;
 
   return {
     total,
     breakdown,
+    closed,
     mistakes: [
       {
         quote: sellerTurns[0]?.content ?? "(sotuvchi gapirmadi)",
@@ -179,6 +205,6 @@ export function mockScore(transcript: ChatTurn[]): ScoreResult {
         ? "Savol berding — ehtiyojni aniqlashga urinding."
         : "Suhbatni boshlading.",
     ],
-    xp_awarded: Math.round(total),
+    xp_awarded: xpForScore(total, { closed }),
   };
 }

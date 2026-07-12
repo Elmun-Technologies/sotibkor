@@ -45,9 +45,9 @@ function TaskCard({ task }: { task: Assignment }) {
     <Card interactive className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="font-semibold tracking-tight text-foreground">
+          <p className="font-semibold tracking-tight text-foreground">
             {task.title}
-          </h3>
+          </p>
           <p className="mt-0.5 text-xs text-muted">
             {t.vazifalar.assignedBy}: {task.by}
           </p>
