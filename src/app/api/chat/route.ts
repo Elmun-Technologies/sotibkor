@@ -49,24 +49,48 @@ export async function POST(req: NextRequest) {
   const level = Number.isFinite(body.level)
     ? Math.max(1, Math.floor(body.level))
     : 1;
-  const history = Array.isArray(body.history) ? body.history : [];
+  // Kirish hajmi cheklovi (xarajat/DoS himoyasi) — bitta suhbat bunchalik
+  // uzun bo'lmaydi; oshsa so'rov rad etiladi.
+  const rawHistory = Array.isArray(body.history) ? body.history : [];
+  if (rawHistory.length > 60) {
+    return Response.json(
+      { error: "Suhbat tarixi juda uzun." },
+      { status: 413 },
+    );
+  }
+  const history = rawHistory.map((t) => ({
+    role: t.role,
+    content: typeof t.content === "string" ? t.content.slice(0, 4000) : "",
+  }));
 
   const encoder = new TextEncoder();
 
   let source: AsyncGenerator<string, void, unknown>;
-  if (hasOpenAI()) {
-    const rejim =
-      body.rejim && REJIM_MATN[body.rejim] ? body.rejim : "qongiroq";
-    const systemPrompt = await loadPrompt(PERSONALAR[body.persona].promptFile, {
-      soha: body.soha,
-      mahsulot: SOHALAR[body.soha].mahsulot,
-      level,
-      rejim: REJIM_MATN[rejim],
-    });
-    source = streamPersona({ systemPrompt, history });
-  } else {
-    const assistantTurns = history.filter((t) => t.role === "assistant").length;
-    source = mockStreamPersona({ personaKey: body.persona, assistantTurns });
+  try {
+    if (hasOpenAI()) {
+      const rejim =
+        body.rejim && REJIM_MATN[body.rejim] ? body.rejim : "qongiroq";
+      const systemPrompt = await loadPrompt(
+        PERSONALAR[body.persona].promptFile,
+        {
+          soha: body.soha,
+          mahsulot: SOHALAR[body.soha].mahsulot,
+          level,
+          rejim: REJIM_MATN[rejim],
+        },
+      );
+      source = streamPersona({ systemPrompt, history });
+    } else {
+      const assistantTurns = history.filter(
+        (t) => t.role === "assistant",
+      ).length;
+      source = mockStreamPersona({ personaKey: body.persona, assistantTurns });
+    }
+  } catch (err) {
+    // Oqim boshlanishidan oldingi xato (masalan prompt fayli topilmadi,
+    // kalit rad etildi) — hali header yuborilmagan, toza JSON xato qaytaramiz.
+    console.error("[api/chat] source init xato:", (err as Error).message);
+    return Response.json({ error: "chat_init_failed" }, { status: 502 });
   }
 
   const stream = new ReadableStream<Uint8Array>({
@@ -76,9 +100,11 @@ export async function POST(req: NextRequest) {
           controller.enqueue(encoder.encode(chunk));
         }
       } catch (err) {
-        controller.enqueue(
-          encoder.encode(`\n[xato: ${(err as Error).message}]`),
-        );
+        // Oqim BOSHLANGANDAN keyingi xato — endi status kodini o'zgartirib
+        // bo'lmaydi. Xom xato matnini "mijoz repликаsi" sifatida yubormaymiz
+        // (immersiyani buzadi) — faqat serverda loglaymiz va oqimni yopamiz;
+        // klient bo'sh/qisman javobni t.trener.chatError bilan qoplaydi.
+        console.error("[api/chat] stream xato:", (err as Error).message);
       } finally {
         controller.close();
       }

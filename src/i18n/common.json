@@ -9,5 +9,11 @@
   "next": "Keyingi",
   "prev": "Oldingi",
   "soon": "Tez orada",
-  "xp": "XP"
+  "xp": "XP",
+  "errorTitle": "Nimadir xato ketdi",
+  "errorDesc": "Sahifa yuklanmadi. Qayta urinib ko'ring yoki bosh sahifaga qayting.",
+  "errorHome": "Bosh sahifa",
+  "notFoundTitle": "Sahifa topilmadi",
+  "notFoundDesc": "Siz izlagan sahifa mavjud emas yoki ko'chirilgan.",
+  "notFoundHome": "Bosh sahifaga qaytish"
 }
