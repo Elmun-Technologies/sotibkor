@@ -306,7 +306,7 @@ export default function Home() {
                 {t.landing.capabilitiesLead}
               </p>
             </div>
-            <Card className="flex flex-wrap items-center justify-center gap-3 py-10">
+            <Card className="flex flex-wrap items-center justify-center gap-x-4 gap-y-5 py-10">
               {t.landing.tags.map((tag, i) => (
                 <Tag key={tag} rotate={TAG_ROT[i % TAG_ROT.length]}>
                   {tag}

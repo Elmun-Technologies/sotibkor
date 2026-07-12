@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, AppLoading } from "@/components/ui";
 import { AchievementCard } from "@/components/gamification";
@@ -22,25 +21,27 @@ const CATEGORY_ORDER: AchievementCategory[] = [
 const XP_BY_CODE = new Map(ACHIEVEMENTS.map((a) => [a.code, a.xp]));
 const CATEGORY_BY_CODE = new Map(ACHIEVEMENTS.map((a) => [a.code, a.category]));
 
+// MOCK_ACHIEVEMENTS modul darajasidagi statik konstanta — hech qachon
+// o'zgarmaydi, shuning uchun bir marta shu yerda hisoblanadi (useMemo'dan
+// ham arzonroq, chunki render/dependency tekshiruvi umuman bo'lmaydi).
+const EARNED_COUNT = MOCK_ACHIEVEMENTS.filter((a) => a.earned).length;
+const TOTAL_COUNT = MOCK_ACHIEVEMENTS.length;
+const EARNED_XP = MOCK_ACHIEVEMENTS.filter((a) => a.earned).reduce(
+  (sum, a) => sum + (XP_BY_CODE.get(a.code) ?? 0),
+  0,
+);
+const BY_CATEGORY = (() => {
+  const groups = new Map<AchievementCategory, typeof MOCK_ACHIEVEMENTS>();
+  for (const a of MOCK_ACHIEVEMENTS) {
+    const cat = CATEGORY_BY_CODE.get(a.code);
+    if (!cat) continue;
+    groups.set(cat, [...(groups.get(cat) ?? []), a]);
+  }
+  return groups;
+})();
+
 export default function YutuqlarPage() {
   const ready = useAuthGate("/yutuqlar");
-
-  const earnedCount = MOCK_ACHIEVEMENTS.filter((a) => a.earned).length;
-  const totalCount = MOCK_ACHIEVEMENTS.length;
-  const earnedXp = MOCK_ACHIEVEMENTS.filter((a) => a.earned).reduce(
-    (sum, a) => sum + (XP_BY_CODE.get(a.code) ?? 0),
-    0,
-  );
-
-  const byCategory = useMemo(() => {
-    const groups = new Map<AchievementCategory, typeof MOCK_ACHIEVEMENTS>();
-    for (const a of MOCK_ACHIEVEMENTS) {
-      const cat = CATEGORY_BY_CODE.get(a.code);
-      if (!cat) continue;
-      groups.set(cat, [...(groups.get(cat) ?? []), a]);
-    }
-    return groups;
-  }, []);
 
   if (!ready) return <AppLoading />;
 
@@ -49,8 +50,8 @@ export default function YutuqlarPage() {
       <Card className="mb-8 flex flex-wrap items-center gap-8">
         <div>
           <div className="text-4xl font-semibold tabular-nums tracking-tight">
-            {earnedCount}
-            <span className="text-lg text-faint"> / {totalCount}</span>
+            {EARNED_COUNT}
+            <span className="text-lg text-faint"> / {TOTAL_COUNT}</span>
           </div>
           <div className="mt-1 text-sm text-muted">
             {t.yutuqlar.earnedLabel}
@@ -59,7 +60,7 @@ export default function YutuqlarPage() {
         <div className="h-10 w-px bg-hair" aria-hidden />
         <div>
           <div className="text-4xl font-semibold tabular-nums tracking-tight text-[color:var(--good)]">
-            {earnedXp.toLocaleString("uz-UZ")}
+            {EARNED_XP.toLocaleString("uz-UZ")}
           </div>
           <div className="mt-1 text-sm text-muted">{t.yutuqlar.xpLabel}</div>
         </div>
@@ -67,7 +68,7 @@ export default function YutuqlarPage() {
 
       <div className="flex flex-col gap-10">
         {CATEGORY_ORDER.map((cat) => {
-          const items = byCategory.get(cat) ?? [];
+          const items = BY_CATEGORY.get(cat) ?? [];
           if (items.length === 0) return null;
           return (
             <div key={cat}>

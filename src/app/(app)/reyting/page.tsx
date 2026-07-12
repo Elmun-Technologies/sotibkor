@@ -10,15 +10,19 @@ const t = getMessages();
 
 const XP_BY_CODE = new Map(ACHIEVEMENTS.map((a) => [a.code, a.xp]));
 
+// Manba (MOCK_*) modul darajasidagi statik konstanta — hech qachon
+// o'zgarmaydi, shuning uchun bir marta shu yerda hisoblanadi (har render
+// yoki useMemo dependency tekshiruvidan ham arzonroq).
+const ME = MOCK_LEADERBOARD.find((e) => e.isMe);
+const EARNED_COUNT = MOCK_ACHIEVEMENTS.filter((a) => a.earned).length;
+const ACHIEVEMENTS_PREVIEW = [...MOCK_ACHIEVEMENTS]
+  .sort((a, b) => Number(b.earned) - Number(a.earned))
+  .slice(0, 3);
+
 type Tab = "leaderboard" | "achievements";
 
 export default function ReytingPage() {
   const [tab, setTab] = useState<Tab>("leaderboard");
-  const me = MOCK_LEADERBOARD.find((e) => e.isMe);
-  const earnedCount = MOCK_ACHIEVEMENTS.filter((a) => a.earned).length;
-  const preview = [...MOCK_ACHIEVEMENTS]
-    .sort((a, b) => Number(b.earned) - Number(a.earned))
-    .slice(0, 3);
 
   return (
     <PageShell title={t.reyting.title} lead={t.reyting.subtitle}>
@@ -39,11 +43,11 @@ export default function ReytingPage() {
 
       {tab === "leaderboard" ? (
         <div>
-          {me && (
+          {ME && (
             <Card className="mb-4 flex items-center justify-between">
               <span className="eyebrow">{t.reyting.yourRank}</span>
               <span className="text-3xl font-semibold tabular-nums tracking-tight text-foreground">
-                #{me.rank}
+                #{ME.rank}
               </span>
             </Card>
           )}
@@ -70,11 +74,11 @@ export default function ReytingPage() {
               </p>
             </div>
             <span className="font-mono text-xs tabular-nums text-muted">
-              {earnedCount}/{MOCK_ACHIEVEMENTS.length}
+              {EARNED_COUNT}/{MOCK_ACHIEVEMENTS.length}
             </span>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {preview.map((a, i) => (
+            {ACHIEVEMENTS_PREVIEW.map((a, i) => (
               <AchievementCard
                 key={a.code}
                 code={a.code}
