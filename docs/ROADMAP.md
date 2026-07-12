@@ -28,7 +28,7 @@ Plumbing tayyor (provider abstraktsiyasi + mock rejim, kalitsiz ishlaydi):
 - ✅ Persona chaqiruvi streaming (`/api/chat`, `src/lib/llm.ts`): OpenAI (kalit bo'lsa) yoki mock oqim.
 - ✅ Gap-gap TTS: `SentenceStreamer` birinchi gapni darrov ovozga (Aisha `/api/tts` yoki brauzer Web Speech fallback).
 - ✅ Latency o'lchagich (LLM first-token, TTS boshlanishi, to'liq aylana) + `npm run bench:voice`.
-- ⬜ **Aisha.ai STT/TTS real endpoint** (`src/lib/aisha.ts` TODO) — rasmiy hujjat kelgach.
+- 🟡 **Aisha.ai STT/TTS** (`src/lib/aisha.ts`) — real fetch integratsiya yozildi, lekin so'rov/javob shakli (multipart STT, JSON TTS) UzbekVoice/Mohir'ning ommaviy API pattern'iga asoslangan **taxmin** (rasmiy hujjatga bu muhitdan kirib bo'lmadi — 403). `AISHA_BASE_URL` MAJBURIY (kod hech qanday manzilni o'zi taxmin qilmaydi, xavfsizlik uchun) — bo'lmasa aniq xato tashlaydi. Real `AISHA_API_KEY` + tasdiqlangan `AISHA_BASE_URL` bilan sinab ko'rish va farq bo'lsa `AISHA_STT_PATH`/`AISHA_TTS_PATH`/`AISHA_AUTH_SCHEME` orqali moslashtirish kerak. Brauzer webm/opus yozadi — API boshqa format talab qilsa, konvertatsiya keyingi qadam.
 - ⬜ Real OPENAI_API_KEY bilan jonli OpenAI persona sinovi va latency o'lchash.
 
 **Yakun mezoni:** Qimmatchi bilan ovozli suhbat, aylana < 2s (real kalitlar bilan).

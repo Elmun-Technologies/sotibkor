@@ -41,7 +41,7 @@ Bu loyihaning yuragi. Foydalanuvchi gapiradi → matnga aylanadi → persona jav
 
 ### Kutubxona qatlami (`src/lib`)
 
-- `aisha.ts` — Aisha.ai STT/TTS klient (interfeys + TODO, real integratsiya issue #1'da).
+- `aisha.ts` — Aisha.ai/UzbekVoice STT/TTS klient (real fetch integratsiya, ENV bilan sozlanadigan endpoint/auth; kalit bilan tasdiqlash kutilmoqda).
 - `llm.ts` — OpenAI klient. Streaming helper, promptni `/prompts`'dan yuklaydi.
 - `scoring.ts` — transkriptni baholovchi promptga uzatadi, JSON'ni parse/validatsiya qiladi.
 
