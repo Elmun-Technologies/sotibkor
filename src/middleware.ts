@@ -39,7 +39,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // MUHIM (CLAUDE.md §4 — < 2s ovoz aylanasi): api/* bu yerdan ataylab
+  // chetlashtirilgan. Hech bir route handler cookie orqali Supabase
+  // sessiyasini o'qimaydi (faqat /auth/callback, u o'zi kod almashtiradi) —
+  // shuning uchun middleware'ning sessiya-yangilash so'rovi STT/TTS/LLM
+  // chaqiruvlariga foydasiz qo'shimcha latency qo'shardi.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|webp)$).*)",
   ],
 };

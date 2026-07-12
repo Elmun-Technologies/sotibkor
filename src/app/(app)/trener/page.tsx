@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { getMessages } from "@/i18n";
 import { useAuthGate } from "@/lib/useAuthGate";
 import {
@@ -15,7 +16,19 @@ import { SentenceStreamer } from "@/lib/sentence";
 import { interestScore } from "@/lib/coach";
 import type { ScoreResult } from "@/lib/scoring";
 import { PageShell, AppLoading } from "@/components/ui";
-import { ResultView, SetupPanel, CallView } from "@/components/trener";
+import { SetupPanel } from "@/components/trener";
+
+// Faqat "setup" bosqichida ko'rinadigan sahifa uchun CallView/ResultView'ni
+// ilk yuklamaga qo'shmaymiz — ovoz-aylana kodi (mikrofon/audio) va natija
+// ekrani foydalanuvchi darrov kerak qilmaguncha alohida chunk'da kutadi.
+const CallView = dynamic(
+  () => import("@/components/trener/CallView").then((m) => m.CallView),
+  { ssr: false, loading: () => <AppLoading /> },
+);
+const ResultView = dynamic(
+  () => import("@/components/trener/ResultView").then((m) => m.ResultView),
+  { ssr: false, loading: () => <AppLoading /> },
+);
 
 const t = getMessages();
 
