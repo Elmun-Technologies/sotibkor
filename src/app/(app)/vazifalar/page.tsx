@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { getMessages } from "@/i18n";
 import {
   PageShell,
@@ -71,13 +70,12 @@ function TaskCard({ task }: { task: Assignment }) {
         <span className="mr-auto text-xs text-muted">
           {isDone ? "✓" : `${t.vazifalar.due}: ${task.dueDays} kun`}
         </span>
-        <Link
+        <Button
           href={`/trener?soha=mebel&persona=qimmatchi&level=3&rejim=qongiroq&focus=${task.focus}`}
+          variant={isDone ? "ghost" : "primary"}
         >
-          <Button variant={isDone ? "ghost" : "primary"}>
-            {isDone ? t.vazifalar.reviewBtn : t.vazifalar.startBtn}
-          </Button>
-        </Link>
+          {isDone ? t.vazifalar.reviewBtn : t.vazifalar.startBtn}
+        </Button>
       </div>
     </Card>
   );

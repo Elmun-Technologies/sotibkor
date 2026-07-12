@@ -13,7 +13,6 @@ export { Badge } from "./Badge";
 export type { BadgeProps } from "./Badge";
 export { PageShell } from "./PageShell";
 export type { PageShellProps } from "./PageShell";
-export { Nav } from "./Nav";
 export { AppShell } from "./AppShell";
 export { AppLoading } from "./AppLoading";
 export { SupportWidget } from "./SupportWidget";

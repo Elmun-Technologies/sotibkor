@@ -239,7 +239,11 @@ export default function MuzokaralarPage() {
             {list.map((s) => (
               <ScenarioCard key={s.id} s={s} />
             ))}
-            <Card className="flex flex-col items-center justify-center gap-2 border-dashed py-10 text-center">
+            <button
+              type="button"
+              onClick={() => setTab("mine")}
+              className="card flex flex-col items-center justify-center gap-2 border-dashed p-6 py-10 text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] active:scale-[0.99] sm:p-7"
+            >
               <span className="grid h-10 w-10 place-items-center rounded-full bg-[color:var(--accent)]/10 text-lg text-[color:var(--accent)]">
                 +
               </span>
@@ -249,7 +253,7 @@ export default function MuzokaralarPage() {
               <p className="max-w-[220px] text-xs text-muted">
                 {t.muzokaralar.createLead}
               </p>
-            </Card>
+            </button>
           </div>
         )
       ) : (
@@ -280,14 +284,20 @@ export default function MuzokaralarPage() {
             <h2 className="text-lg font-semibold tracking-tight">
               {t.muzokaralar.createTitle}
             </h2>
-            <p className="text-sm text-muted">{t.muzokaralar.createLead}</p>
-            <textarea
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-              rows={3}
-              placeholder={t.muzokaralar.createLead}
-              className="w-full resize-none rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] leading-relaxed outline-none transition placeholder:text-faint focus:border-foreground/40"
-            />
+            <label className="block">
+              <span className="mb-1.5 block text-sm text-muted">
+                {t.muzokaralar.createLead}
+                <span className="text-[color:var(--bad)]"> *</span>
+              </span>
+              <textarea
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                rows={3}
+                required
+                placeholder={t.muzokaralar.createPlaceholder}
+                className="w-full resize-none rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] leading-relaxed outline-none transition placeholder:text-faint focus:border-foreground/40"
+              />
+            </label>
             <div>
               <Button
                 onClick={() => {

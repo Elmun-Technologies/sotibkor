@@ -16,10 +16,10 @@ const t = getMessages();
 const STYLE_COLOR: Record<AnswerStyle, string> = {
   logika: "var(--accent)",
   ekspertlik: "var(--good)",
-  intriga: "#38bdf8",
+  intriga: "var(--info)",
   dojim: "var(--warn)",
   bosim: "var(--bad)",
-  yumor: "#a78bfa",
+  yumor: "var(--fun)",
 };
 
 function StyleTag({ style }: { style: AnswerStyle }) {
@@ -656,7 +656,7 @@ function DrillView() {
                 type="button"
                 onClick={() => toggle(o.id)}
                 aria-pressed={checked}
-                className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border transition ${
+                className={`grid h-8 w-8 shrink-0 place-items-center rounded-md border transition-all duration-150 active:scale-[0.93] ${
                   checked
                     ? "border-ink bg-ink text-onink"
                     : "border-border text-transparent"
@@ -667,12 +667,13 @@ function DrillView() {
               <span className="min-w-0 flex-1 truncate text-sm text-foreground">
                 {o.text}
               </span>
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="flex shrink-0 items-center gap-1">
                 <button
                   type="button"
                   onClick={() => bump(o.id, -1)}
                   disabled={count === 0}
-                  className="grid h-7 w-7 place-items-center rounded-full border border-border text-sm text-muted transition hover:text-foreground disabled:opacity-30"
+                  aria-label={t.etirozlar.decreaseBtn}
+                  className="grid h-10 w-10 place-items-center rounded-full border border-border text-sm text-muted transition-all duration-150 hover:text-foreground active:scale-[0.9] disabled:opacity-30"
                 >
                   −
                 </button>
@@ -682,7 +683,8 @@ function DrillView() {
                 <button
                   type="button"
                   onClick={() => bump(o.id, 1)}
-                  className="grid h-7 w-7 place-items-center rounded-full border border-border text-sm text-muted transition hover:text-foreground"
+                  aria-label={t.etirozlar.increaseBtn}
+                  className="grid h-10 w-10 place-items-center rounded-full border border-border text-sm text-muted transition-all duration-150 hover:text-foreground active:scale-[0.9]"
                 >
                   +
                 </button>
@@ -692,7 +694,7 @@ function DrillView() {
         })}
       </Card>
 
-      <div className="sticky bottom-4 flex items-center gap-4 self-start rounded-full border border-border bg-surface px-5 py-3 shadow-lg">
+      <div className="sticky bottom-4 flex items-center gap-4 self-start rounded-full border border-border bg-surface px-5 py-3 shadow-[var(--shadow-card-hover)]">
         <span className="text-sm text-muted">
           <strong className="text-foreground">{selectedCount}</strong>{" "}
           {t.etirozlar.drillSelected} ·{" "}

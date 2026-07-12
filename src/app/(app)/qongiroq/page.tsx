@@ -171,9 +171,6 @@ export default function QongiroqPage() {
                 <span className="mr-auto font-mono text-xs tabular-nums text-faint">
                   {t.qongiroq.levelLabel} {s.level}
                 </span>
-                <Button href={scenarioHref(s)} variant="ghost">
-                  {t.qongiroq.setup}
-                </Button>
                 <Button href={scenarioHref(s)}>{t.qongiroq.call}</Button>
               </div>
             </Card>
@@ -230,9 +227,11 @@ export default function QongiroqPage() {
             <label className="block">
               <span className="mb-1.5 block text-sm text-foreground">
                 {t.qongiroq.customName}
+                <span className="text-[color:var(--bad)]"> *</span>
               </span>
               <input
                 value={name}
+                required
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t.qongiroq.customNamePh}
                 className="w-full rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] outline-none transition placeholder:text-faint focus:border-foreground/40"

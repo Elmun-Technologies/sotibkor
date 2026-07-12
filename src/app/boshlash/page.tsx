@@ -41,7 +41,12 @@ function Field({
   return (
     <label className="block">
       <span className="mb-1.5 flex items-center justify-between text-sm text-foreground">
-        {label}
+        <span>
+          {label}
+          {props.required && (
+            <span className="text-[color:var(--bad)]"> *</span>
+          )}
+        </span>
         {hint && <span className="text-xs text-muted">{hint}</span>}
       </span>
       <input

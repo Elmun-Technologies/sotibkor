@@ -96,7 +96,7 @@ export function ResultView({
         <Card className="flex flex-col items-center gap-3 py-10 text-center">
           <div className="eyebrow">{t.natija.total}</div>
           <div className="flex items-end gap-2">
-            <span className="text-8xl font-semibold tabular-nums tracking-tight">
+            <span className="text-7xl font-semibold tabular-nums tracking-tight sm:text-8xl">
               <CountUp to={score.total} />
             </span>
             <span className="mb-3 text-lg text-muted">{t.natija.outOf}</span>

@@ -117,7 +117,33 @@ export function CallView(p: CallViewProps) {
   const auraActive = state === "speaking" || state === "listening";
 
   return (
-    <div className="flex min-h-[calc(100dvh-9rem)] flex-col gap-4">
+    <div className="relative flex min-h-[calc(100dvh-9rem)] flex-col gap-4">
+      {p.scoring && (
+        <div
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-[var(--r-card)] bg-surface/80 backdrop-blur-sm"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex gap-1.5" aria-hidden>
+            {[0, 1, 2].map((i) => (
+              <motion.span
+                key={i}
+                className="h-2.5 w-2.5 rounded-full bg-foreground/40"
+                animate={reduce ? undefined : { opacity: [0.3, 1, 0.3] }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  delay: i * 0.15,
+                  ease: "easeInOut",
+                }}
+              />
+            ))}
+          </div>
+          <p className="text-sm font-medium text-foreground">
+            {t.natija.evaluating}
+          </p>
+        </div>
+      )}
       {/* Yuqori: kontekst + timer + yakunlash */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-muted">
