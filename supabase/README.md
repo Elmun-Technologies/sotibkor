@@ -14,6 +14,9 @@ achievements`). Manba: [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) §3.
 usp, audience, spheres, onboarded, last_active`), `role` ni `'menejer' |
 'rop'` ga qattiqlaydi va `users` uchun "faqat o'zini" RLS siyosatlarini
   qo'shadi (brauzer klienti shu jadvalga to'g'ridan-to'g'ri yozadi).
+- `supabase/migrations/0003_trial_and_weak_objection.sql` — kartasiz sinov
+  izohini to'g'irlaydi (5 suhbat) va spaced-repetition uchun
+  `weak_objection_type`/`weak_objection_at` ustunlarini qo'shadi.
 
 ## Muhit o'zgaruvchilari
 
@@ -47,14 +50,15 @@ supabase db reset      # migrations/ ni qayta qo'llaydi
 
 ### Variant B — SQL Editor (Dashboard)
 
-`0001_init.sql`, keyin `0002_google_auth.sql` mazmunini tartib bilan
-nusxalab, Supabase Dashboard → SQL Editor → Run.
+`0001_init.sql`, keyin `0002_google_auth.sql`, keyin `0003_trial_and_weak_objection.sql`
+mazmunini tartib bilan nusxalab, Supabase Dashboard → SQL Editor → Run.
 
 ### Variant C — psql
 
 ```bash
 psql "$DATABASE_URL" -f supabase/migrations/0001_init.sql
 psql "$DATABASE_URL" -f supabase/migrations/0002_google_auth.sql
+psql "$DATABASE_URL" -f supabase/migrations/0003_trial_and_weak_objection.sql
 ```
 
 ## RLS eslatmasi

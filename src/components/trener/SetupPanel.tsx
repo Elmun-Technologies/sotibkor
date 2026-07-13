@@ -30,6 +30,13 @@ export interface SetupPanelProps {
   onLevel: (l: number) => void;
   onRejim: (r: RejimKey) => void;
   onStart: () => void;
+  /** Spaced-repetition: oxirgi zaif e'tirozga mos tavsiya qilingan persona. */
+  recommendedPersona?: PersonaKey | null;
+  /** Sessiya boshlanayotganda (server so'rovi kutilmoqda). */
+  starting?: boolean;
+  /** Boshlashda xato (masalan sinov limiti tugagan) — xabar + ixtiyoriy havola. */
+  errorHint?: string | null;
+  errorCta?: { label: string; href: string } | null;
 }
 
 function Field({
@@ -65,6 +72,10 @@ export function SetupPanel({
   onLevel,
   onRejim,
   onStart,
+  recommendedPersona,
+  starting,
+  errorHint,
+  errorCta,
 }: SetupPanelProps) {
   return (
     <div className="space-y-6">
@@ -89,9 +100,15 @@ export function SetupPanel({
             {PERSONA_KEYS.map((k) => (
               <Chip key={k} active={persona === k} onClick={() => onPersona(k)}>
                 {t.personalar[k]}
+                {k === recommendedPersona ? " ★" : ""}
               </Chip>
             ))}
           </div>
+          {recommendedPersona && (
+            <p className="mt-2 text-xs text-muted">
+              {t.trener.recommendedHint}
+            </p>
+          )}
         </Field>
 
         <Field label={t.setup.level}>
@@ -118,9 +135,23 @@ export function SetupPanel({
         </Field>
       </Card>
 
-      <Button onClick={onStart} className="w-full sm:w-auto">
+      <Button
+        onClick={onStart}
+        disabled={starting}
+        className="w-full sm:w-auto"
+      >
         {t.setup.start}
       </Button>
+      {errorHint && (
+        <p role="alert" className="text-sm text-[color:var(--bad)]">
+          {errorHint}{" "}
+          {errorCta && (
+            <a href={errorCta.href} className="underline underline-offset-2">
+              {errorCta.label}
+            </a>
+          )}
+        </p>
+      )}
     </div>
   );
 }

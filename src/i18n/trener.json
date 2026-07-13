@@ -42,5 +42,8 @@
   "chipSoha": "Soha",
   "chipMijoz": "Mijoz turi",
   "transcriptTitle": "Transkript",
-  "transcriptNote": "Mikrofon eshitgan hamma narsa yoziladi — fon shovqini va yaqin atrofdagi ovozlar ham."
+  "transcriptNote": "Mikrofon eshitgan hamma narsa yoziladi — fon shovqini va yaqin atrofdagi ovozlar ham.",
+  "trialExhausted": "5 ta bepul suhbatingiz tugadi. Davom etish uchun tarif tanlang.",
+  "trialExhaustedCta": "Tariflarni ko'rish",
+  "recommendedHint": "Tavsiya: oxirgi safar sen shu turdagi e'tirozda qiynalding — shu mijoz bilan mashq qil."
 }

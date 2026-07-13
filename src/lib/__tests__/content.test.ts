@@ -6,6 +6,7 @@ import {
   SOHA_KEYS,
   isPersonaKey,
   isSohaKey,
+  personaForObjection,
   type PersonaKey,
   type SohaKey,
 } from "../content";
@@ -76,5 +77,32 @@ describe("type guard'lar", () => {
   it("isPersonaKey haqiqiy/soxta kalitlarni farqlaydi", () => {
     expect(isPersonaKey("qimmatchi")).toBe(true);
     expect(isPersonaKey("mehribon")).toBe(false);
+  });
+});
+
+describe("personaForObjection (spaced-repetition tavsiyasi)", () => {
+  it("narx e'tirozi uchun qimmatchini tavsiya qiladi", () => {
+    expect(personaForObjection("narx")).toBe("qimmatchi");
+  });
+
+  it("ishonch e'tirozi uchun shubhalini tavsiya qiladi", () => {
+    expect(personaForObjection("ishonch")).toBe("shubhali");
+  });
+
+  it("vaqt e'tirozi uchun bandmanni tavsiya qiladi", () => {
+    expect(personaForObjection("vaqt")).toBe("bandman");
+  });
+
+  it("qaror e'tirozi uchun yumshoq-lekin-olmaydini tavsiya qiladi", () => {
+    expect(personaForObjection("qaror")).toBe("yumshoq-lekin-olmaydi");
+  });
+
+  it("raqobat e'tirozi uchun bilagonni tavsiya qiladi", () => {
+    expect(personaForObjection("raqobat")).toBe("bilagon");
+  });
+
+  it("mos persona bo'lmasa (ehtiyoj) yoki null bo'lsa undefined qaytaradi", () => {
+    expect(personaForObjection("ehtiyoj")).toBeUndefined();
+    expect(personaForObjection(null)).toBeUndefined();
   });
 });
