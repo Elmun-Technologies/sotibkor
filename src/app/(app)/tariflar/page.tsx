@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Button, Eyebrow, AppLoading } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
+import { TRIAL_LIMIT } from "@/lib/trial";
 
 const t = getMessages();
 
@@ -13,10 +14,26 @@ const CURRENT_PLAN: PlanKey = "bepul";
 
 export default function TariflarPage() {
   const [notice, setNotice] = useState(false);
+  const [trialUsed, setTrialUsed] = useState(0);
+  const [trialLimit, setTrialLimit] = useState(TRIAL_LIMIT);
 
   const ready = useAuthGate("/tariflar");
 
+  useEffect(() => {
+    if (!ready) return;
+    fetch("/api/session")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { trialUsed?: number; trialLimit?: number } | null) => {
+        if (!data) return;
+        if (typeof data.trialUsed === "number") setTrialUsed(data.trialUsed);
+        if (typeof data.trialLimit === "number") setTrialLimit(data.trialLimit);
+      })
+      .catch(() => {});
+  }, [ready]);
+
   if (!ready) return <AppLoading />;
+
+  const freeLeft = Math.max(0, trialLimit - trialUsed);
 
   return (
     <PageShell title={t.tariflar.title} lead={t.tariflar.subtitle}>
@@ -30,7 +47,7 @@ export default function TariflarPage() {
         <Card className="flex flex-col gap-1">
           <Eyebrow>{t.tariflar.callsUsed}</Eyebrow>
           <div className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
-            0{" "}
+            {trialUsed}{" "}
             <span className="text-base font-normal text-faint">
               {t.tariflar.callsUnit}
             </span>
@@ -39,7 +56,7 @@ export default function TariflarPage() {
         <Card className="flex flex-col gap-1">
           <Eyebrow>{t.tariflar.freeLeft}</Eyebrow>
           <div className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-[color:var(--good)]">
-            5/5
+            {freeLeft}/{trialLimit}
           </div>
         </Card>
       </div>

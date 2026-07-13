@@ -8,12 +8,13 @@ import {
   isPersonaKey,
   isRejimKey,
   isSohaKey,
+  personaForObjection,
   type PersonaKey,
   type SohaKey,
   type RejimKey,
 } from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
-import { interestScore } from "@/lib/coach";
+import { interestScore, type ObjectionType } from "@/lib/coach";
 import type { ScoreResult } from "@/lib/scoring";
 import { PageShell, AppLoading } from "@/components/ui";
 import { SetupPanel } from "@/components/trener";
@@ -64,6 +65,11 @@ export default function TrenerPage() {
   const [sttHint, setSttHint] = useState<string | null>(null);
   const [score, setScore] = useState<ScoreResult | null>(null);
   const [scoring, setScoring] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
+  const [trialExhausted, setTrialExhausted] = useState(false);
+  const [recommendedPersona, setRecommendedPersona] =
+    useState<PersonaKey | null>(null);
 
   const ttsModeRef = useRef<"probe" | "aisha" | "web">("probe");
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -88,6 +94,25 @@ export default function TrenerPage() {
     const qr = p.get("rejim");
     if (qr && isRejimKey(qr)) setRejim(qr);
     setStage("chat");
+  }, [ready]);
+
+  // Spaced-repetition tavsiyasi (issue #9): oxirgi safar eng ko'p qiynagan
+  // e'tiroz turiga mos personani oldindan tanlaymiz. Dars sahifasidan aniq
+  // preset kelgan bo'lsa (?persona=...) — bunga tegmaymiz.
+  useEffect(() => {
+    if (!ready) return;
+    if (new URLSearchParams(window.location.search).get("persona")) return;
+    fetch("/api/session")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { weakObjection?: ObjectionType | null } | null) => {
+        if (!data) return;
+        const rec = personaForObjection(data.weakObjection ?? null);
+        if (rec) {
+          setRecommendedPersona(rec);
+          setPersona(rec);
+        }
+      })
+      .catch(() => {});
   }, [ready]);
 
   /** Barge-in: mijoz gapirayotganda uni darrov to'xtatadi (realizm). */
@@ -340,6 +365,7 @@ export default function TrenerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "finish",
+          sessionId,
           soha,
           persona,
           level,
@@ -353,7 +379,35 @@ export default function TrenerPage() {
     } finally {
       setScoring(false);
     }
-  }, [turns, soha, persona, level, rejim, stopSpeaking]);
+  }, [turns, soha, persona, level, rejim, sessionId, stopSpeaking]);
+
+  /** Yangi suhbatni serverda ochadi — sinov limiti shu yerda bir marta tekshiriladi. */
+  const startSession = useCallback(async () => {
+    setStarting(true);
+    setSttHint(null);
+    setTrialExhausted(false);
+    try {
+      const res = await fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create", soha, persona, level }),
+      });
+      if (res.status === 402) {
+        setTrialExhausted(true);
+        return;
+      }
+      if (res.ok) {
+        const data = (await res.json()) as { sessionId?: string | null };
+        setSessionId(data.sessionId ?? null);
+      }
+      setStage("chat");
+    } catch {
+      // Tarmoq xatosi — kartasiz/mock oqimni bloklamaymiz, shunchaki davom etamiz.
+      setStage("chat");
+    } finally {
+      setStarting(false);
+    }
+  }, [soha, persona, level]);
 
   const reset = () => {
     stopSpeaking();
@@ -362,6 +416,7 @@ export default function TrenerPage() {
     setStreaming("");
     setScore(null);
     setInterest(null);
+    setSessionId(null);
     setMetrics({ llmFirst: null, ttsFirst: null, total: null });
     ttsModeRef.current = "probe";
   };
@@ -381,7 +436,15 @@ export default function TrenerPage() {
           onPersona={setPersona}
           onLevel={setLevel}
           onRejim={setRejim}
-          onStart={() => setStage("chat")}
+          onStart={startSession}
+          recommendedPersona={recommendedPersona}
+          starting={starting}
+          errorHint={trialExhausted ? t.trener.trialExhausted : null}
+          errorCta={
+            trialExhausted
+              ? { label: t.trener.trialExhaustedCta, href: "/tariflar" }
+              : null
+          }
         />
       </PageShell>
     );

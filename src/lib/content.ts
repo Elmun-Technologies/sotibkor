@@ -7,6 +7,8 @@
  * javoblar (real LLM prompti EMAS). Real persona prompti prompts/personas/ da.
  */
 
+import type { ObjectionType } from "./coach";
+
 export type SohaKey =
   "bank" | "telekom" | "talim" | "mebel" | "kochmas" | "bozor" | "fmcg";
 export type PersonaKey =
@@ -31,6 +33,11 @@ export interface Persona {
   promptFile: string;
   /** Demo (kalitsiz) rejim uchun eskalatsiyalanuvchi otkazlar. */
   mockLines: string[];
+  /**
+   * Bu persona eng ko'p ishlatadigan e'tiroz turi (spaced-repetition uchun,
+   * src/lib/coach.ts `recommend()`) — otkaz repertuariga mos (prompts/personas/*.md).
+   */
+  primaryObjection?: ObjectionType;
 }
 
 export const SOHALAR: Record<SohaKey, Soha> = {
@@ -75,6 +82,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
   qimmatchi: {
     key: "qimmatchi",
     promptFile: "personas/qimmatchi.md",
+    primaryObjection: "narx",
     mockLines: [
       "Obbo, qimmat-ku bu. Boshqa joyda arzonroq beryapti-ku.",
       "Baribir qimmat. Chegirma yo'qmi ishqilib?",
@@ -84,6 +92,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
   shubhali: {
     key: "shubhali",
     promptFile: "personas/shubhali.md",
+    primaryObjection: "ishonch",
     mockLines: [
       "Silaniki original o'zimi? Kafolat bormi umuman?",
       "E bilmadim-da, buzilib qolsa nima bo'ladi?",
@@ -93,6 +102,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
   bandman: {
     key: "bandman",
     promptFile: "personas/bandman.md",
+    primaryObjection: "vaqt",
     mockLines: [
       "Vaqtim yo'q, qisqa qiling, nima gap?",
       "Tez ayting, ketyapman.",
@@ -102,6 +112,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
   bilagon: {
     key: "bilagon",
     promptFile: "personas/bilagon.md",
+    primaryObjection: "raqobat",
     mockLines: [
       "Bu eskirgan-ku, yangisi chiqqan. Men bu sohada ishlaganman.",
       "Xarakteristikasini bilasizmi o'zi? Menga o'rgatmang.",
@@ -111,6 +122,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
   "yumshoq-lekin-olmaydi": {
     key: "yumshoq-lekin-olmaydi",
     promptFile: "personas/yumshoq-lekin-olmaydi.md",
+    primaryObjection: "qaror",
     mockLines: [
       "Ha yaxshi ekan, zo'r narsa.",
       "Rahmat, o'ylab ko'ramiz. Keyinroq bir kelaman.",
@@ -121,6 +133,17 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
 
 export const SOHA_KEYS = Object.keys(SOHALAR) as SohaKey[];
 export const PERSONA_KEYS = Object.keys(PERSONALAR) as PersonaKey[];
+
+/**
+ * Berilgan e'tiroz turini eng ko'p ishlatadigan personani topadi
+ * (spaced-repetition tavsiyasi uchun). Mos persona bo'lmasa `undefined`.
+ */
+export function personaForObjection(
+  type: ObjectionType | null,
+): PersonaKey | undefined {
+  if (!type) return undefined;
+  return PERSONA_KEYS.find((k) => PERSONALAR[k].primaryObjection === type);
+}
 
 export function isSohaKey(v: string): v is SohaKey {
   return v in SOHALAR;

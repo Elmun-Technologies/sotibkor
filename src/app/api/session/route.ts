@@ -14,14 +14,22 @@
  */
 
 import { NextRequest } from "next/server";
-import { hasSupabase, hasSupabaseAuth } from "@/lib/config";
-import { createClient } from "@/lib/supabase/server";
+import { hasSupabase } from "@/lib/config";
+import { currentUserId } from "@/lib/supabase/user";
 import {
   saveSession,
   finishSession,
   saveTranscript,
   saveScore,
 } from "@/lib/db/sessions";
+import {
+  getTrialStatus,
+  incrementTrialUsed,
+  getWeakObjection,
+  saveWeakObjection,
+} from "@/lib/db/users";
+import { TRIAL_LIMIT } from "@/lib/trial";
+import { recommend } from "@/lib/coach";
 import type { ChatTurn } from "@/lib/llm";
 import type { ScoreResult } from "@/lib/scoring";
 
@@ -39,23 +47,21 @@ interface SessionBody {
   status?: "finished" | "abandoned";
 }
 
-/**
- * Haqiqiy foydalanuvchi id'sini FAQAT server tomonidagi cookie-sessiyadan
- * oladi — hech qachon so'rov tanasidan emas (IDOR: aks holda istalgan
- * chaqiruvchi boshqa foydalanuvchi nomidan yozuv yasashi mumkin edi, chunki
- * yozish service-role klient orqali RLS'ni chetlab o'tadi).
- */
-async function currentUserId(): Promise<string | null> {
-  if (!hasSupabaseAuth()) return null;
-  try {
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    return user?.id ?? null;
-  } catch {
-    return null;
+export async function GET() {
+  if (!hasSupabase()) {
+    return Response.json({
+      trialUsed: 0,
+      trialLimit: TRIAL_LIMIT,
+      hasActiveSubscription: true,
+      weakObjection: null,
+    });
   }
+  const userId = await currentUserId();
+  const [trial, weakObjection] = await Promise.all([
+    getTrialStatus(userId),
+    getWeakObjection(userId),
+  ]);
+  return Response.json({ ...trial, weakObjection });
 }
 
 export async function POST(req: NextRequest) {
@@ -83,6 +89,16 @@ export async function POST(req: NextRequest) {
       return Response.json(
         { error: "soha va persona majburiy." },
         { status: 400 },
+      );
+    }
+    // Kartasiz sinov limiti — bitta suhbat boshlanishida bir marta tekshiriladi
+    // (har LLM chaqiruvida EMAS — /api/chat kritik ovoz yo'liga qo'shimcha
+    // Supabase round-trip qo'shmasligi kerak, CLAUDE.md §4).
+    const trial = await getTrialStatus(userId);
+    if (trial.trialUsed >= trial.trialLimit && !trial.hasActiveSubscription) {
+      return Response.json(
+        { error: "trial_exhausted", ...trial },
+        { status: 402 },
       );
     }
     const sessionId = await saveSession({
@@ -118,11 +134,20 @@ export async function POST(req: NextRequest) {
   // Transkript va bahoni yozamiz, so'ng sessiyani yakunlaymiz.
   await saveTranscript(sessionId, transcript);
   if (body.score) await saveScore(sessionId, body.score);
+  const status = body.status ?? "finished";
   await finishSession({
     sessionId,
-    status: body.status ?? "finished",
+    status,
     durationMs: body.durationMs ?? null,
   });
+
+  // Haqiqiy yakunlangan suhbat — kartasiz sinov hisoblagichini oshiramiz va
+  // spaced-repetition uchun eng zaif e'tiroz turini saqlaymiz (issue #9).
+  if (status === "finished" && transcript.length > 0) {
+    void incrementTrialUsed(userId);
+    const { focusObjection } = recommend(transcript, body.score?.breakdown);
+    void saveWeakObjection(userId, focusObjection);
+  }
 
   return Response.json({ persisted: true, sessionId });
 }

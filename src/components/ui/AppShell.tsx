@@ -148,13 +148,23 @@ function initials(name: string): string {
 
 function SidebarInner({
   user,
+  trial,
   onNavigate,
   onLogout,
 }: {
   user: AuthUser | null;
+  trial: { trialUsed: number; trialLimit: number } | null;
   onNavigate: () => void;
   onLogout: () => void;
 }) {
+  const freeLeft = trial
+    ? Math.max(0, trial.trialLimit - trial.trialUsed)
+    : null;
+  const freeTotal = trial?.trialLimit ?? null;
+  const freePct =
+    trial && trial.trialLimit > 0
+      ? Math.max(0, Math.min(100, (100 * (freeLeft ?? 0)) / trial.trialLimit))
+      : 100;
   const pathname = usePathname();
   const roleLabel = user?.role === "rop" ? t.nav.roleRop : t.nav.roleMenejer;
 
@@ -233,15 +243,19 @@ function SidebarInner({
           <span className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--good)]">
             {t.nav.free}
           </span>
-          <span className="font-mono text-xs tabular-nums text-muted">5/5</span>
+          <span className="font-mono text-xs tabular-nums text-muted">
+            {freeLeft ?? "…"}/{freeTotal ?? "…"}
+          </span>
         </div>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-foreground/[.08]">
           <div
             className="h-full rounded-full bg-[color:var(--good)]"
-            style={{ width: "100%" }}
+            style={{ width: `${freePct}%` }}
           />
         </div>
-        <p className="mt-2 text-xs text-muted">{t.nav.freeCalls}</p>
+        <p className="mt-2 text-xs text-muted">
+          {freeLeft ?? "…"} {t.nav.freeCalls}
+        </p>
         <Link
           href="/tariflar"
           onClick={onNavigate}
@@ -301,6 +315,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [trial, setTrial] = useState<{
+    trialUsed: number;
+    trialLimit: number;
+  } | null>(null);
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -308,6 +326,21 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setUser(getUser());
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/session")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { trialUsed?: number; trialLimit?: number } | null) => {
+        if (!data) return;
+        if (
+          typeof data.trialUsed === "number" &&
+          typeof data.trialLimit === "number"
+        ) {
+          setTrial({ trialUsed: data.trialUsed, trialLimit: data.trialLimit });
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // Marshrut o'zgarsa drawer yopiladi
@@ -365,7 +398,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-dvh lg:flex">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh w-[264px] shrink-0 border-r border-border bg-surface px-3 py-4 lg:block">
-        <SidebarInner user={user} onNavigate={() => {}} onLogout={onLogout} />
+        <SidebarInner
+          user={user}
+          trial={trial}
+          onNavigate={() => {}}
+          onLogout={onLogout}
+        />
       </aside>
 
       {/* Mobil top-bar */}
@@ -431,6 +469,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <SidebarInner
                 user={user}
+                trial={trial}
                 onNavigate={() => setOpen(false)}
                 onLogout={onLogout}
               />

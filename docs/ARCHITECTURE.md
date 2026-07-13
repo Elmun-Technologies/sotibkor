@@ -71,7 +71,9 @@ users (
   xp            int  DEFAULT 0,
   level         text DEFAULT 'stajyor',    -- SCORING.md darajalari
   streak_days   int  DEFAULT 0,
-  trial_used    int  DEFAULT 0,            -- free trial: 3 suhbat
+  trial_used    int  DEFAULT 0,            -- free trial: 5 suhbat (src/lib/db/users.ts TRIAL_LIMIT)
+  weak_objection_type text,                -- spaced-repetition: oxirgi tavsiya (src/lib/coach.ts)
+  weak_objection_at   timestamptz,
   last_active   date,
   created_at    timestamptz DEFAULT now()
 )
@@ -182,16 +184,17 @@ faqat server xizmat kaliti orqali yoziladi.
 
 ## 4. API route'lar rejasi
 
-| Route                       | Metod | Vazifa                       | Streaming     |
-| --------------------------- | ----- | ---------------------------- | ------------- |
-| `/auth/callback`            | GET   | Google OAuth kod almashinuvi | —             |
-| `/api/session`              | POST  | Suhbat boshlash / yakunlash  | —             |
-| `/api/stt`                  | POST  | Audio → matn (Aisha)         | chunked       |
-| `/api/chat`                 | POST  | Persona javobi (OpenAI)      | ✅ SSE/stream |
-| `/api/tts`                  | POST  | Matn → audio (Aisha)         | chunked       |
-| `/api/score`                | POST  | Transkript → baho JSON       | —             |
-| `/api/leaderboard`          | GET   | Haftalik reyting             | —             |
-| `/api/subscription/webhook` | POST  | Payme/Click callback         | —             |
+| Route                       | Metod | Vazifa                                                 | Streaming     |
+| --------------------------- | ----- | ------------------------------------------------------ | ------------- |
+| `/auth/callback`            | GET   | Google OAuth kod almashinuvi                           | —             |
+| `/api/session`              | GET   | Sinov holati (trialUsed/limit, weakObjection)          | —             |
+| `/api/session`              | POST  | Suhbat boshlash / yakunlash (kartasiz limit shu yerda) | —             |
+| `/api/stt`                  | POST  | Audio → matn (Aisha)                                   | chunked       |
+| `/api/chat`                 | POST  | Persona javobi (OpenAI)                                | ✅ SSE/stream |
+| `/api/tts`                  | POST  | Matn → audio (Aisha)                                   | chunked       |
+| `/api/score`                | POST  | Transkript → baho JSON                                 | —             |
+| `/api/leaderboard`          | GET   | Haftalik reyting                                       | —             |
+| `/api/subscription/webhook` | POST  | Payme/Click callback                                   | —             |
 
 Barcha route'lar server tomonda; Aisha/OpenAI kalitlari hech qachon brauzerga chiqmaydi.
 
