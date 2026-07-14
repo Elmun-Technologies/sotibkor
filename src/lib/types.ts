@@ -3,6 +3,8 @@
  * FE va BE shu tiplardan foydalanadi — o'zgartirilsa hammaga ta'sir qiladi.
  */
 
+import type { FunnelStage, ObjectionType } from "./coach";
+
 export type LevelKey =
   "stajyor" | "sotuvchi" | "katta_sotuvchi" | "menejer" | "sales_master";
 
@@ -66,4 +68,8 @@ export interface TeamRow {
   done: number;
   target: number;
   avg: number;
+  /** Voronka bosqichlari bo'yicha o'rtacha qamrov foizi (0-100) — jamoa dashboardi uchun. */
+  funnel: Record<FunnelStage, number>;
+  /** Eng ko'p qiynalgan e'tiroz turi (bo'sh bo'lsa hozircha aniq zaif nuqta yo'q). */
+  weakObjection: ObjectionType | null;
 }

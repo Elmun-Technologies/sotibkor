@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Button, Eyebrow, AppLoading } from "@/components/ui";
 import { TrendChart } from "@/components/gamification";
 import { useAuthGate } from "@/lib/useAuthGate";
+import { getUser, type Role } from "@/lib/auth";
 import {
   MOCK_USER,
   MOCK_SCORE_HISTORY,
@@ -13,6 +14,7 @@ import {
 } from "@/lib/mock";
 import { levelForXp, LEVELS } from "@/lib/levels";
 import { FUNNEL_STAGES, OBJECTION_TYPES } from "@/lib/coach";
+import type { TeamRow } from "@/lib/types";
 
 const t = getMessages();
 
@@ -20,8 +22,43 @@ function scoreColor(pct: number): string {
   return pct >= 66 ? "var(--good)" : pct >= 40 ? "var(--warn)" : "var(--bad)";
 }
 
+/** Ushbu qatorda voronka bosqichlaridan eng past qamrovlisi (eng zaif). */
+function weakestStage(row: TeamRow): (typeof FUNNEL_STAGES)[number] {
+  return FUNNEL_STAGES.reduce((a, b) =>
+    row.funnel[a] <= row.funnel[b] ? a : b,
+  );
+}
+
 export default function AnalitikaPage() {
   const ready = useAuthGate("/analitika");
+  const [role, setRole] = useState<Role>("menejer");
+  const [team, setTeam] = useState<TeamRow[]>([]);
+
+  useEffect(() => {
+    if (ready) setRole(getUser()?.role ?? "menejer");
+  }, [ready]);
+
+  useEffect(() => {
+    if (role !== "rop") return;
+    fetch("/api/team-stats")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { team?: TeamRow[] } | null) => {
+        if (data?.team) setTeam(data.team);
+      })
+      .catch(() => {});
+  }, [role]);
+
+  const rankedTeam = useMemo(
+    () => [...team].sort((a, b) => b.avg - a.avg),
+    [team],
+  );
+  const teamAvg = useMemo(
+    () =>
+      team.length === 0
+        ? 0
+        : Math.round(team.reduce((s, m) => s + m.avg, 0) / team.length),
+    [team],
+  );
 
   const avgScore = useMemo(
     () =>
@@ -48,6 +85,62 @@ export default function AnalitikaPage() {
 
   return (
     <PageShell title={t.analitika.title} lead={t.analitika.subtitle}>
+      {role === "rop" && rankedTeam.length > 0 && (
+        <Card className="mb-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold tracking-tight">
+              {t.analitika.teamTitle}
+            </h2>
+            <span className="text-sm text-muted">
+              {t.analitika.teamAvgLabel}:{" "}
+              <span
+                className="font-semibold tabular-nums"
+                style={{ color: scoreColor(teamAvg) }}
+              >
+                {teamAvg}
+              </span>
+            </span>
+          </div>
+          <div className="divide-y divide-hair">
+            {rankedTeam.map((m, i) => (
+              <div key={m.name} className="flex items-center gap-4 py-3">
+                <span className="w-5 shrink-0 text-center font-mono text-sm text-faint">
+                  {i + 1}
+                </span>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface2 text-sm font-semibold">
+                  {m.name[0]}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-foreground">
+                      {m.name}
+                    </span>
+                    <span
+                      className="font-mono text-xs font-semibold tabular-nums"
+                      style={{ color: scoreColor(m.avg) }}
+                    >
+                      {m.avg}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
+                    <span>
+                      {t.analitika.teamWeakStage}:{" "}
+                      {t.analitika.funnelStages[weakestStage(m)]}
+                    </span>
+                    {m.weakObjection && (
+                      <span>
+                        {t.analitika.teamWeakObjection}:{" "}
+                        {t.etirozlar.types[m.weakObjection]}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
       <div className="mb-6 text-sm text-muted">{t.analitika.period}</div>
 
       {/* Ustki statistikalar */}

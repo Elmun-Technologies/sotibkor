@@ -182,8 +182,60 @@ export const MOCK_ASSIGNMENTS_DONE: Assignment[] = [
 ];
 
 export const MOCK_TEAM: TeamRow[] = [
-  { name: "Aziz", done: 8, target: 10, avg: 74 },
-  { name: "Dilnoza", done: 10, target: 10, avg: 81 },
-  { name: "Sardor", done: 4, target: 10, avg: 63 },
-  { name: "Nodira", done: 6, target: 10, avg: 69 },
+  {
+    name: "Aziz",
+    done: 8,
+    target: 10,
+    avg: 74,
+    funnel: {
+      kontakt: 95,
+      ehtiyoj: 80,
+      prezentatsiya: 72,
+      etiroz: 55,
+      yopish: 40,
+    },
+    weakObjection: "narx",
+  },
+  {
+    name: "Dilnoza",
+    done: 10,
+    target: 10,
+    avg: 81,
+    funnel: {
+      kontakt: 98,
+      ehtiyoj: 90,
+      prezentatsiya: 85,
+      etiroz: 74,
+      yopish: 60,
+    },
+    weakObjection: "qaror",
+  },
+  {
+    name: "Sardor",
+    done: 4,
+    target: 10,
+    avg: 63,
+    funnel: {
+      kontakt: 88,
+      ehtiyoj: 62,
+      prezentatsiya: 50,
+      etiroz: 38,
+      yopish: 22,
+    },
+    weakObjection: "ishonch",
+  },
+  {
+    name: "Nodira",
+    done: 6,
+    target: 10,
+    avg: 69,
+    funnel: {
+      kontakt: 92,
+      ehtiyoj: 70,
+      prezentatsiya: 58,
+      etiroz: 45,
+      yopish: 30,
+    },
+    weakObjection: "vaqt",
+  },
 ];
