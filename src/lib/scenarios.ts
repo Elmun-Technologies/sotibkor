@@ -16,6 +16,8 @@ export interface Scenario {
   id: string;
   /** Mijozning ismi (ko'rinadigan, lekin bu kontent — i18n emas, real ism). */
   name: string;
+  /** Mijozning lavozimi/roli (masalan "Xarid menejeri") — kontent, i18n emas. */
+  lavozim: string;
   soha: SohaKey;
   persona: PersonaKey;
   rejim: RejimKey;
@@ -29,6 +31,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "aziz-qimmatchi",
     name: "Aziz aka",
+    lavozim: "Xaridor",
     soha: "mebel",
     persona: "qimmatchi",
     rejim: "yuzma_yuz",
@@ -39,6 +42,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "dilnoza-shubhali",
     name: "Dilnoza opa",
+    lavozim: "Kvartira izlovchi",
     soha: "kochmas",
     persona: "shubhali",
     rejim: "qongiroq",
@@ -49,6 +53,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "sardor-bandman",
     name: "Sardor",
+    lavozim: "Xarid menejeri",
     soha: "telekom",
     persona: "bandman",
     rejim: "qongiroq",
@@ -59,6 +64,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "nodira-yumshoq",
     name: "Nodira",
+    lavozim: "Ota-ona",
     soha: "talim",
     persona: "yumshoq-lekin-olmaydi",
     rejim: "qongiroq",
@@ -69,6 +75,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "jamshid-bilagon",
     name: "Jamshid aka",
+    lavozim: "Do'kon egasi",
     soha: "fmcg",
     persona: "bilagon",
     rejim: "yuzma_yuz",
@@ -79,6 +86,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "malika-qimmatchi",
     name: "Malika",
+    lavozim: "Moliyaviy qaror qabul qiluvchi",
     soha: "bank",
     persona: "qimmatchi",
     rejim: "qongiroq",
@@ -89,6 +97,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "botir-shubhali",
     name: "Botir",
+    lavozim: "Marketpleys sotuvchisi",
     soha: "bozor",
     persona: "shubhali",
     rejim: "qongiroq",
@@ -99,6 +108,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "gulnora-bandman",
     name: "Gulnora opa",
+    lavozim: "Uy bekasi",
     soha: "mebel",
     persona: "bandman",
     rejim: "qongiroq",
@@ -109,6 +119,7 @@ export const SCENARIOS: Scenario[] = [
   {
     id: "rustam-bilagon",
     name: "Rustam",
+    lavozim: "IT mutaxassisi",
     soha: "telekom",
     persona: "bilagon",
     rejim: "qongiroq",
@@ -126,6 +137,8 @@ export function scenarioHref(s: Scenario): string {
     level: String(s.level),
     rejim: s.rejim,
     focus: s.focus,
+    name: s.name,
+    lavozim: s.lavozim,
   });
   return `/trener?${q.toString()}`;
 }

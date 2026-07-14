@@ -6,6 +6,7 @@ import { getMessages } from "@/i18n";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { useVoiceActivity } from "@/lib/useVoiceActivity";
 import {
+  PERSONALAR,
   isPersonaKey,
   isRejimKey,
   isSohaKey,
@@ -13,9 +14,15 @@ import {
   type PersonaKey,
   type SohaKey,
   type RejimKey,
+  type TilRejimKey,
 } from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
-import { interestScore, type ObjectionType } from "@/lib/coach";
+import {
+  interestScore,
+  liveHint,
+  type LiveHint,
+  type ObjectionType,
+} from "@/lib/coach";
 import type { ScoreResult } from "@/lib/scoring";
 import { PageShell, AppLoading } from "@/components/ui";
 import { SetupPanel } from "@/components/trener";
@@ -31,11 +38,15 @@ const ResultView = dynamic(
   () => import("@/components/trener/ResultView").then((m) => m.ResultView),
   { ssr: false, loading: () => <AppLoading /> },
 );
+const MicCheck = dynamic(
+  () => import("@/components/trener/MicCheck").then((m) => m.MicCheck),
+  { ssr: false, loading: () => <AppLoading /> },
+);
 
 const t = getMessages();
 
 type Turn = { role: "user" | "assistant"; content: string };
-type Stage = "setup" | "chat" | "result";
+type Stage = "setup" | "miccheck" | "chat" | "result";
 type Metrics = {
   llmFirst: number | null;
   ttsFirst: number | null;
@@ -49,6 +60,11 @@ export default function TrenerPage() {
   const [persona, setPersona] = useState<PersonaKey>("qimmatchi");
   const [level, setLevel] = useState(2);
   const [rejim, setRejim] = useState<RejimKey>("qongiroq");
+  const [tilRejimi, setTilRejimi] = useState<TilRejimKey>("aralash");
+  // Ssenariy presetidan kelgan mijoz ismi/lavozimi (masalan /qongiroq'dan) —
+  // bo'lmasa persona standart ismiga (defaultName) tushamiz.
+  const [clientName, setClientName] = useState<string | null>(null);
+  const [clientLavozim, setClientLavozim] = useState<string | null>(null);
 
   const [turns, setTurns] = useState<Turn[]>([]);
   const [streaming, setStreaming] = useState("");
@@ -56,6 +72,7 @@ export default function TrenerPage() {
   const [busy, setBusy] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [interest, setInterest] = useState<number | null>(null);
+  const [coachHint, setCoachHint] = useState<LiveHint | null>(null);
   const [metrics, setMetrics] = useState<Metrics>({
     llmFirst: null,
     ttsFirst: null,
@@ -71,6 +88,10 @@ export default function TrenerPage() {
   const [trialExhausted, setTrialExhausted] = useState(false);
   const [recommendedPersona, setRecommendedPersona] =
     useState<PersonaKey | null>(null);
+
+  // Ssenariy nomi bo'lmasa personaning standart ismiga tushamiz — shu bilan
+  // AI doim jonli ism bilan tanishtiradi (CloseMe-solishtiruv #4).
+  const effectiveClientName = clientName ?? PERSONALAR[persona].defaultName;
 
   const ttsModeRef = useRef<"probe" | "aisha" | "web">("probe");
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -94,7 +115,11 @@ export default function TrenerPage() {
     if (Number.isFinite(ql) && ql >= 1 && ql <= 6) setLevel(Math.floor(ql));
     const qr = p.get("rejim");
     if (qr && isRejimKey(qr)) setRejim(qr);
-    setStage("chat");
+    const qn = p.get("name");
+    if (qn) setClientName(qn);
+    const qlz = p.get("lavozim");
+    if (qlz) setClientLavozim(qlz);
+    setStage("miccheck");
   }, [ready]);
 
   // Spaced-repetition tavsiyasi (issue #9): oxirgi safar eng ko'p qiynagan
@@ -213,6 +238,9 @@ export default function TrenerPage() {
       setStreaming("");
       // Qiziqishni sotuvchi replikasidan darrov yangilaymiz
       setInterest(interestScore(history));
+      // Jonli murabbiy (10x-2): sof evristika, LLM chaqiruvi yo'q — ovoz
+      // aylanasiga kechikish qo'shmaydi (CLAUDE.md §4).
+      setCoachHint(liveHint(history));
 
       const sendStart = performance.now();
       let firstToken: number | null = null;
@@ -254,7 +282,15 @@ export default function TrenerPage() {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ soha, persona, level, rejim, history }),
+          body: JSON.stringify({
+            soha,
+            persona,
+            level,
+            rejim,
+            tilRejimi,
+            mijozIsmi: effectiveClientName,
+            history,
+          }),
         });
         if (!res.ok) throw new Error(`chat_failed_${res.status}`);
         const reader = res.body?.getReader();
@@ -297,7 +333,18 @@ export default function TrenerPage() {
         setBusy(false);
       }
     },
-    [busy, turns, soha, persona, level, rejim, playSentence, stopSpeaking],
+    [
+      busy,
+      turns,
+      soha,
+      persona,
+      level,
+      rejim,
+      tilRejimi,
+      effectiveClientName,
+      playSentence,
+      stopSpeaking,
+    ],
   );
 
   const toggleMic = useCallback(async () => {
@@ -427,7 +474,10 @@ export default function TrenerPage() {
     setStreaming("");
     setScore(null);
     setInterest(null);
+    setCoachHint(null);
     setSessionId(null);
+    setClientName(null);
+    setClientLavozim(null);
     setMetrics({ llmFirst: null, ttsFirst: null, total: null });
     ttsModeRef.current = "probe";
   };
@@ -443,11 +493,13 @@ export default function TrenerPage() {
           persona={persona}
           level={level}
           rejim={rejim}
+          tilRejimi={tilRejimi}
           onSoha={setSoha}
           onPersona={setPersona}
           onLevel={setLevel}
           onRejim={setRejim}
-          onStart={startSession}
+          onTilRejimi={setTilRejimi}
+          onStart={() => setStage("miccheck")}
           recommendedPersona={recommendedPersona}
           starting={starting}
           errorHint={trialExhausted ? t.trener.trialExhausted : null}
@@ -461,10 +513,33 @@ export default function TrenerPage() {
     );
   }
 
+  if (stage === "miccheck") {
+    return (
+      <PageShell>
+        <MicCheck
+          onBack={() => setStage("setup")}
+          onContinue={() => void startSession()}
+          starting={starting}
+        />
+        {trialExhausted && (
+          <p role="alert" className="mt-3 text-sm text-[color:var(--bad)]">
+            {t.trener.trialExhausted}{" "}
+            <a href="/tariflar" className="underline underline-offset-2">
+              {t.trener.trialExhaustedCta}
+            </a>
+          </p>
+        )}
+      </PageShell>
+    );
+  }
+
   if (stage === "chat") {
     return (
       <PageShell>
         <CallView
+          clientName={effectiveClientName}
+          clientLavozim={clientLavozim}
+          persona={persona}
           personaLabel={t.personalar[persona]}
           sohaLabel={t.sohalar[soha]}
           rejimLabel={
@@ -474,6 +549,7 @@ export default function TrenerPage() {
           }
           level={level}
           interest={interest}
+          coachHint={coachHint}
           cycleMs={metrics.total}
           turns={turns}
           streaming={streaming}

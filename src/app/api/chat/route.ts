@@ -15,7 +15,13 @@ import {
   type ChatTurn,
 } from "@/lib/llm";
 import { hasOpenAI } from "@/lib/config";
-import { PERSONALAR, SOHALAR, isPersonaKey, isSohaKey } from "@/lib/content";
+import {
+  PERSONALAR,
+  SOHALAR,
+  isPersonaKey,
+  isSohaKey,
+  isTilRejimKey,
+} from "@/lib/content";
 import { parseTurns } from "@/lib/http";
 
 export const runtime = "nodejs";
@@ -25,12 +31,24 @@ interface ChatBody {
   persona: string;
   level: number;
   rejim?: string;
+  tilRejimi?: string;
+  mijozIsmi?: string;
   history: ChatTurn[];
 }
 
 const REJIM_MATN: Record<string, string> = {
   qongiroq: "sovuq telefon qo'ng'irog'i (sotuvchi qo'ng'iroq qildi)",
   yuzma_yuz: "yuzma-yuz uchrashuv / do'kon-bozorda savdolashuv",
+};
+
+// Til rejimi (moat: closeme faqat rus tilida — biz O'zbekiston reali,
+// jaydari o'zbek/aralash/rus kod-almashtirishni ushlaymiz).
+const TIL_REJIM_MATN: Record<string, string> = {
+  sof_ozbek:
+    "Sof o'zbekcha gapir — rus so'z-iboralarini deyarli ishlatma (faqat kundalik so'zlashuvga chuqur singib ketgan so'z chiqib qolsa mayli, lekin ataylab qo'shma). Jaydari, lekin toza o'zbek tilida.",
+  aralash:
+    'Aralash til (O\'zbekiston reali): ba\'zan rus/aralash so\'z ishlatishing tabiiy — "davay", "koroche", "normalno", "ladno", "dogovorimsya", "vsyo ravno". Lekin haddan oshirma, asosan jaydari o\'zbekcha.',
+  rus: 'Rus tili ko\'proq aralashgan: ko\'p gaplarda rus so\'z/iboralarini tabiiy ishlat — "davay", "koroche", "normalno", "ladno", "dogovorimsya", "vsyo ravno", "tochno", "konechno", "voobshe". Ba\'zi qisqa jumlalarni ham to\'liq rus tilida aytishing mumkin, lekin asosiy fikrni sotuvchi tushunadigan qilib yetkaz.',
 };
 
 export async function POST(req: NextRequest) {
@@ -63,6 +81,12 @@ export async function POST(req: NextRequest) {
     if (hasOpenAI()) {
       const rejim =
         body.rejim && REJIM_MATN[body.rejim] ? body.rejim : "qongiroq";
+      const tilRejimi =
+        body.tilRejimi && isTilRejimKey(body.tilRejimi)
+          ? body.tilRejimi
+          : "aralash";
+      const mijozIsmi =
+        body.mijozIsmi?.trim() || PERSONALAR[body.persona].defaultName;
       const systemPrompt = await loadPrompt(
         PERSONALAR[body.persona].promptFile,
         {
@@ -70,6 +94,8 @@ export async function POST(req: NextRequest) {
           mahsulot: SOHALAR[body.soha].mahsulot,
           level,
           rejim: REJIM_MATN[rejim],
+          til_rejimi: TIL_REJIM_MATN[tilRejimi],
+          mijoz_ismi: mijozIsmi,
         },
       );
       source = streamPersona({ systemPrompt, history });

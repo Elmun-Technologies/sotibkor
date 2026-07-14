@@ -6,6 +6,7 @@ import {
   stageCoverage,
   objectionHistogram,
   recommend,
+  liveHint,
   OBJECTION_TYPES,
   FUNNEL_STAGES,
   type Turn,
@@ -110,5 +111,66 @@ describe("objectionHistogram + recommend", () => {
     });
     expect(rec.weakestStage).toBe("etiroz");
     expect(rec.message).toContain("e'tiroz");
+  });
+});
+
+describe("liveHint (jonli murabbiy — 10x-2)", () => {
+  it("bo'sh transkript uchun null", () => {
+    expect(liveHint([])).toBeNull();
+  });
+
+  it("birinchi repликada chegirma taklif qilinsa — discountTooEarly", () => {
+    const h = liveHint([
+      { role: "user", content: "Sizga chegirma qilaman, mayli" },
+    ]);
+    expect(h?.key).toBe("discountTooEarly");
+    expect(h?.tone).toBe("bad");
+  });
+
+  it("ehtiyoj aniqlanmasdan narx aytilsa — priceTooEarly", () => {
+    const h = liveHint([{ role: "user", content: "Narxi 500 ming so'm" }]);
+    expect(h?.key).toBe("priceTooEarly");
+    expect(h?.tone).toBe("warn");
+  });
+
+  it("bir necha repликadan keyin ochiq savol yo'q bo'lsa — needsOpenQuestion", () => {
+    const h = liveHint([
+      { role: "user", content: "Salom, men Aziz" },
+      { role: "assistant", content: "Ha, eshityapman" },
+      { role: "user", content: "Mahsulotimiz juda yaxshi" },
+      { role: "assistant", content: "Davom eting" },
+      { role: "user", content: "Sifatli va ishonchli" },
+    ]);
+    expect(h?.key).toBe("needsOpenQuestion");
+  });
+
+  it("juda uzun monolog bo'lsa — tooLongMonologue", () => {
+    const long = Array(65).fill("gap").join(" ");
+    const h = liveHint([{ role: "user", content: long }]);
+    expect(h?.key).toBe("tooLongMonologue");
+  });
+
+  it("juda qisqa javob (2-repликadan keyin) — tooShortReply", () => {
+    const h = liveHint([
+      { role: "user", content: "Salom, qandaysiz?" },
+      { role: "assistant", content: "Zo'r, davom eting" },
+      { role: "user", content: "Ha albatta" },
+    ]);
+    expect(h?.key).toBe("tooShortReply");
+  });
+
+  it("savol + qiymat tili birga kelsa — goodPace", () => {
+    const h = liveHint([
+      { role: "user", content: "Kafolat qancha muddatga beriladi?" },
+    ]);
+    expect(h?.key).toBe("goodPace");
+    expect(h?.tone).toBe("good");
+  });
+
+  it("hech qanday signal bo'lmasa — null", () => {
+    const h = liveHint([
+      { role: "user", content: "Yaxshi mahsulot ko'rsatib bering" },
+    ]);
+    expect(h).toBeNull();
   });
 });

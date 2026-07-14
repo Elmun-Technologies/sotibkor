@@ -23,3 +23,5 @@ export { Tag } from "./Tag";
 export type { TagProps } from "./Tag";
 export { Art } from "./Art";
 export type { ArtProps, ArtVariant } from "./Art";
+export { PersonaAvatar } from "./PersonaAvatar";
+export type { PersonaAvatarProps } from "./PersonaAvatar";

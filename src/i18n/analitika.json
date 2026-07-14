@@ -14,6 +14,10 @@
     "etiroz": "E'tirozga yetdi",
     "yopish": "Keyingi qadam olindi"
   },
+  "teamTitle": "Jamoa",
+  "teamAvgLabel": "Jamoa o'rtachasi",
+  "teamWeakStage": "Zaif bosqich",
+  "teamWeakObjection": "Zaif e'tiroz",
   "objTitle": "E'tirozlar bo'yicha statistika",
   "objType": "Tur",
   "objMet": "Uchragan",

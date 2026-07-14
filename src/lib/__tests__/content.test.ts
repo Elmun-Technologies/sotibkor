@@ -4,8 +4,10 @@ import {
   PERSONA_KEYS,
   SOHALAR,
   SOHA_KEYS,
+  TIL_REJIM_KEYS,
   isPersonaKey,
   isSohaKey,
+  isTilRejimKey,
   personaForObjection,
   type PersonaKey,
   type SohaKey,
@@ -66,6 +68,12 @@ describe("PERSONALAR registri", () => {
       }
     }
   });
+
+  it("har personaning standart ismi bor (jonli tanishtirish uchun)", () => {
+    for (const key of PERSONA_KEYS) {
+      expect(PERSONALAR[key].defaultName.trim().length).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe("type guard'lar", () => {
@@ -77,6 +85,19 @@ describe("type guard'lar", () => {
   it("isPersonaKey haqiqiy/soxta kalitlarni farqlaydi", () => {
     expect(isPersonaKey("qimmatchi")).toBe(true);
     expect(isPersonaKey("mehribon")).toBe(false);
+  });
+
+  it("isTilRejimKey haqiqiy/soxta kalitlarni farqlaydi", () => {
+    expect(isTilRejimKey("sof_ozbek")).toBe(true);
+    expect(isTilRejimKey("aralash")).toBe(true);
+    expect(isTilRejimKey("rus")).toBe(true);
+    expect(isTilRejimKey("ingliz")).toBe(false);
+  });
+
+  it("TIL_REJIM_KEYS aynan 3 ta rejimni o'z ichiga oladi", () => {
+    expect(new Set(TIL_REJIM_KEYS)).toEqual(
+      new Set(["sof_ozbek", "aralash", "rus"]),
+    );
   });
 });
 

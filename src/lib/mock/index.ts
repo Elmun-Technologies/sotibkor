@@ -60,14 +60,17 @@ export const MOCK_USER: UserStats = {
   sessionsCount: 18,
   streakDays: 4,
   lastActive: "2026-07-08",
+  xpThisWeek: 540,
 };
 
+// "Siz" qatori MOCK_USER.xpThisWeek'dan olinadi — Profil/Reyting/Analitika
+// bitta XP manbasidan (MOCK_USER) o'qiydi, ikkinchi mustaqil raqam bo'lmasin.
 export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
   { rank: 1, name: "Dilshod A.", xpWeek: 820 },
   { rank: 2, name: "Nigora K.", xpWeek: 760 },
   { rank: 3, name: "Sardor M.", xpWeek: 690 },
   { rank: 4, name: "Kamola R.", xpWeek: 610 },
-  { rank: 5, name: "Siz", xpWeek: 540, isMe: true },
+  { rank: 5, name: "Siz", xpWeek: MOCK_USER.xpThisWeek, isMe: true },
   { rank: 6, name: "Jasur T.", xpWeek: 500 },
   { rank: 7, name: "Malika S.", xpWeek: 430 },
   { rank: 8, name: "Bekzod X.", xpWeek: 380 },
@@ -182,8 +185,60 @@ export const MOCK_ASSIGNMENTS_DONE: Assignment[] = [
 ];
 
 export const MOCK_TEAM: TeamRow[] = [
-  { name: "Aziz", done: 8, target: 10, avg: 74 },
-  { name: "Dilnoza", done: 10, target: 10, avg: 81 },
-  { name: "Sardor", done: 4, target: 10, avg: 63 },
-  { name: "Nodira", done: 6, target: 10, avg: 69 },
+  {
+    name: "Aziz",
+    done: 8,
+    target: 10,
+    avg: 74,
+    funnel: {
+      kontakt: 95,
+      ehtiyoj: 80,
+      prezentatsiya: 72,
+      etiroz: 55,
+      yopish: 40,
+    },
+    weakObjection: "narx",
+  },
+  {
+    name: "Dilnoza",
+    done: 10,
+    target: 10,
+    avg: 81,
+    funnel: {
+      kontakt: 98,
+      ehtiyoj: 90,
+      prezentatsiya: 85,
+      etiroz: 74,
+      yopish: 60,
+    },
+    weakObjection: "qaror",
+  },
+  {
+    name: "Sardor",
+    done: 4,
+    target: 10,
+    avg: 63,
+    funnel: {
+      kontakt: 88,
+      ehtiyoj: 62,
+      prezentatsiya: 50,
+      etiroz: 38,
+      yopish: 22,
+    },
+    weakObjection: "ishonch",
+  },
+  {
+    name: "Nodira",
+    done: 6,
+    target: 10,
+    avg: 69,
+    funnel: {
+      kontakt: 92,
+      ehtiyoj: 70,
+      prezentatsiya: 58,
+      etiroz: 45,
+      yopish: 30,
+    },
+    weakObjection: "vaqt",
+  },
 ];

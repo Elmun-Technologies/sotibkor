@@ -2,14 +2,16 @@
 
 import { useId } from "react";
 import { getMessages } from "@/i18n";
-import { Card, Chip, Button, Badge } from "@/components/ui";
+import { Card, Chip, Button, Badge, PersonaAvatar } from "@/components/ui";
 import {
   PERSONA_KEYS,
   SOHA_KEYS,
   REJIM_KEYS,
+  TIL_REJIM_KEYS,
   type PersonaKey,
   type SohaKey,
   type RejimKey,
+  type TilRejimKey,
 } from "@/lib/content";
 
 const t = getMessages();
@@ -20,15 +22,23 @@ const REJIM_LABEL: Record<RejimKey, string> = {
   yuzma_yuz: t.trener.rejimYuzmaYuz,
 };
 
+const TIL_REJIM_LABEL: Record<TilRejimKey, string> = {
+  sof_ozbek: t.trener.tilSofOzbek,
+  aralash: t.trener.tilAralash,
+  rus: t.trener.tilRus,
+};
+
 export interface SetupPanelProps {
   soha: SohaKey;
   persona: PersonaKey;
   level: number;
   rejim: RejimKey;
+  tilRejimi: TilRejimKey;
   onSoha: (k: SohaKey) => void;
   onPersona: (k: PersonaKey) => void;
   onLevel: (l: number) => void;
   onRejim: (r: RejimKey) => void;
+  onTilRejimi: (r: TilRejimKey) => void;
   onStart: () => void;
   /** Spaced-repetition: oxirgi zaif e'tirozga mos tavsiya qilingan persona. */
   recommendedPersona?: PersonaKey | null;
@@ -67,10 +77,12 @@ export function SetupPanel({
   persona,
   level,
   rejim,
+  tilRejimi,
   onSoha,
   onPersona,
   onLevel,
   onRejim,
+  onTilRejimi,
   onStart,
   recommendedPersona,
   starting,
@@ -99,8 +111,11 @@ export function SetupPanel({
           <div className="flex flex-wrap gap-2">
             {PERSONA_KEYS.map((k) => (
               <Chip key={k} active={persona === k} onClick={() => onPersona(k)}>
-                {t.personalar[k]}
-                {k === recommendedPersona ? " ★" : ""}
+                <span className="inline-flex items-center gap-1.5">
+                  <PersonaAvatar persona={k} size={18} />
+                  {t.personalar[k]}
+                  {k === recommendedPersona ? " ★" : ""}
+                </span>
               </Chip>
             ))}
           </div>
@@ -129,6 +144,20 @@ export function SetupPanel({
             {REJIM_KEYS.map((r) => (
               <Chip key={r} active={rejim === r} onClick={() => onRejim(r)}>
                 {REJIM_LABEL[r]}
+              </Chip>
+            ))}
+          </div>
+        </Field>
+
+        <Field label={t.trener.tilRejimi}>
+          <div className="flex flex-wrap gap-2">
+            {TIL_REJIM_KEYS.map((r) => (
+              <Chip
+                key={r}
+                active={tilRejimi === r}
+                onClick={() => onTilRejimi(r)}
+              >
+                {TIL_REJIM_LABEL[r]}
               </Chip>
             ))}
           </div>

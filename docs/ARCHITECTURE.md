@@ -194,6 +194,7 @@ faqat server xizmat kaliti orqali yoziladi.
 | `/api/tts`                  | POST  | Matn → audio (Aisha)                                   | chunked       |
 | `/api/score`                | POST  | Transkript → baho JSON                                 | —             |
 | `/api/leaderboard`          | GET   | Haftalik reyting                                       | —             |
+| `/api/team-stats`           | GET   | ROP uchun jamoa statistikasi (voronka/e'tiroz)         | —             |
 | `/api/subscription/webhook` | POST  | Payme/Click callback                                   | —             |
 
 Barcha route'lar server tomonda; Aisha/OpenAI kalitlari hech qachon brauzerga chiqmaydi.

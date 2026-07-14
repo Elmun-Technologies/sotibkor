@@ -28,6 +28,10 @@
   "rejim": "Rejim",
   "rejimQongiroq": "Sovuq qo'ng'iroq",
   "rejimYuzmaYuz": "Yuzma-yuz savdo",
+  "tilRejimi": "Til rejimi",
+  "tilSofOzbek": "Sof o'zbekcha",
+  "tilAralash": "Aralash (o'zbek+rus)",
+  "tilRus": "Ruscha aralashgan",
   "interrupted": "Siz mijozni bo'ldingiz",
   "callSpeaking": "Gapiryapti...",
   "callListening": "Sizni tinglayapti",
@@ -41,10 +45,20 @@
   "callHint": "Mikrofonni bosib gapiring — mijoz javob beradi",
   "chipSoha": "Soha",
   "chipMijoz": "Mijoz turi",
+  "chipLavozim": "Lavozim",
   "transcriptTitle": "Transkript",
   "transcriptNote": "Mikrofon eshitgan hamma narsa yoziladi — fon shovqini va yaqin atrofdagi ovozlar ham.",
   "trialExhausted": "5 ta bepul suhbatingiz tugadi. Davom etish uchun tarif tanlang.",
   "trialExhaustedCta": "Tariflarni ko'rish",
   "recommendedHint": "Tavsiya: oxirgi safar sen shu turdagi e'tirozda qiynalding — shu mijoz bilan mashq qil.",
-  "bargeInHint": "Gapirsangiz, mijoz to'xtaydi — tugma bosish shart emas."
+  "bargeInHint": "Gapirsangiz, mijoz to'xtaydi — tugma bosish shart emas.",
+  "coachTitle": "Jonli murabbiy",
+  "hints": {
+    "discountTooEarly": "Darrov chegirma taklif qilma — avval qiymatni tushuntir.",
+    "priceTooEarly": "Narxni erta aytding — avval ehtiyojni aniqla.",
+    "needsOpenQuestion": "Ochiq savol ber — mijozni ko'proq gapirtir.",
+    "tooLongMonologue": "Juda uzun gapiryapsan — qisqaroq va aniq bo'l.",
+    "tooShortReply": "Javobing juda qisqa — kengroq tushuntir.",
+    "goodPace": "Zo'r! Savol berding va qiymatni ko'rsatding — shu tarzda davom et."
+  }
 }

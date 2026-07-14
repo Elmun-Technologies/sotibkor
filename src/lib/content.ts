@@ -21,6 +21,16 @@ export function isRejimKey(v: string): v is RejimKey {
   return v === "qongiroq" || v === "yuzma_yuz";
 }
 
+/**
+ * Til rejimi — persona qay darajada rus so'z/ibora aralashtirishi (moat: closeme
+ * faqat rus tilida, biz O'zbekiston reali — jaydari o'zbek/aralash/rus kod-almashtirish).
+ */
+export type TilRejimKey = "sof_ozbek" | "aralash" | "rus";
+export const TIL_REJIM_KEYS: TilRejimKey[] = ["sof_ozbek", "aralash", "rus"];
+export function isTilRejimKey(v: string): v is TilRejimKey {
+  return v === "sof_ozbek" || v === "aralash" || v === "rus";
+}
+
 export interface Soha {
   key: SohaKey;
   /** Persona promptidagi {{mahsulot}} uchun namunaviy mahsulot konteksti. */
@@ -38,6 +48,12 @@ export interface Persona {
    * src/lib/coach.ts `recommend()`) — otkaz repertuariga mos (prompts/personas/*.md).
    */
   primaryObjection?: ObjectionType;
+  /**
+   * Standart ism — aniq ssenariy (nomli mijoz) tanlanmagan bo'lsa shu
+   * ishlatiladi (avatar/CallView'da va {{mijoz_ismi}} prompt o'zgaruvchisida),
+   * shunday qilib persona doim jonli ism bilan tanishtiradi.
+   */
+  defaultName: string;
 }
 
 export const SOHALAR: Record<SohaKey, Soha> = {
@@ -83,6 +99,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
     key: "qimmatchi",
     promptFile: "personas/qimmatchi.md",
     primaryObjection: "narx",
+    defaultName: "Aziz aka",
     mockLines: [
       "Obbo, qimmat-ku bu. Boshqa joyda arzonroq beryapti-ku.",
       "Baribir qimmat. Chegirma yo'qmi ishqilib?",
@@ -93,6 +110,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
     key: "shubhali",
     promptFile: "personas/shubhali.md",
     primaryObjection: "ishonch",
+    defaultName: "Dilnoza opa",
     mockLines: [
       "Silaniki original o'zimi? Kafolat bormi umuman?",
       "E bilmadim-da, buzilib qolsa nima bo'ladi?",
@@ -103,6 +121,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
     key: "bandman",
     promptFile: "personas/bandman.md",
     primaryObjection: "vaqt",
+    defaultName: "Sardor",
     mockLines: [
       "Vaqtim yo'q, qisqa qiling, nima gap?",
       "Tez ayting, ketyapman.",
@@ -113,6 +132,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
     key: "bilagon",
     promptFile: "personas/bilagon.md",
     primaryObjection: "raqobat",
+    defaultName: "Jamshid aka",
     mockLines: [
       "Bu eskirgan-ku, yangisi chiqqan. Men bu sohada ishlaganman.",
       "Xarakteristikasini bilasizmi o'zi? Menga o'rgatmang.",
@@ -123,6 +143,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
     key: "yumshoq-lekin-olmaydi",
     promptFile: "personas/yumshoq-lekin-olmaydi.md",
     primaryObjection: "qaror",
+    defaultName: "Nodira",
     mockLines: [
       "Ha yaxshi ekan, zo'r narsa.",
       "Rahmat, o'ylab ko'ramiz. Keyinroq bir kelaman.",
