@@ -9,6 +9,7 @@ import type { ScoreResult } from "@/lib/scoring";
 import {
   recommend,
   interestSeries,
+  analyzeSpeech,
   FUNNEL_STAGES,
   type FunnelStage,
   type Turn,
@@ -74,6 +75,17 @@ export function ResultView({
     etiroz: b.otkazlarga_ishlov / 30,
     yopish: b.closing / 20,
   };
+
+  const speech = analyzeSpeech(transcript);
+  // Nutq tahlili maslahati — eng dolzarb bittasi.
+  const speechTip =
+    speech.fillerCount >= 3
+      ? t.natija.speechFillerTip
+      : speech.avgWordsPerReply > 45
+        ? t.natija.speechVerboseTip
+        : speech.replyCount >= 3 && speech.questionRatio < 0.25
+          ? t.natija.speechFewQuestionsTip
+          : t.natija.speechGoodTip;
 
   const series = interestSeries(transcript);
   const spark =
@@ -217,6 +229,82 @@ export function ResultView({
                 {t.natija.interestEnd}: {series[series.length - 1]}
               </span>
             </div>
+          </Card>
+        </section>
+      )}
+
+      {speech.replyCount > 0 && (
+        <section>
+          <h2 className="mb-1 text-lg font-semibold tracking-tight text-foreground">
+            {t.natija.speechTitle}
+          </h2>
+          <p className="mb-3 text-sm text-muted">{t.natija.speechLead}</p>
+          <Card className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="inset p-3">
+                <div className="eyebrow">{t.natija.speechFiller}</div>
+                <div
+                  className="mt-1 text-2xl font-semibold tabular-nums"
+                  style={{
+                    color:
+                      speech.fillerCount >= 3 ? "var(--warn)" : "var(--good)",
+                  }}
+                >
+                  {speech.fillerCount}
+                </div>
+              </div>
+              <div className="inset p-3">
+                <div className="eyebrow">{t.natija.speechAvgLen}</div>
+                <div className="mt-1 text-2xl font-semibold tabular-nums">
+                  {speech.avgWordsPerReply}
+                  <span className="ml-1 text-sm font-normal text-muted">
+                    {t.natija.speechWords}
+                  </span>
+                </div>
+              </div>
+              <div className="inset p-3">
+                <div className="eyebrow">{t.natija.speechQuestionRatio}</div>
+                <div className="mt-1 text-2xl font-semibold tabular-nums">
+                  {Math.round(speech.questionRatio * 100)}%
+                </div>
+              </div>
+              <div className="inset p-3">
+                <div className="eyebrow">{t.natija.speechLongest}</div>
+                <div className="mt-1 text-2xl font-semibold tabular-nums">
+                  {speech.longestReply}
+                  <span className="ml-1 text-sm font-normal text-muted">
+                    {t.natija.speechWords}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {speech.fillerWords.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm text-muted">
+                  {t.natija.speechFiller}:
+                </span>
+                {speech.fillerWords.map((w) => (
+                  <span
+                    key={w}
+                    className="rounded-full px-2.5 py-1 text-xs font-medium"
+                    style={{
+                      background:
+                        "color-mix(in srgb, var(--warn) 12%, transparent)",
+                      color: "var(--warn)",
+                    }}
+                  >
+                    {w}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <p className="text-sm text-foreground">
+              {speech.fillerCount === 0 && speechTip === t.natija.speechGoodTip
+                ? t.natija.speechFillerNone
+                : speechTip}
+            </p>
           </Card>
         </section>
       )}

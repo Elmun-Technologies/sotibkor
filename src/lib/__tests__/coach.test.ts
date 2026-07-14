@@ -7,6 +7,7 @@ import {
   objectionHistogram,
   recommend,
   liveHint,
+  analyzeSpeech,
   OBJECTION_TYPES,
   FUNNEL_STAGES,
   type Turn,
@@ -172,5 +173,69 @@ describe("liveHint (jonli murabbiy — 10x-2)", () => {
       { role: "user", content: "Yaxshi mahsulot ko'rsatib bering" },
     ]);
     expect(h).toBeNull();
+  });
+});
+
+describe("analyzeSpeech (nutq tahlili — 10x-3)", () => {
+  const seller = (content: string): Turn => ({ role: "user", content });
+  const client = (content: string): Turn => ({ role: "assistant", content });
+
+  it("bo'sh transkript uchun nol qiymatlar", () => {
+    const r = analyzeSpeech([]);
+    expect(r.replyCount).toBe(0);
+    expect(r.totalWords).toBe(0);
+    expect(r.fillerCount).toBe(0);
+    expect(r.fillerWords).toEqual([]);
+  });
+
+  it("faqat sotuvchi replikalarini hisoblaydi (mijozni e'tiborsiz)", () => {
+    const r = analyzeSpeech([
+      seller("salom qalaysiz"),
+      client("ee yani koroche"), // mijoz — hisoblanmaydi
+    ]);
+    expect(r.replyCount).toBe(1);
+    expect(r.totalWords).toBe(2);
+    expect(r.fillerCount).toBe(0);
+  });
+
+  it("parazit so'zlarni sanaydi va takrorsiz ro'yxatlaydi", () => {
+    const r = analyzeSpeech([
+      seller("ee yani men koroche"),
+      seller("yani vot shunaqa"),
+    ]);
+    // ee(1) + yani(2) + koroche(1) + vot(1) = 5
+    expect(r.fillerCount).toBe(5);
+    expect(r.fillerWords).toContain("yani");
+    // eng ko'p uchragan birinchi
+    expect(r.fillerWords[0]).toBe("yani");
+  });
+
+  it("tinish belgilari parazitni bloklamaydi", () => {
+    const r = analyzeSpeech([seller("Ee, yani... koroche!")]);
+    expect(r.fillerCount).toBe(3);
+  });
+
+  it("haqiqiy so'z ichidagi bo'lakni parazit deb hisoblamaydi", () => {
+    // "koroche" butun so'z bo'lgandagina — "koroched" (yo'q so'z) yoki qism emas
+    const r = analyzeSpeech([seller("men shu narsani xohlayman")]);
+    expect(r.fillerCount).toBe(0);
+  });
+
+  it("o'rtacha va eng uzun replikani to'g'ri hisoblaydi", () => {
+    const r = analyzeSpeech([
+      seller("bir ikki uch"), // 3
+      seller("bir ikki uch tort besh"), // 5
+    ]);
+    expect(r.totalWords).toBe(8);
+    expect(r.avgWordsPerReply).toBe(4);
+    expect(r.longestReply).toBe(5);
+  });
+
+  it("savol nisbatini hisoblaydi", () => {
+    const r = analyzeSpeech([
+      seller("byudjetingiz qancha?"),
+      seller("tushunarli"),
+    ]);
+    expect(r.questionRatio).toBe(0.5);
   });
 });

@@ -39,5 +39,17 @@
   },
   "interestTitle": "Qiziqish dinamikasi",
   "interestStart": "Boshlanish",
-  "interestEnd": "Yakun"
+  "interestEnd": "Yakun",
+  "speechTitle": "Nutq tahlili",
+  "speechLead": "Sizning gapirish odatlaringiz (matn asosida)",
+  "speechFiller": "Parazit so'zlar",
+  "speechAvgLen": "O'rtacha gap uzunligi",
+  "speechQuestionRatio": "Savol bergan gaplar",
+  "speechLongest": "Eng uzun gap",
+  "speechWords": "so'z",
+  "speechFillerNone": "Parazit so'z topilmadi — toza nutq! 👍",
+  "speechFillerTip": "Parazit so'zlarni kamaytiring — ishonchliroq eshitiladi.",
+  "speechVerboseTip": "Gaplaringiz uzun — qisqaroq va aniqroq bo'lsa, mijoz ko'proq gapiradi.",
+  "speechFewQuestionsTip": "Kam savol berdingiz — ochiq savollar mijoz ehtiyojini ochadi.",
+  "speechGoodTip": "Muvozanatli nutq — savol berdingiz va ortiqcha cho'zmadingiz. 👍"
 }

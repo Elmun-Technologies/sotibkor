@@ -344,3 +344,110 @@ export function liveHint(transcript: Turn[]): LiveHint | null {
 
   return null;
 }
+
+/* ─────────────────────────── Nutq tahlili (10x-3) ─────────────────────────
+ * closeme faqat bitta umumiy ball beradi; biz sotuvchining NUTQ ODATLARINI
+ * ham tahlil qilamiz — parazit so'zlar, gap uzunligi, savol nisbati.
+ * Matn asosidagi qism (kalitsiz ham ishlaydi, sof evristika). Ovoz tempi/
+ * pauzalar keyingi bosqichda (real STT vaqt belgilaridan) qo'shiladi. */
+
+/**
+ * Jaydari o'zbek/aralash nutqda ko'p uchraydigan parazit ("filler") so'zlar.
+ * Faqat aniq parazit bo'lgan so'zlar (haqiqiy ma'noli so'z bilan
+ * chalkashmasin uchun) — butun so'z sifatida moslashtiriladi.
+ */
+export const FILLER_WORDS: string[] = [
+  "ee",
+  "eee",
+  "aa",
+  "aaa",
+  "mm",
+  "mmm",
+  "yani",
+  "yaъni",
+  "anaqa",
+  "anaqangi",
+  "koroche",
+  "nu",
+  "vot",
+  "tipa",
+  "voobshe",
+  "vabshe",
+  "znachit",
+];
+
+export interface SpeechAnalysis {
+  /** Sotuvchi replikalari soni. */
+  replyCount: number;
+  /** Jami so'zlar (sotuvchi). */
+  totalWords: number;
+  /** Har replikadagi o'rtacha so'z soni (yaxlitlangan). */
+  avgWordsPerReply: number;
+  /** Eng uzun replika (so'z). */
+  longestReply: number;
+  /** Savol o'z ichiga olgan replikalar ulushi (0..1). */
+  questionRatio: number;
+  /** Topilgan parazit so'zlar umumiy soni. */
+  fillerCount: number;
+  /** Qaysi parazit so'zlar ishlatilgani (kamayish tartibida, takrorsiz). */
+  fillerWords: string[];
+}
+
+/**
+ * Sotuvchi transkriptidan nutq odatlarini hisoblaydi — sof funksiya, LLM yo'q.
+ * Faqat sotuvchi (role === "user") replikalari tahlil qilinadi.
+ */
+export function analyzeSpeech(transcript: Turn[]): SpeechAnalysis {
+  const seller = transcript.filter((t) => t.role === "user");
+  const empty: SpeechAnalysis = {
+    replyCount: 0,
+    totalWords: 0,
+    avgWordsPerReply: 0,
+    longestReply: 0,
+    questionRatio: 0,
+    fillerCount: 0,
+    fillerWords: [],
+  };
+  if (seller.length === 0) return empty;
+
+  const fillerSet = new Set(FILLER_WORDS);
+  const fillerHits = new Map<string, number>();
+  let totalWords = 0;
+  let longestReply = 0;
+  let questionReplies = 0;
+
+  for (const turn of seller) {
+    if (turn.content.includes("?")) questionReplies++;
+    // So'zlarga ajratamiz: bo'shliq bo'yicha, so'ng har token chetidagi
+    // tinish belgilarini olib tashlaymiz (unicode-regex bayrog'isiz — ES5).
+    const tokens = lc(turn.content)
+      .split(/\s+/)
+      .map((w) => w.replace(/^[^0-9a-zъ']+|[^0-9a-zъ']+$/g, ""))
+      .filter(Boolean);
+    totalWords += tokens.length;
+    if (tokens.length > longestReply) longestReply = tokens.length;
+    for (const tok of tokens) {
+      if (fillerSet.has(tok)) {
+        fillerHits.set(tok, (fillerHits.get(tok) ?? 0) + 1);
+      }
+    }
+  }
+
+  const fillerCount = Array.from(fillerHits.values()).reduce(
+    (a, b) => a + b,
+    0,
+  );
+  const fillerWords = Array.from(fillerHits.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([w]) => w);
+
+  return {
+    replyCount: seller.length,
+    totalWords,
+    avgWordsPerReply: Math.round(totalWords / seller.length),
+    longestReply,
+    questionRatio: questionReplies / seller.length,
+    fillerCount,
+    fillerWords,
+  };
+}
