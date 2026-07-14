@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { getMessages } from "@/i18n";
 import { useAuthGate } from "@/lib/useAuthGate";
+import { useVoiceActivity } from "@/lib/useVoiceActivity";
 import {
   isPersonaKey,
   isRejimKey,
@@ -134,6 +135,16 @@ export default function TrenerPage() {
     }
     setSpeaking(false);
   }, []);
+
+  // To'liq barge-in (issue #7): mijoz gapirayotganda sotuvchi tugma bosmasdan
+  // shunchaki gapirsa ham, ovoz faolligi (VAD) aniqlab persona nutqini darrov
+  // to'xtatadi. Faqat "chat" bosqichida va persona haqiqatan gapirayotganda
+  // (push-to-talk yozib olish bilan to'qnashmasin uchun) faollashadi.
+  useVoiceActivity({
+    enabled: stage === "chat",
+    listening: speaking && !recording,
+    onVoice: stopSpeaking,
+  });
 
   const playSentence = useCallback(
     async (text: string, onStart: () => void): Promise<void> => {
