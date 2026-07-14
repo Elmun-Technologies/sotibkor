@@ -19,7 +19,7 @@ import {
 } from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
 import { uploadClip } from "@/lib/archiveClient";
-import { markFirstSessionDone } from "@/lib/progress";
+import { markFirstSessionDone, markPlanDayDone } from "@/lib/progress";
 import {
   interestScore,
   liveHint,
@@ -453,6 +453,10 @@ export default function TrenerPage() {
       // Onboarding checklist uchun HAQIQIY signal (mock rejimda ham jonli):
       // birinchi yakunlangan suhbatni lokal belgilaymiz.
       markFirstSessionDone();
+      // Haftalik reja (10x-4): bugungi kun mashqi bajarildi deb belgilaymiz
+      // (dushanba=0 asosli). Bugun qaysi persona bo'lishidan qat'i nazar —
+      // "bugun mashq qilding" signali.
+      markPlanDayDone((new Date().getDay() + 6) % 7);
       // Sessiyani orqa fonda saqlaymiz — Supabase sozlanmagan bo'lsa
       // route jimgina no-op qiladi, natija ekraniga bu bog'liq emas.
       void fetch("/api/session", {
