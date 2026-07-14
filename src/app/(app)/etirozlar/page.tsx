@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Button, AppLoading } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
+import { getFavorites, toggleFavorite } from "@/lib/favorites";
 import {
   OBJECTION_LIBRARY,
   type ObjectionEntry,
@@ -114,6 +115,11 @@ function PlaybookView() {
   const [selectedId, setSelectedId] = useState(OBJECTION_LIBRARY[0].id);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  // Sevimlilar localStorage'da saqlanadi — reload'da yo'qolmaydi (jonli).
+  useEffect(() => {
+    setFavorites(getFavorites());
+  }, []);
   const [answer, setAnswer] = useState("");
   const [evaluating, setEvaluating] = useState(false);
   const [result, setResult] = useState<ReturnType<typeof mockEvaluate> | null>(
@@ -138,12 +144,7 @@ function PlaybookView() {
   };
 
   const toggleFav = (id: string) => {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    setFavorites(new Set(toggleFavorite(id)));
   };
 
   const copy = (key: string, text: string) => {

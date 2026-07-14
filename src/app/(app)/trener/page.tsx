@@ -18,6 +18,7 @@ import {
 } from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
 import { uploadClip } from "@/lib/archiveClient";
+import { markFirstSessionDone } from "@/lib/progress";
 import {
   interestScore,
   liveHint,
@@ -446,6 +447,9 @@ export default function TrenerPage() {
       }
       setScore(data as ScoreResult);
       setStage("result");
+      // Onboarding checklist uchun HAQIQIY signal (mock rejimda ham jonli):
+      // birinchi yakunlangan suhbatni lokal belgilaymiz.
+      markFirstSessionDone();
       // Sessiyani orqa fonda saqlaymiz — Supabase sozlanmagan bo'lsa
       // route jimgina no-op qiladi, natija ekraniga bu bog'liq emas.
       void fetch("/api/session", {
