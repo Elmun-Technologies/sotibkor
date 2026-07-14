@@ -242,6 +242,9 @@ export function CallView(p: CallViewProps) {
             )}
             <span>{stateLabel}</span>
           </div>
+          {state === "speaking" && (
+            <p className="text-xs text-faint">{t.trener.bargeInHint}</p>
+          )}
         </div>
 
         {/* Qiziqish o'lchagichi — rang holatga bog'liq */}

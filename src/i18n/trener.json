@@ -45,5 +45,6 @@
   "transcriptNote": "Mikrofon eshitgan hamma narsa yoziladi — fon shovqini va yaqin atrofdagi ovozlar ham.",
   "trialExhausted": "5 ta bepul suhbatingiz tugadi. Davom etish uchun tarif tanlang.",
   "trialExhaustedCta": "Tariflarni ko'rish",
-  "recommendedHint": "Tavsiya: oxirgi safar sen shu turdagi e'tirozda qiynalding — shu mijoz bilan mashq qil."
+  "recommendedHint": "Tavsiya: oxirgi safar sen shu turdagi e'tirozda qiynalding — shu mijoz bilan mashq qil.",
+  "bargeInHint": "Gapirsangiz, mijoz to'xtaydi — tugma bosish shart emas."
 }

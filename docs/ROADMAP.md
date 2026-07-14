@@ -12,10 +12,10 @@ closeme faqat **rus tili + Rossiya B2B** bilan cheklangan. Bizning moat — O'zb
 - ✅ **Voronka-bosqich baholash** + **spaced-repetition tavsiyasi** (zaif e'tirozga qarab keyingi mashq).
 - ✅ **E'tiroz kutubxonasi** (`src/lib/objections.ts`) — tur bo'yicha teglangan.
 - ✅ **Ball trendi** (profil) — bir martalik ball emas, vaqt bo'yicha o'sish.
-- ⬜ **To'liq barge-in** (persona pauza ushlaydi/gapni bo'ladi) — real full-dupleks audio + VAD kerak (issue).
-- ⬜ **B2B persona-yasash + dashboard**, **real interest signal LLM'dan** (issue).
+- 🟡 **Barge-in** (sotuvchi gapni bo'ladi — VAD orqali) — qurildi, lekin real qurilmada kalibrlanmagan; teskari yo'nalish (persona pauza ushlaydi) qurilmadi (issue #7).
+- ⬜ **B2B persona-yasash + dashboard**, **real interest signal LLM'dan** (issue #8).
 
-Yangi ustuvorlik (realizm-first): barge-in + real Aisha latency → e'tiroz/voronka baholash (✅ mock) → jonli qiziqish (✅) → persona katalogi + UZ sohalar (✅ qisman) → B2B + to'lov.
+Yangi ustuvorlik (realizm-first): 🟡 barge-in (kalibrlash kerak) + real Aisha latency (kalitlar kerak) → e'tiroz/voronka baholash (✅ mock) → jonli qiziqish (✅) → persona katalogi + UZ sohalar (✅ qisman) → B2B + to'lov.
 
 ## 1. Ovoz aylanasi POC — 🟡 HOZIRGI BOSQICH (2–3 hafta)
 
@@ -139,10 +139,15 @@ Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
   - ✅ **Spaced-repetition persistensiya**: suhbat tugagach `src/lib/coach.ts` `recommend()` server tomonda chaqiriladi, eng zaif e'tiroz turi `users.weak_objection_type`ga saqlanadi (`0003_trial_and_weak_objection.sql`). Keyingi safar `/trener` setup ekrani ochilganda shu turga mos persona (`personaForObjection()` — narx→qimmatchi, ishonch→shubhali, vaqt→bandman, qaror→yumshoq-lekin-olmaydi, raqobat→bilagon) oldindan tanlanadi va tavsiya belgisi ko'rsatiladi (dars sahifasidan aniq preset kelgan bo'lsa tegilmaydi).
   - ⬜ **Payme + Click to'lov**: ATAYLAB QURILMADI. Real merchant credential (`PAYME_MERCHANT_ID/KEY`, `CLICK_MERCHANT_ID/SERVICE_ID/SECRET_KEY`) yo'q holda checkout/webhook kodi yozish — tasdiqlanmagan taxminlarga asoslangan pul-bilan-ishlaydigan kod bo'lardi (xuddi Aisha BASE_URL holatidagi kabi xavf, faqat bu safar haqiqiy pul). Sandbox credential kelgach: `POST /api/subscription/webhook` (Payme JSON-RPC: CheckPerformTransaction/CreateTransaction/PerformTransaction/CancelTransaction; Click: md5 imzo tekshiruvi), checkout URL generatsiyasi, `subscriptions` jadvaliga yozish.
   - ⬜ **Real LLM interest signal**: hozir `interestScore()` (`src/lib/coach.ts`) sof evristika — real LLM signalga o'tkazilmadi (kam ustuvor, issue #9ning asosiy qabul mezoniga kirmaydi).
+- 🟡 **Issue #7 — to'liq barge-in (VAD asosida, faqat sotuvchi→persona yo'nalishida)**:
+  - ✅ **Ovoz faolligini aniqlash (VAD)**: `src/lib/useVoiceActivity.ts` — Web Audio API (`AnalyserNode` + vaqt-domeni RMS) orqali mikrofon balandligini kuzatadi; persona gapirayotganda (`speaking`) sotuvchi tugma bosmasdan gapirsa, barqaror ovoz aniqlanib (`sustainMs` — qisqa shovqinni filtrlaydi) `stopSpeaking()` avtomatik chaqiriladi. `/trener` chat bosqichida faollashadi, `echoCancellation`/`noiseSuppression` yoqilgan (dinamikdan chiqqan persona ovozi mikrofonga qaytib o'z-o'zini bo'lib qo'ymasligi uchun asosiy himoya).
+  - ⚠️ **MUHIM CHEKLOV**: chegara qiymatlari (`thresholdRms=30`, `sustainMs=220ms`) **haqiqiy mikrofon/qurilma bilan sinovdan o'tkazilmagan** — bu ishlab chiqish muhitida audio uskunasi yo'q. Real foydalanuvchilar bilan kalibrlash kerak (juda sezgir bo'lsa — fon shovqinidan noto'g'ri ishga tushadi; juda kam sezgir bo'lsa — sekin javob beradi). Eng yomon holatda persona bir oz erta/kech to'xtaydi — qo'lda mikrofon/matn tugmasi baribir to'liq ishlaydi, hech narsa buzilmaydi.
+  - ⬜ Mikrofon ruxsati rad etilsa yoki brauzer Web Audio API'ni qo'llab-quvvatlamasa — VAD jimgina o'chadi (sinovdan o'tkazilgan: ikkala holat ham Playwright orqali xatosiz tekshirildi).
+  - ⬜ **Teskari yo'nalish** ("persona pauza ushlaydi" — mijoz sotuvchining pauzasini kutish/bo'lish xulqi) qurilmadi — bu prompt-mantiqiy o'zgarish (personalar allaqachon navbat-navbat suhbatlashadi), audio-muhandislik emas.
 
 ### Mock-rejimda "100%" nimani anglatadi
 
-Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugallangan: 15 sahifa (landing, ro'yxatdan o'tish, onboarding, bosh sahifa, trener/qo'ng'iroq, e'tirozlar+tezkor mashq, qo'ng'iroq ssenariylari, muzokaralar, vazifalar, analitika, reyting, yutuqlar, tariflar, profil+sozlash), sidebar ilova qobig'i, yordam vidjeti — barchasi ishlaydi, o'zaro bog'langan, i18n orqali, typecheck/lint/81 test/build doim yashil.
+Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugallangan: 15 sahifa (landing, ro'yxatdan o'tish, onboarding, bosh sahifa, trener/qo'ng'iroq, e'tirozlar+tezkor mashq, qo'ng'iroq ssenariylari, muzokaralar, vazifalar, analitika, reyting, yutuqlar, tariflar, profil+sozlash), sidebar ilova qobig'i, yordam vidjeti — barchasi ishlaydi, o'zaro bog'langan, i18n orqali, typecheck/lint/86 test/build doim yashil.
 
 **Quyidagilar FAQAT tashqi hisob ma'lumotlari (API kalit/loyihalar) bilan davom etadi — men ularsiz "tugata olmayman":**
 
