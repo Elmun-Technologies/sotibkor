@@ -36,6 +36,20 @@ export const metadata: Metadata = {
     description: t.app.comingSoonDesc,
   },
   robots: { index: true, follow: true },
+  // PWA/mobil-birinchi: telefonda "Bosh ekranga qo'shish" bilan ilovadek ishlaydi.
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: t.app.name,
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {
