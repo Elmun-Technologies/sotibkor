@@ -149,7 +149,33 @@ achievements (
   code        text,                         -- 'first_close' | 'streak_7' | ...
   earned_at   timestamptz DEFAULT now()
 )
+
+-- Arxiv audio klip manifest (/arxiv sahifasi — issue #8 P1)
+-- Transkript turn_index'iga QATIY bog'lanmagan (bitta assistant turn bir
+-- necha jumladan iborat bo'lishi mumkin, har jumla alohida TTS/klip) —
+-- mustaqil o'sib boruvchi clip_index bilan.
+session_audio (
+  id            uuid PRIMARY KEY,
+  session_id    uuid REFERENCES sessions(id),
+  clip_index    int,
+  speaker       text,                       -- 'sotuvchi' | 'mijoz'
+  storage_path  text,                       -- Storage bucket'dagi yo'l
+  mime_type     text,
+  created_at    timestamptz DEFAULT now()
+)
 ```
+
+### Storage (audio arxiv)
+
+`call-audio` — xususiy (public emas) Supabase Storage bucket. Har ikki
+tomon audiosi shu yerda: mijoz TTS javobi (Aisha'dan kelgan bayt oqimi,
+`playSentence()` ichida fire-and-forget yuklanadi) va sotuvchi mikrofon
+yozuvi (`toggleMic()`da STT'ga yuborilgan bir xil blob). Yuklash
+`src/lib/audioStorage.ts`da (`uploadTurnAudio`/`getSessionAudioClips`) —
+faqat server route'lari (`/api/archive/audio`, service-role klient) yozadi;
+o'qish imzolangan URL orqali (1 soat amal qiladi). Klient hech qachon
+yuklashni `await` qilmaydi — ovoz aylanasining kritik yo'liga (§5) hech
+qanday kechikish qo'shmaydi.
 
 ## 3.1 Autentifikatsiya (Google OAuth, Supabase Auth)
 
@@ -195,6 +221,9 @@ faqat server xizmat kaliti orqali yoziladi.
 | `/api/score`                | POST  | Transkript → baho JSON                                 | —             |
 | `/api/leaderboard`          | GET   | Haftalik reyting                                       | —             |
 | `/api/team-stats`           | GET   | ROP uchun jamoa statistikasi (voronka/e'tiroz)         | —             |
+| `/api/archive`              | GET   | Yakunlangan suhbatlar ro'yxati (/arxiv)                | —             |
+| `/api/archive/[id]`         | GET   | Suhbat tafsiloti (transkript+baho+audio URL)           | —             |
+| `/api/archive/audio`        | POST  | Bitta audio klipni Storage'ga yozadi (fire-and-forget) | —             |
 | `/api/subscription/webhook` | POST  | Payme/Click callback                                   | —             |
 
 Barcha route'lar server tomonda; Aisha/OpenAI kalitlari hech qachon brauzerga chiqmaydi.

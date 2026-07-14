@@ -32,6 +32,7 @@ import yutuqlar from "./yutuqlar.json";
 import tariflar from "./tariflar.json";
 import yordam from "./yordam.json";
 import miccheck from "./miccheck.json";
+import arxiv from "./arxiv.json";
 
 export type Locale = "uz" | "ru";
 export const DEFAULT_LOCALE: Locale = "uz";
@@ -62,6 +63,7 @@ const messages = {
   tariflar,
   yordam,
   miccheck,
+  arxiv,
 } as const;
 
 export type Messages = typeof messages;

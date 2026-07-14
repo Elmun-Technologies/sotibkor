@@ -158,3 +158,148 @@ export async function saveScore(
     );
   }
 }
+
+/** /arxiv ro'yxati uchun bitta suhbatning qisqacha ma'lumoti. */
+export interface SessionSummary {
+  id: string;
+  soha: string | null;
+  persona: string | null;
+  level: number | null;
+  startedAt: string;
+  endedAt: string | null;
+  scoreTotal: number | null;
+}
+
+/**
+ * Foydalanuvchining yakunlangan suhbatlari ro'yxati (eng yangisi birinchi).
+ * Supabase yo'q bo'lsa — bo'sh massiv (mock rejimda tarix saqlanmaydi).
+ */
+export async function listSessions(userId: string): Promise<SessionSummary[]> {
+  const db = getSupabase();
+  if (!db) return [];
+
+  try {
+    const { data, error } = await db
+      .from("sessions")
+      .select("id, soha, persona, level, started_at, ended_at, scores(total)")
+      .eq("user_id", userId)
+      .eq("status", "finished")
+      .order("started_at", { ascending: false })
+      .limit(50);
+    if (error || !data) {
+      if (error) console.error("[db] listSessions xato:", error.message);
+      return [];
+    }
+
+    return data.map((row) => {
+      const scoresField = (
+        row as unknown as {
+          scores: { total: number }[] | { total: number } | null;
+        }
+      ).scores;
+      const scoreTotal = Array.isArray(scoresField)
+        ? (scoresField[0]?.total ?? null)
+        : (scoresField?.total ?? null);
+      return {
+        id: row.id as string,
+        soha: row.soha as string | null,
+        persona: row.persona as string | null,
+        level: row.level as number | null,
+        startedAt: row.started_at as string,
+        endedAt: row.ended_at as string | null,
+        scoreTotal,
+      };
+    });
+  } catch (err) {
+    console.error(
+      "[db] listSessions istisno:",
+      err instanceof Error ? err.message : err,
+    );
+    return [];
+  }
+}
+
+/** Bitta transkript qatori (/arxiv detali uchun). */
+export interface TranscriptRow {
+  turnIndex: number;
+  speaker: string;
+  text: string;
+}
+
+/**
+ * `scores` jadvalida saqlanadigan maydonlar — `ScoreResult.closed` bu yerga
+ * kirmaydi (jadval sxemasida yo'q, `saveScore()` ham yozmaydi), shuning
+ * uchun to'liq `ScoreResult` emas, shu qism.
+ */
+export type ArchiveScore = Omit<ScoreResult, "closed">;
+
+/** /arxiv detali — sessiya + to'liq transkript + baho. */
+export interface SessionDetail extends SessionSummary {
+  transcript: TranscriptRow[];
+  score: ArchiveScore | null;
+}
+
+/**
+ * Bitta suhbatning to'liq tafsilotini qaytaradi — FAQAT shu `userId`ga
+ * tegishli bo'lsa (boshqa foydalanuvchi sessiyasini ko'rsatmaydi).
+ * Topilmasa yoki Supabase yo'q bo'lsa — `null`.
+ */
+export async function getSessionDetail(
+  sessionId: string,
+  userId: string,
+): Promise<SessionDetail | null> {
+  const db = getSupabase();
+  if (!db) return null;
+
+  try {
+    const { data: session, error: sErr } = await db
+      .from("sessions")
+      .select("id, soha, persona, level, started_at, ended_at")
+      .eq("id", sessionId)
+      .eq("user_id", userId)
+      .single();
+    if (sErr || !session) return null;
+
+    const { data: transcriptRows } = await db
+      .from("transcripts")
+      .select("turn_index, speaker, text")
+      .eq("session_id", sessionId)
+      .order("turn_index", { ascending: true });
+
+    const { data: scoreRow } = await db
+      .from("scores")
+      .select("total, breakdown, mistakes, strengths, xp_awarded")
+      .eq("session_id", sessionId)
+      .maybeSingle();
+
+    return {
+      id: session.id as string,
+      soha: session.soha as string | null,
+      persona: session.persona as string | null,
+      level: session.level as number | null,
+      startedAt: session.started_at as string,
+      endedAt: session.ended_at as string | null,
+      scoreTotal: (scoreRow?.total as number | undefined) ?? null,
+      transcript: (transcriptRows ?? []).map((t) => ({
+        turnIndex: t.turn_index as number,
+        speaker: t.speaker as string,
+        text: t.text as string,
+      })),
+      score: scoreRow
+        ? {
+            total: scoreRow.total as number,
+            breakdown: scoreRow.breakdown as ArchiveScore["breakdown"],
+            mistakes: scoreRow.mistakes as ArchiveScore["mistakes"],
+            strengths: scoreRow.strengths as ArchiveScore["strengths"],
+            xp_awarded: scoreRow.xp_awarded as number,
+          }
+        : null,
+    };
+  } catch (err) {
+    console.error(
+      "[db] getSessionDetail istisno:",
+      err instanceof Error ? err.message : err,
+    );
+    return null;
+  }
+}
