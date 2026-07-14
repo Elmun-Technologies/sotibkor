@@ -20,6 +20,17 @@
   "setup": "Sozlash",
   "call": "Qo'ng'iroq",
   "levelLabel": "Daraja",
+  "searchPh": "Mijoz ismi yoki lavozimi bo'yicha izlash...",
+  "viewGrid": "Katak",
+  "viewList": "Ro'yxat",
+  "settingsTitle": "Suhbat sozlamalari",
+  "settingsLevel": "Qiyinlik",
+  "settingsRejim": "Rejim",
+  "settingsTil": "Til rejimi",
+  "settingsClose": "Yopish",
+  "tilSofOzbek": "Sof o'zbekcha",
+  "tilAralash": "Aralash",
+  "tilRus": "Ruscha aralash",
   "personaHint": {
     "qimmatchi": "Narxni cho'zadi, chegirma so'raydi",
     "shubhali": "Har narsaga shubha, dalil so'raydi",
@@ -38,7 +49,7 @@
   "customDesc": "Qo'shimcha kontekst · ixtiyoriy",
   "customDescPh": "Masalan: doim narxni cho'zadi, raqobatchini ro'kach qiladi, qaror qilishga shoshmaydi...",
   "customBtn": "Mijoz yaratish",
-  "customHint": "Hozircha demo — saqlangan mijozlar keyingi bosqichda Supabase'da turadi.",
+  "customHint": "Yaratilgan mijozlar shu qurilmada saqlanadi; hisobingizga bog'lash keyingi bosqichda (Supabase).",
   "createdTitle": "Yaratilgan mijozlaringiz",
   "resultEmpty": "Bu filtrga mos ssenariy yo'q."
 }

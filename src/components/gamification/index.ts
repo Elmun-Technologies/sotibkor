@@ -15,3 +15,5 @@ export { TrendChart } from "./TrendChart";
 export type { TrendChartProps } from "./TrendChart";
 export { ActivityCalendar } from "./ActivityCalendar";
 export type { ActivityCalendarProps } from "./ActivityCalendar";
+export { RadarChart } from "./RadarChart";
+export type { RadarChartProps, RadarAxis } from "./RadarChart";

@@ -129,17 +129,25 @@ export const SCENARIOS: Scenario[] = [
   },
 ];
 
-/** Trener sahifasiga preset uchun query string. */
-export function scenarioHref(s: Scenario): string {
+/** Ssenariyni boshlashdan oldin foydalanuvchi o'zgartira oladigan sozlamalar. */
+export interface ScenarioOverrides {
+  level?: number;
+  rejim?: RejimKey;
+  tilRejimi?: string;
+}
+
+/** Trener sahifasiga preset uchun query string (ixtiyoriy override'lar bilan). */
+export function scenarioHref(s: Scenario, o?: ScenarioOverrides): string {
   const q = new URLSearchParams({
     soha: s.soha,
     persona: s.persona,
-    level: String(s.level),
-    rejim: s.rejim,
+    level: String(o?.level ?? s.level),
+    rejim: o?.rejim ?? s.rejim,
     focus: s.focus,
     name: s.name,
     lavozim: s.lavozim,
   });
+  if (o?.tilRejimi) q.set("tilRejimi", o.tilRejimi);
   return `/trener?${q.toString()}`;
 }
 

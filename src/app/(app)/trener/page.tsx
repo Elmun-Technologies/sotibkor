@@ -10,6 +10,7 @@ import {
   isPersonaKey,
   isRejimKey,
   isSohaKey,
+  isTilRejimKey,
   personaForObjection,
   type PersonaKey,
   type SohaKey,
@@ -126,6 +127,8 @@ export default function TrenerPage() {
     if (Number.isFinite(ql) && ql >= 1 && ql <= 6) setLevel(Math.floor(ql));
     const qr = p.get("rejim");
     if (qr && isRejimKey(qr)) setRejim(qr);
+    const qt = p.get("tilRejimi");
+    if (qt && isTilRejimKey(qt)) setTilRejimi(qt);
     const qn = p.get("name");
     if (qn) setClientName(qn);
     const qlz = p.get("lavozim");
