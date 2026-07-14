@@ -13,6 +13,7 @@ import {
   type PersonaKey,
   type SohaKey,
   type RejimKey,
+  type TilRejimKey,
 } from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
 import { interestScore, type ObjectionType } from "@/lib/coach";
@@ -49,6 +50,7 @@ export default function TrenerPage() {
   const [persona, setPersona] = useState<PersonaKey>("qimmatchi");
   const [level, setLevel] = useState(2);
   const [rejim, setRejim] = useState<RejimKey>("qongiroq");
+  const [tilRejimi, setTilRejimi] = useState<TilRejimKey>("aralash");
 
   const [turns, setTurns] = useState<Turn[]>([]);
   const [streaming, setStreaming] = useState("");
@@ -254,7 +256,14 @@ export default function TrenerPage() {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ soha, persona, level, rejim, history }),
+          body: JSON.stringify({
+            soha,
+            persona,
+            level,
+            rejim,
+            tilRejimi,
+            history,
+          }),
         });
         if (!res.ok) throw new Error(`chat_failed_${res.status}`);
         const reader = res.body?.getReader();
@@ -297,7 +306,17 @@ export default function TrenerPage() {
         setBusy(false);
       }
     },
-    [busy, turns, soha, persona, level, rejim, playSentence, stopSpeaking],
+    [
+      busy,
+      turns,
+      soha,
+      persona,
+      level,
+      rejim,
+      tilRejimi,
+      playSentence,
+      stopSpeaking,
+    ],
   );
 
   const toggleMic = useCallback(async () => {
@@ -443,10 +462,12 @@ export default function TrenerPage() {
           persona={persona}
           level={level}
           rejim={rejim}
+          tilRejimi={tilRejimi}
           onSoha={setSoha}
           onPersona={setPersona}
           onLevel={setLevel}
           onRejim={setRejim}
+          onTilRejimi={setTilRejimi}
           onStart={startSession}
           recommendedPersona={recommendedPersona}
           starting={starting}

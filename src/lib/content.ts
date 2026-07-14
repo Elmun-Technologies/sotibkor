@@ -21,6 +21,16 @@ export function isRejimKey(v: string): v is RejimKey {
   return v === "qongiroq" || v === "yuzma_yuz";
 }
 
+/**
+ * Til rejimi — persona qay darajada rus so'z/ibora aralashtirishi (moat: closeme
+ * faqat rus tilida, biz O'zbekiston reali — jaydari o'zbek/aralash/rus kod-almashtirish).
+ */
+export type TilRejimKey = "sof_ozbek" | "aralash" | "rus";
+export const TIL_REJIM_KEYS: TilRejimKey[] = ["sof_ozbek", "aralash", "rus"];
+export function isTilRejimKey(v: string): v is TilRejimKey {
+  return v === "sof_ozbek" || v === "aralash" || v === "rus";
+}
+
 export interface Soha {
   key: SohaKey;
   /** Persona promptidagi {{mahsulot}} uchun namunaviy mahsulot konteksti. */
