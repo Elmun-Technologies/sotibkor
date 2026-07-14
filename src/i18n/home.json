@@ -8,9 +8,17 @@
   "streakStart": "bugun boshla",
   "objTitle": "Kun e'tirozi",
   "objBest": "Eng yaxshi javob",
+  "objCountdown": "Keyingi e'tirozgacha",
   "repeat": "Takrorlash",
   "favorite": "Sevimlilarga",
+  "favorited": "Sevimlilarda",
   "train": "Mashq qilish",
+  "checklistTitle": "Boshlash uchun 3 qadam",
+  "checklistStep1": "Ro'yxatdan o'tish",
+  "checklistStep2": "Profilni to'ldirish",
+  "checklistStep3": "Birinchi suhbatni yakunlash",
+  "checklistCta": "Boshlash",
+  "checklistProfileCta": "Profilni to'ldirish",
   "quoteTitle": "Kun fikri",
   "callsTitle": "Mening qo'ng'iroqlarim",
   "callsSeeAll": "Barchasini ko'rish",
@@ -28,19 +36,23 @@
   "quotes": [
     {
       "t": "Mijoz \"qimmat\" demaydi, agar qiymatni ko'rsa. Narx bilan emas, qiymat bilan ishla.",
-      "a": "Gevin Kennedi"
+      "a": "Gevin Kennedi",
+      "s": "\"Muzokara qila olish\" kitobi"
     },
     {
       "t": "Odamlar sotib olishni yaxshi ko'radi, lekin ularga sotishni yoqtirmaydi.",
-      "a": "Jeffri Gitomer"
+      "a": "Jeffri Gitomer",
+      "s": "\"Sotuvning oltin qoidalari\""
     },
     {
       "t": "Eng yaxshi sotuvchilar — eng yaxshi tinglovchilar.",
-      "a": "Sotuv qoidasi"
+      "a": "Sotuv qoidasi",
+      "s": "Klassik sotuv tamoyili"
     },
     {
       "t": "\"Yo'q\" — bu \"hozircha yetarli ma'lumot yo'q\" degani.",
-      "a": "Sotuv qoidasi"
+      "a": "Sotuv qoidasi",
+      "s": "Klassik sotuv tamoyili"
     }
   ]
 }

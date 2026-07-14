@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
 import { PageShell, Card, Button, Eyebrow, AppLoading } from "@/components/ui";
-import { TrendChart } from "@/components/gamification";
+import { TrendChart, RadarChart } from "@/components/gamification";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { getUser, type Role } from "@/lib/auth";
 import {
   MOCK_USER,
   MOCK_SCORE_HISTORY,
+  MOCK_SKILLS,
   MOCK_FUNNEL,
   MOCK_OBJECTION_STATS,
 } from "@/lib/mock";
@@ -29,10 +30,22 @@ function weakestStage(row: TeamRow): (typeof FUNNEL_STAGES)[number] {
   );
 }
 
+type RangeKey = "r7" | "r30" | "all";
+const RANGE_COUNT: Record<RangeKey, number> = { r7: 7, r30: 30, all: Infinity };
+
+const SKILL_KEYS = [
+  "salomlashish",
+  "ehtiyoj_aniqlash",
+  "otkazlarga_ishlov",
+  "closing",
+  "ohang",
+] as const;
+
 export default function AnalitikaPage() {
   const ready = useAuthGate("/analitika");
   const [role, setRole] = useState<Role>("menejer");
   const [team, setTeam] = useState<TeamRow[]>([]);
+  const [range, setRange] = useState<RangeKey>("r30");
 
   useEffect(() => {
     if (ready) setRole(getUser()?.role ?? "menejer");
@@ -60,12 +73,28 @@ export default function AnalitikaPage() {
     [team],
   );
 
+  // Sana oralig'i — trend va o'rtacha ballni tanlangan davr bo'yicha kesadi.
+  const rangedHistory = useMemo(() => {
+    const n = RANGE_COUNT[range];
+    return n === Infinity ? MOCK_SCORE_HISTORY : MOCK_SCORE_HISTORY.slice(-n);
+  }, [range]);
+
   const avgScore = useMemo(
     () =>
-      Math.round(
-        MOCK_SCORE_HISTORY.reduce((s, v) => s + v, 0) /
-          MOCK_SCORE_HISTORY.length,
-      ),
+      rangedHistory.length === 0
+        ? 0
+        : Math.round(
+            rangedHistory.reduce((s, v) => s + v, 0) / rangedHistory.length,
+          ),
+    [rangedHistory],
+  );
+
+  const radarAxes = useMemo(
+    () =>
+      SKILL_KEYS.map((k) => ({
+        label: t.analitika.skills[k],
+        value: MOCK_SKILLS[k],
+      })),
     [],
   );
 
@@ -141,7 +170,30 @@ export default function AnalitikaPage() {
         </Card>
       )}
 
-      <div className="mb-6 text-sm text-muted">{t.analitika.period}</div>
+      {/* Sana oralig'i */}
+      <div className="mb-6 flex gap-1 rounded-full border border-border p-1 w-fit">
+        {(
+          [
+            ["r7", t.analitika.range7],
+            ["r30", t.analitika.range30],
+            ["all", t.analitika.rangeAll],
+          ] as const
+        ).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setRange(key)}
+            aria-pressed={range === key}
+            className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
+              range === key
+                ? "bg-ink text-onink"
+                : "text-muted hover:text-foreground"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       {/* Ustki statistikalar */}
       <div className="grid gap-4 sm:grid-cols-3">
@@ -180,7 +232,18 @@ export default function AnalitikaPage() {
           <h2 className="text-lg font-semibold tracking-tight">
             {t.analitika.trendTitle}
           </h2>
-          <TrendChart data={MOCK_SCORE_HISTORY} />
+          <TrendChart data={rangedHistory} />
+        </Card>
+
+        {/* Ko'nikma profili (radar) */}
+        <Card className="flex flex-col gap-3">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">
+              {t.analitika.skillsTitle}
+            </h2>
+            <p className="text-sm text-muted">{t.analitika.skillsLead}</p>
+          </div>
+          <RadarChart axes={radarAxes} />
         </Card>
 
         {/* Voronka */}

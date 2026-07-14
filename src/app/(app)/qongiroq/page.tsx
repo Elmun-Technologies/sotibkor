@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
 import {
   PageShell,
@@ -15,13 +15,24 @@ import {
   DIFFICULTIES,
   scenarioHref,
   type Difficulty,
+  type Scenario,
+  type ScenarioOverrides,
 } from "@/lib/scenarios";
 import {
   SOHA_KEYS,
   PERSONA_KEYS,
+  REJIM_KEYS,
+  TIL_REJIM_KEYS,
   type SohaKey,
   type PersonaKey,
+  type RejimKey,
+  type TilRejimKey,
 } from "@/lib/content";
+import {
+  getCustomClients,
+  saveCustomClients,
+  type CustomClient,
+} from "@/lib/customClients";
 
 const t = getMessages();
 
@@ -50,14 +61,16 @@ function DiffBadge({ d }: { d: Difficulty }) {
   );
 }
 
-interface CustomClient {
-  id: string;
-  name: string;
-  company: string;
-  soha: SohaKey;
-  persona: PersonaKey;
-  desc: string;
-}
+const REJIM_LABEL: Record<RejimKey, string> = {
+  qongiroq: t.trener.rejimQongiroq,
+  yuzma_yuz: t.trener.rejimYuzmaYuz,
+};
+
+const TIL_LABEL: Record<TilRejimKey, string> = {
+  sof_ozbek: t.qongiroq.tilSofOzbek,
+  aralash: t.qongiroq.tilAralash,
+  rus: t.qongiroq.tilRus,
+};
 
 function customHref(c: CustomClient): string {
   const q = new URLSearchParams({
@@ -74,6 +87,12 @@ function customHref(c: CustomClient): string {
 export default function QongiroqPage() {
   const [soha, setSoha] = useState<SohaKey | "all">("all");
   const [diff, setDiff] = useState<Difficulty | "all">("all");
+  const [query, setQuery] = useState("");
+  const [view, setView] = useState<"grid" | "list">("grid");
+  const [openSettings, setOpenSettings] = useState<string | null>(null);
+  const [overrides, setOverrides] = useState<Record<string, ScenarioOverrides>>(
+    {},
+  );
 
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
@@ -86,20 +105,57 @@ export default function QongiroqPage() {
 
   const ready = useAuthGate("/qongiroq");
 
-  const list = useMemo(
-    () =>
-      SCENARIOS.filter(
-        (s) =>
-          (soha === "all" || s.soha === soha) &&
-          (diff === "all" || s.difficulty === diff),
-      ),
-    [soha, diff],
-  );
+  // Yaratilgan mijozlar localStorage'da saqlanadi (jonli, reload'da yo'qolmaydi).
+  useEffect(() => {
+    setCreated(getCustomClients());
+  }, []);
+
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return SCENARIOS.filter(
+      (s) =>
+        (soha === "all" || s.soha === soha) &&
+        (diff === "all" || s.difficulty === diff) &&
+        (q === "" ||
+          s.name.toLowerCase().includes(q) ||
+          s.lavozim.toLowerCase().includes(q) ||
+          t.personalar[s.persona].toLowerCase().includes(q) ||
+          t.qongiroq.personaHint[s.persona].toLowerCase().includes(q)),
+    );
+  }, [soha, diff, query]);
 
   if (!ready) return <AppLoading />;
 
+  const setOverride = (id: string, patch: ScenarioOverrides) =>
+    setOverrides((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
+
   return (
     <PageShell title={t.qongiroq.title} lead={t.qongiroq.subtitle}>
+      {/* Qidiruv + ko'rinish */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t.qongiroq.searchPh}
+          aria-label={t.qongiroq.searchPh}
+          className="min-w-0 flex-1 rounded-full border border-border bg-surface px-4 py-2.5 text-sm outline-none transition placeholder:text-faint focus:border-foreground/40"
+        />
+        <div className="flex shrink-0 gap-1 rounded-full border border-border p-1">
+          <ViewToggleBtn
+            active={view === "grid"}
+            onClick={() => setView("grid")}
+          >
+            {t.qongiroq.viewGrid}
+          </ViewToggleBtn>
+          <ViewToggleBtn
+            active={view === "list"}
+            onClick={() => setView("list")}
+          >
+            {t.qongiroq.viewList}
+          </ViewToggleBtn>
+        </div>
+      </div>
+
       {/* Filtrlar */}
       <div className="mb-6 flex flex-col gap-3">
         <div className="flex flex-wrap gap-2">
@@ -130,51 +186,25 @@ export default function QongiroqPage() {
           {t.qongiroq.resultEmpty}
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          className={
+            view === "grid"
+              ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+              : "flex flex-col gap-3"
+          }
+        >
           {list.map((s) => (
-            <Card key={s.id} interactive className="flex flex-col gap-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <PersonaAvatar persona={s.persona} size={48} />
-                  <div>
-                    <p className="font-semibold tracking-tight text-foreground">
-                      {s.name}
-                    </p>
-                    <p className="text-xs text-muted">
-                      {s.lavozim} · {t.sohalar[s.soha]}
-                    </p>
-                  </div>
-                </div>
-                <DiffBadge d={s.difficulty} />
-              </div>
-
-              <p className="text-sm leading-relaxed text-muted">
-                {t.qongiroq.personaHint[s.persona]}
-              </p>
-
-              <div className="flex items-center gap-3 text-xs text-muted">
-                <span className="inline-flex items-center gap-1.5">
-                  <span
-                    className="h-1.5 w-1.5 rounded-full bg-[color:var(--accent)]"
-                    aria-hidden
-                  />
-                  {s.rejim === "qongiroq"
-                    ? t.trener.rejimQongiroq
-                    : t.trener.rejimYuzmaYuz}
-                </span>
-                <span aria-hidden>·</span>
-                <span>
-                  {t.qongiroq.focusLabel}: {t.qongiroq.focus[s.focus]}
-                </span>
-              </div>
-
-              <div className="mt-auto flex items-center gap-2 border-t border-hair pt-4">
-                <span className="mr-auto font-mono text-xs tabular-nums text-faint">
-                  {t.qongiroq.levelLabel} {s.level}
-                </span>
-                <Button href={scenarioHref(s)}>{t.qongiroq.call}</Button>
-              </div>
-            </Card>
+            <ScenarioCard
+              key={s.id}
+              s={s}
+              view={view}
+              override={overrides[s.id] ?? {}}
+              settingsOpen={openSettings === s.id}
+              onToggleSettings={() =>
+                setOpenSettings((cur) => (cur === s.id ? null : s.id))
+              }
+              onOverride={(patch) => setOverride(s.id, patch)}
+            />
           ))}
         </div>
       )}
@@ -296,17 +326,21 @@ export default function QongiroqPage() {
             <Button
               onClick={() => {
                 if (!name.trim()) return;
-                setCreated((list) => [
-                  ...list,
-                  {
-                    id: `${Date.now()}-${list.length}`,
-                    name: name.trim(),
-                    company: company.trim(),
-                    soha: customSoha,
-                    persona: customPersona,
-                    desc: desc.trim(),
-                  },
-                ]);
+                setCreated((list) => {
+                  const next = [
+                    ...list,
+                    {
+                      id: `${list.length}-${name.trim()}-${customPersona}`,
+                      name: name.trim(),
+                      company: company.trim(),
+                      soha: customSoha,
+                      persona: customPersona,
+                      desc: desc.trim(),
+                    },
+                  ];
+                  saveCustomClients(next);
+                  return next;
+                });
                 setName("");
                 setCompany("");
                 setDesc("");
@@ -349,5 +383,187 @@ function Pill({
     >
       {children}
     </button>
+  );
+}
+
+function ViewToggleBtn({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+        active ? "bg-ink text-onink" : "text-muted hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Kichik chip (sozlamalar panelidagi tanlovlar uchun). */
+function MiniChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+        active
+          ? "bg-ink text-onink"
+          : "border border-border text-muted hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+const LEVELS = [1, 2, 3, 4, 5, 6];
+
+function ScenarioCard({
+  s,
+  view,
+  override,
+  settingsOpen,
+  onToggleSettings,
+  onOverride,
+}: {
+  s: Scenario;
+  view: "grid" | "list";
+  override: ScenarioOverrides;
+  settingsOpen: boolean;
+  onToggleSettings: () => void;
+  onOverride: (patch: ScenarioOverrides) => void;
+}) {
+  const level = override.level ?? s.level;
+  const rejim: RejimKey = override.rejim ?? s.rejim;
+  const til = (override.tilRejimi as TilRejimKey | undefined) ?? "aralash";
+
+  return (
+    <Card interactive className="flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <PersonaAvatar persona={s.persona} size={48} />
+          <div>
+            <p className="font-semibold tracking-tight text-foreground">
+              {s.name}
+            </p>
+            <p className="text-xs text-muted">
+              {s.lavozim} · {t.sohalar[s.soha]}
+            </p>
+          </div>
+        </div>
+        <DiffBadge d={s.difficulty} />
+      </div>
+
+      {view === "grid" && (
+        <p className="text-sm leading-relaxed text-muted">
+          {t.qongiroq.personaHint[s.persona]}
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            className="h-1.5 w-1.5 rounded-full bg-[color:var(--accent)]"
+            aria-hidden
+          />
+          {REJIM_LABEL[rejim]}
+        </span>
+        <span aria-hidden>·</span>
+        <span>
+          {t.qongiroq.focusLabel}: {t.qongiroq.focus[s.focus]}
+        </span>
+      </div>
+
+      {settingsOpen && (
+        <div className="inset flex flex-col gap-3 p-4">
+          <span className="font-mono text-[11px] uppercase tracking-widest text-muted">
+            {t.qongiroq.settingsTitle}
+          </span>
+          <div>
+            <span className="mb-1.5 block text-xs text-muted">
+              {t.qongiroq.settingsLevel}
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {LEVELS.map((l) => (
+                <MiniChip
+                  key={l}
+                  active={level === l}
+                  onClick={() => onOverride({ level: l })}
+                >
+                  {l}
+                </MiniChip>
+              ))}
+            </div>
+          </div>
+          <div>
+            <span className="mb-1.5 block text-xs text-muted">
+              {t.qongiroq.settingsRejim}
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {REJIM_KEYS.map((r) => (
+                <MiniChip
+                  key={r}
+                  active={rejim === r}
+                  onClick={() => onOverride({ rejim: r })}
+                >
+                  {REJIM_LABEL[r]}
+                </MiniChip>
+              ))}
+            </div>
+          </div>
+          <div>
+            <span className="mb-1.5 block text-xs text-muted">
+              {t.qongiroq.settingsTil}
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {TIL_REJIM_KEYS.map((r) => (
+                <MiniChip
+                  key={r}
+                  active={til === r}
+                  onClick={() => onOverride({ tilRejimi: r })}
+                >
+                  {TIL_LABEL[r]}
+                </MiniChip>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-auto flex items-center gap-2 border-t border-hair pt-4">
+        <span className="mr-auto font-mono text-xs tabular-nums text-faint">
+          {t.qongiroq.levelLabel} {level}
+        </span>
+        <button
+          type="button"
+          onClick={onToggleSettings}
+          aria-pressed={settingsOpen}
+          aria-label={t.qongiroq.settingsTitle}
+          className="rounded-full border border-border px-3 py-2 text-sm text-muted transition hover:text-foreground"
+        >
+          ⚙
+        </button>
+        <Button href={scenarioHref(s, override)}>{t.qongiroq.call}</Button>
+      </div>
+    </Card>
   );
 }

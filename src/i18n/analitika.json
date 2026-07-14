@@ -2,6 +2,18 @@
   "title": "Analitika",
   "subtitle": "O'sishingizni raqamda ko'ring — trend, voronka, e'tirozlar va xatolar.",
   "period": "Oxirgi 30 kun",
+  "range7": "7 kun",
+  "range30": "30 kun",
+  "rangeAll": "Hammasi",
+  "skillsTitle": "Ko'nikma profili",
+  "skillsLead": "5 baholash o'lchovi bo'yicha o'rtacha",
+  "skills": {
+    "salomlashish": "Salomlashish",
+    "ehtiyoj_aniqlash": "Ehtiyoj",
+    "otkazlarga_ishlov": "Otkazlar",
+    "closing": "Yopish",
+    "ohang": "Ohang"
+  },
   "levelLabel": "Umumiy daraja",
   "sessionsLabel": "Bu davrda trening",
   "avgScoreLabel": "O'rtacha ball",

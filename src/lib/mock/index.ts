@@ -83,6 +83,26 @@ export const MOCK_SCORE_HISTORY: number[] = [
   38, 45, 52, 49, 61, 58, 67, 72, 78,
 ];
 
+/**
+ * Ko'nikma profili — 5 baholash o'lchovi bo'yicha o'rtacha foiz (0..100),
+ * radar diagramma uchun (Analitika). Kalitlar scoring.ts ScoreBreakdown bilan
+ * bir xil; qiymatlar normallashtirilgan (har o'lchov o'z maksimumidan foiz).
+ */
+export const MOCK_SKILLS: Record<
+  | "salomlashish"
+  | "ehtiyoj_aniqlash"
+  | "otkazlarga_ishlov"
+  | "closing"
+  | "ohang",
+  number
+> = {
+  salomlashish: 82,
+  ehtiyoj_aniqlash: 64,
+  otkazlarga_ishlov: 48,
+  closing: 55,
+  ohang: 74,
+};
+
 /** Faollik kalendari uchun — shu oyda mashq qilingan kunlar (1-based). */
 export const MOCK_ACTIVE_DAYS: number[] = [1, 2, 3, 5, 6, 8];
 

@@ -4,11 +4,27 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { Card, Button, Eyebrow, AppLoading } from "@/components/ui";
-import { getUser } from "@/lib/auth";
+import { getUser, isOnboarded } from "@/lib/auth";
 import { useAuthGate } from "@/lib/useAuthGate";
+import { hasFinishedSession } from "@/lib/progress";
+import { getFavorites, toggleFavorite } from "@/lib/favorites";
 import { OBJECTION_LIBRARY } from "@/lib/objections";
 import type { ObjectionType } from "@/lib/coach";
 import type { PersonaKey } from "@/lib/content";
+
+/** Yarim tundagacha qolgan vaqt (soat:daqiqa) — keyingi kun e'tirozi. */
+function msToMidnight(now: Date): number {
+  const next = new Date(now);
+  next.setHours(24, 0, 0, 0);
+  return next.getTime() - now.getTime();
+}
+
+function fmtCountdown(ms: number): string {
+  const totalMin = Math.max(0, Math.floor(ms / 60000));
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return `${h}s ${m}d`;
+}
 
 const t = getMessages();
 
@@ -37,10 +53,19 @@ export default function HomePage() {
   const [name, setName] = useState("");
   const [greet, setGreet] = useState(t.home.greetDay);
   const [dayIdx, setDayIdx] = useState(0);
+  const [profileDone, setProfileDone] = useState(false);
+  const [sessionDone, setSessionDone] = useState(false);
+  const [isFav, setIsFav] = useState(false);
+  const [countdown, setCountdown] = useState<string | null>(null);
+
+  const obj = OBJECTION_LIBRARY[dayIdx % OBJECTION_LIBRARY.length];
+  const quote = t.home.quotes[dayIdx % t.home.quotes.length];
 
   useEffect(() => {
     if (!ready) return;
     setName(getUser()?.name ?? "");
+    setProfileDone(isOnboarded());
+    setSessionDone(hasFinishedSession());
     const now = new Date();
     const h = now.getHours();
     setGreet(
@@ -55,10 +80,33 @@ export default function HomePage() {
     setDayIdx(now.getDate());
   }, [ready]);
 
-  const obj = OBJECTION_LIBRARY[dayIdx % OBJECTION_LIBRARY.length];
-  const quote = t.home.quotes[dayIdx % t.home.quotes.length];
+  // Sevimli holatini shu kunning e'tirozi bo'yicha o'qiymiz.
+  useEffect(() => {
+    if (!ready) return;
+    setIsFav(getFavorites().has(obj.id));
+  }, [ready, obj.id]);
+
+  // Keyingi kun e'tirozigacha countdown (har daqiqa yangilanadi).
+  useEffect(() => {
+    if (!ready) return;
+    const tick = () => setCountdown(fmtCountdown(msToMidnight(new Date())));
+    tick();
+    const id = window.setInterval(tick, 60000);
+    return () => window.clearInterval(id);
+  }, [ready]);
 
   if (!ready) return <AppLoading />;
+
+  const onToggleFav = () => setIsFav(toggleFavorite(obj.id).has(obj.id));
+
+  // Boshlash checklisti — HAQIQIY lokal signallardan (hardcode emas):
+  // ro'yxatdan o'tgan (bu sahifada = ha), profil to'ldirilgan, birinchi suhbat.
+  const steps = [
+    { label: t.home.checklistStep1, done: true },
+    { label: t.home.checklistStep2, done: profileDone },
+    { label: t.home.checklistStep3, done: sessionDone },
+  ];
+  const allDone = steps.every((s) => s.done);
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -84,14 +132,65 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Boshlash checklisti — barcha qadam bajarilgach yashiriladi */}
+      {!allDone && (
+        <Card className="mb-4 flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <span aria-hidden>🚀</span>
+            <h2 className="text-xl font-semibold tracking-tight">
+              {t.home.checklistTitle}
+            </h2>
+          </div>
+          <ul className="flex flex-col gap-2">
+            {steps.map((s) => (
+              <li key={s.label} className="flex items-center gap-3 text-[15px]">
+                <span
+                  aria-hidden
+                  className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs"
+                  style={{
+                    background: s.done
+                      ? "color-mix(in srgb, var(--good) 18%, transparent)"
+                      : "var(--surface2)",
+                    color: s.done ? "var(--good)" : "var(--muted)",
+                  }}
+                >
+                  {s.done ? "✓" : ""}
+                </span>
+                <span
+                  className={
+                    s.done ? "text-muted line-through" : "text-foreground"
+                  }
+                >
+                  {s.label}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="flex flex-wrap gap-2">
+            {!profileDone ? (
+              <Button href="/onboarding">{t.home.checklistProfileCta}</Button>
+            ) : (
+              <Button href="/dars">{t.home.checklistCta}</Button>
+            )}
+          </div>
+        </Card>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Kun e'tirozi */}
         <Card className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <span aria-hidden>⚡</span>
-            <h2 className="text-xl font-semibold tracking-tight">
-              {t.home.objTitle}
-            </h2>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span aria-hidden>⚡</span>
+              <h2 className="text-xl font-semibold tracking-tight">
+                {t.home.objTitle}
+              </h2>
+            </div>
+            {countdown && (
+              <span className="font-mono text-xs tabular-nums text-muted">
+                {t.home.objCountdown}: {countdown}
+              </span>
+            )}
           </div>
           <p className="text-lg font-medium">«{obj.text}»</p>
           <div className="inset p-4">
@@ -104,7 +203,25 @@ export default function HomePage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button href={trainHref(obj.type)}>{t.home.train}</Button>
-            <Button variant="ghost">☆ {t.home.favorite}</Button>
+            <Button href="/etirozlar" variant="ghost">
+              ↻ {t.home.repeat}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={onToggleFav}
+              aria-pressed={isFav}
+              style={
+                isFav
+                  ? {
+                      borderColor:
+                        "color-mix(in srgb, var(--warn) 45%, transparent)",
+                      color: "var(--warn)",
+                    }
+                  : undefined
+              }
+            >
+              {isFav ? "★" : "☆"} {isFav ? t.home.favorited : t.home.favorite}
+            </Button>
           </div>
         </Card>
 
@@ -121,7 +238,12 @@ export default function HomePage() {
             <div className="grid h-10 w-10 place-items-center rounded-full bg-surface2 text-sm font-semibold">
               {quote.a.charAt(0)}
             </div>
-            <span className="text-sm text-muted">{quote.a}</span>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-foreground">
+                {quote.a}
+              </span>
+              <span className="text-xs text-muted">{quote.s}</span>
+            </div>
           </div>
         </Card>
 

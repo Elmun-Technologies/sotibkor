@@ -10,6 +10,7 @@ import {
   isPersonaKey,
   isRejimKey,
   isSohaKey,
+  isTilRejimKey,
   personaForObjection,
   type PersonaKey,
   type SohaKey,
@@ -17,6 +18,8 @@ import {
   type TilRejimKey,
 } from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
+import { uploadClip } from "@/lib/archiveClient";
+import { markFirstSessionDone } from "@/lib/progress";
 import {
   interestScore,
   liveHint,
@@ -99,6 +102,15 @@ export default function TrenerPage() {
   const cancelRef = useRef(false); // barge-in: joriy nutqni bekor qilish
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Arxiv (Batch C): audio klip yuklash uchun — ref orqali o'qiladi (playSentence/
+  // toggleMic'ning stabil identity'siga sessionId'ni dep sifatida qo'shmaslik uchun).
+  const sessionIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    sessionIdRef.current = sessionId;
+  }, [sessionId]);
+  const mijozClipRef = useRef(0);
+  const sotuvchiClipRef = useRef(0);
+
   // Dars sahifasidan preset (/trener?soha=..&persona=..&level=..&rejim=..):
   // to'g'ri parametrlar bo'lsa sozlash tayyor va suhbat darrov boshlanadi.
   // Dars sahifasidan preset (/trener?soha=..&persona=..&level=..&rejim=..):
@@ -115,6 +127,8 @@ export default function TrenerPage() {
     if (Number.isFinite(ql) && ql >= 1 && ql <= 6) setLevel(Math.floor(ql));
     const qr = p.get("rejim");
     if (qr && isRejimKey(qr)) setRejim(qr);
+    const qt = p.get("tilRejimi");
+    if (qt && isTilRejimKey(qt)) setTilRejimi(qt);
     const qn = p.get("name");
     if (qn) setClientName(qn);
     const qlz = p.get("lavozim");
@@ -185,6 +199,17 @@ export default function TrenerPage() {
             ttsModeRef.current = "aisha";
             if (cancelRef.current) return;
             const buf = await res.arrayBuffer();
+            const mimeType = res.headers.get("Content-Type") ?? "audio/mpeg";
+            // Arxiv (Batch C): mijoz ovozini fon rejimida saqlaymiz — kutmaymiz,
+            // audio pleyer kritik yo'liga (STT→LLM→TTS) hech qanday ta'sir qilmaydi.
+            if (sessionIdRef.current) {
+              uploadClip(
+                sessionIdRef.current,
+                "mijoz",
+                mijozClipRef.current++,
+                new Blob([buf], { type: mimeType }),
+              );
+            }
             const url = URL.createObjectURL(new Blob([buf]));
             const audio = new Audio(url);
             audioRef.current = audio;
@@ -366,6 +391,15 @@ export default function TrenerPage() {
         setRecording(false);
         setRecognizing(true); // STT javobini kutayapmiz — foydalanuvchiga feedback
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        // Arxiv (Batch C): sotuvchi ovozini fon rejimida saqlaymiz.
+        if (sessionIdRef.current) {
+          uploadClip(
+            sessionIdRef.current,
+            "sotuvchi",
+            sotuvchiClipRef.current++,
+            blob,
+          );
+        }
         const form = new FormData();
         form.append("audio", blob, "rec.webm");
         try {
@@ -416,6 +450,9 @@ export default function TrenerPage() {
       }
       setScore(data as ScoreResult);
       setStage("result");
+      // Onboarding checklist uchun HAQIQIY signal (mock rejimda ham jonli):
+      // birinchi yakunlangan suhbatni lokal belgilaymiz.
+      markFirstSessionDone();
       // Sessiyani orqa fonda saqlaymiz — Supabase sozlanmagan bo'lsa
       // route jimgina no-op qiladi, natija ekraniga bu bog'liq emas.
       void fetch("/api/session", {
@@ -480,6 +517,8 @@ export default function TrenerPage() {
     setClientLavozim(null);
     setMetrics({ llmFirst: null, ttsFirst: null, total: null });
     ttsModeRef.current = "probe";
+    mijozClipRef.current = 0;
+    sotuvchiClipRef.current = 0;
   };
 
   // ---------- render ----------

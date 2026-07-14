@@ -1,0 +1,21 @@
+{
+  "title": "Arxiv",
+  "subtitle": "O'tgan suhbatlaringiz — to'liq transkript va audio yozuvlar bilan.",
+  "mockNote": "Suhbat tarixi Supabase ulanganda saqlanadi va shu yerda ko'rinadi (hozir demo rejim — hech narsa saqlanmaydi).",
+  "empty": "Hali yakunlangan suhbat yo'q. Birinchi mashqingizni tugatgach, shu yerda ko'rinadi.",
+  "loading": "Yuklanmoqda...",
+  "scoreLabel": "Ball",
+  "noScore": "Baholanmagan",
+  "view": "Ko'rish",
+  "close": "Yopish",
+  "backToList": "Ro'yxatga qaytish",
+  "transcriptTitle": "Transkript",
+  "audioTitle": "Audio yozuvlar",
+  "noAudio": "Bu suhbat uchun audio yozuv saqlanmagan.",
+  "audioClientLabel": "Mijoz ovozi",
+  "audioSellerLabel": "Sotuvchi ovozi",
+  "detailError": "Suhbat tafsilotini yuklab bo'lmadi.",
+  "mistakesTitle": "Xatolar",
+  "strengthsTitle": "Kuchli tomonlar",
+  "xpLabel": "XP"
+}
