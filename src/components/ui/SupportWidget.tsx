@@ -108,7 +108,7 @@ export function SupportWidget() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border border-[color:var(--good)]/30 bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-[var(--shadow-card)] transition-all duration-150 hover:bg-[color:var(--good)]/[.08] active:scale-[0.96]"
+        className="fixed bottom-5 left-5 z-40 inline-flex items-center gap-2 rounded-full border border-[color:var(--good)]/30 bg-surface px-4 py-3 text-sm font-medium text-foreground shadow-[var(--shadow-card)] transition-all duration-150 hover:bg-[color:var(--good)]/[.08] active:scale-[0.96]"
       >
         <span aria-hidden className="text-[color:var(--good)]">
           <svg

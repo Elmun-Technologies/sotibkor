@@ -60,14 +60,17 @@ export const MOCK_USER: UserStats = {
   sessionsCount: 18,
   streakDays: 4,
   lastActive: "2026-07-08",
+  xpThisWeek: 540,
 };
 
+// "Siz" qatori MOCK_USER.xpThisWeek'dan olinadi — Profil/Reyting/Analitika
+// bitta XP manbasidan (MOCK_USER) o'qiydi, ikkinchi mustaqil raqam bo'lmasin.
 export const MOCK_LEADERBOARD: LeaderboardEntry[] = [
   { rank: 1, name: "Dilshod A.", xpWeek: 820 },
   { rank: 2, name: "Nigora K.", xpWeek: 760 },
   { rank: 3, name: "Sardor M.", xpWeek: 690 },
   { rank: 4, name: "Kamola R.", xpWeek: 610 },
-  { rank: 5, name: "Siz", xpWeek: 540, isMe: true },
+  { rank: 5, name: "Siz", xpWeek: MOCK_USER.xpThisWeek, isMe: true },
   { rank: 6, name: "Jasur T.", xpWeek: 500 },
   { rank: 7, name: "Malika S.", xpWeek: 430 },
   { rank: 8, name: "Bekzod X.", xpWeek: 380 },

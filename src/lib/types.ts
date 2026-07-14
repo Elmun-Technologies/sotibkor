@@ -20,6 +20,8 @@ export interface UserStats {
   streakDays: number;
   /** ISO 'YYYY-MM-DD' yoki hali faol bo'lmagan bo'lsa null. */
   lastActive: string | null;
+  /** Shu haftada olingan XP — haftalik reyting (`MOCK_LEADERBOARD`) shu qiymatdan oladi. */
+  xpThisWeek: number;
 }
 
 export type AchievementCategory =

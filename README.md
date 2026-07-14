@@ -15,7 +15,7 @@ To'liq aylana **< 2 soniya** — bu loyihaning kritik metrikasi.
 - Next.js 14 (App Router) + TypeScript strict
 - Supabase (Postgres + Auth)
 - Aisha.ai (`mo.aisha.group`) — o'zbek STT/TTS
-- Claude API — mijoz personasi + baholovchi
+- OpenAI API (`gpt-4o-mini`, sifat kerak bo'lsa `gpt-4o`) — mijoz personasi + baholovchi
 - Tailwind + Framer Motion (dark mode, neon)
 
 ## Boshlash
