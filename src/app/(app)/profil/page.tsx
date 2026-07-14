@@ -18,7 +18,9 @@ import {
   AchievementCard,
   TrendChart,
   ActivityCalendar,
+  Certificate,
 } from "@/components/gamification";
+import { levelForXp } from "@/lib/levels";
 import {
   ACHIEVEMENTS,
   MOCK_USER,
@@ -28,7 +30,7 @@ import {
   MOCK_DAILY,
   MOCK_LONGEST,
 } from "@/lib/mock";
-import { getProfile, saveProfile, type Profile } from "@/lib/auth";
+import { getProfile, saveProfile, getUser, type Profile } from "@/lib/auth";
 import { useAuthGate } from "@/lib/useAuthGate";
 
 const t = getMessages();
@@ -187,6 +189,13 @@ function ProductSettingsCard() {
 
 export default function ProfilPage() {
   const ready = useAuthGate("/profil");
+  const [name, setName] = useState("");
+  useEffect(() => {
+    if (ready) setName(getUser()?.name ?? "");
+  }, [ready]);
+
+  const levelKey = levelForXp(MOCK_USER.xp).current.key;
+  const certDate = formatDate(MOCK_USER.lastActive);
 
   const earnedCount = MOCK_ACHIEVEMENTS.filter((a) => a.earned).length;
   const totalCount = MOCK_ACHIEVEMENTS.length;
@@ -231,6 +240,23 @@ export default function ProfilPage() {
             />
           </div>
         </div>
+      </Card>
+
+      {/* Sertifikat (10x-8) — erishgan daraja uchun ulashiladigan guvohnoma */}
+      <Card className="mb-6 flex flex-col gap-4">
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            {t.profil.certSectionTitle}
+          </h2>
+          <p className="mt-1 text-sm text-muted">{t.profil.certSectionLead}</p>
+        </div>
+        <Certificate
+          name={name || t.nav.roleMenejer}
+          levelLabel={t.profil.daraja[levelKey]}
+          xp={MOCK_USER.xp}
+          sessions={MOCK_USER.sessionsCount}
+          dateStr={certDate}
+        />
       </Card>
 
       {/* Mahsulot ma'lumotlari (tahrirlanadigan) */}
