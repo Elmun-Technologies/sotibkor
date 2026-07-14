@@ -32,6 +32,7 @@ interface ChatBody {
   level: number;
   rejim?: string;
   tilRejimi?: string;
+  mijozIsmi?: string;
   history: ChatTurn[];
 }
 
@@ -84,6 +85,8 @@ export async function POST(req: NextRequest) {
         body.tilRejimi && isTilRejimKey(body.tilRejimi)
           ? body.tilRejimi
           : "aralash";
+      const mijozIsmi =
+        body.mijozIsmi?.trim() || PERSONALAR[body.persona].defaultName;
       const systemPrompt = await loadPrompt(
         PERSONALAR[body.persona].promptFile,
         {
@@ -92,6 +95,7 @@ export async function POST(req: NextRequest) {
           level,
           rejim: REJIM_MATN[rejim],
           til_rejimi: TIL_REJIM_MATN[tilRejimi],
+          mijoz_ismi: mijozIsmi,
         },
       );
       source = streamPersona({ systemPrompt, history });

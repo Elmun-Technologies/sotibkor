@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { getMessages } from "@/i18n";
-import { Card, Chip, Button, Badge } from "@/components/ui";
+import { Card, Chip, Button, Badge, PersonaAvatar } from "@/components/ui";
 import {
   PERSONA_KEYS,
   SOHA_KEYS,
@@ -111,8 +111,11 @@ export function SetupPanel({
           <div className="flex flex-wrap gap-2">
             {PERSONA_KEYS.map((k) => (
               <Chip key={k} active={persona === k} onClick={() => onPersona(k)}>
-                {t.personalar[k]}
-                {k === recommendedPersona ? " ★" : ""}
+                <span className="inline-flex items-center gap-1.5">
+                  <PersonaAvatar persona={k} size={18} />
+                  {t.personalar[k]}
+                  {k === recommendedPersona ? " ★" : ""}
+                </span>
               </Chip>
             ))}
           </div>

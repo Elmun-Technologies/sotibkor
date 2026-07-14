@@ -68,6 +68,12 @@ describe("PERSONALAR registri", () => {
       }
     }
   });
+
+  it("har personaning standart ismi bor (jonli tanishtirish uchun)", () => {
+    for (const key of PERSONA_KEYS) {
+      expect(PERSONALAR[key].defaultName.trim().length).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe("type guard'lar", () => {

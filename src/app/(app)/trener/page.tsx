@@ -6,6 +6,7 @@ import { getMessages } from "@/i18n";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { useVoiceActivity } from "@/lib/useVoiceActivity";
 import {
+  PERSONALAR,
   isPersonaKey,
   isRejimKey,
   isSohaKey,
@@ -56,6 +57,10 @@ export default function TrenerPage() {
   const [level, setLevel] = useState(2);
   const [rejim, setRejim] = useState<RejimKey>("qongiroq");
   const [tilRejimi, setTilRejimi] = useState<TilRejimKey>("aralash");
+  // Ssenariy presetidan kelgan mijoz ismi/lavozimi (masalan /qongiroq'dan) —
+  // bo'lmasa persona standart ismiga (defaultName) tushamiz.
+  const [clientName, setClientName] = useState<string | null>(null);
+  const [clientLavozim, setClientLavozim] = useState<string | null>(null);
 
   const [turns, setTurns] = useState<Turn[]>([]);
   const [streaming, setStreaming] = useState("");
@@ -80,6 +85,10 @@ export default function TrenerPage() {
   const [recommendedPersona, setRecommendedPersona] =
     useState<PersonaKey | null>(null);
 
+  // Ssenariy nomi bo'lmasa personaning standart ismiga tushamiz — shu bilan
+  // AI doim jonli ism bilan tanishtiradi (CloseMe-solishtiruv #4).
+  const effectiveClientName = clientName ?? PERSONALAR[persona].defaultName;
+
   const ttsModeRef = useRef<"probe" | "aisha" | "web">("probe");
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -102,6 +111,10 @@ export default function TrenerPage() {
     if (Number.isFinite(ql) && ql >= 1 && ql <= 6) setLevel(Math.floor(ql));
     const qr = p.get("rejim");
     if (qr && isRejimKey(qr)) setRejim(qr);
+    const qn = p.get("name");
+    if (qn) setClientName(qn);
+    const qlz = p.get("lavozim");
+    if (qlz) setClientLavozim(qlz);
     setStage("chat");
   }, [ready]);
 
@@ -271,6 +284,7 @@ export default function TrenerPage() {
             level,
             rejim,
             tilRejimi,
+            mijozIsmi: effectiveClientName,
             history,
           }),
         });
@@ -323,6 +337,7 @@ export default function TrenerPage() {
       level,
       rejim,
       tilRejimi,
+      effectiveClientName,
       playSentence,
       stopSpeaking,
     ],
@@ -457,6 +472,8 @@ export default function TrenerPage() {
     setInterest(null);
     setCoachHint(null);
     setSessionId(null);
+    setClientName(null);
+    setClientLavozim(null);
     setMetrics({ llmFirst: null, ttsFirst: null, total: null });
     ttsModeRef.current = "probe";
   };
@@ -496,6 +513,9 @@ export default function TrenerPage() {
     return (
       <PageShell>
         <CallView
+          clientName={effectiveClientName}
+          clientLavozim={clientLavozim}
+          persona={persona}
           personaLabel={t.personalar[persona]}
           sohaLabel={t.sohalar[soha]}
           rejimLabel={

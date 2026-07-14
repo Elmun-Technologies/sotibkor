@@ -2,7 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, AppLoading } from "@/components/ui";
+import {
+  PageShell,
+  Card,
+  Button,
+  AppLoading,
+  PersonaAvatar,
+} from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
 import {
   SCENARIOS,
@@ -24,11 +30,6 @@ const DIFF_COLOR: Record<Difficulty, string> = {
   orta: "var(--warn)",
   qiyin: "var(--live)",
 };
-
-function initials(name: string): string {
-  const p = name.trim().split(/\s+/);
-  return (p[0]?.[0] ?? "?").toUpperCase();
-}
 
 function DiffBadge({ d }: { d: Difficulty }) {
   const c = DIFF_COLOR[d];
@@ -64,6 +65,8 @@ function customHref(c: CustomClient): string {
     persona: c.persona,
     level: "3",
     rejim: "qongiroq",
+    name: c.name,
+    ...(c.company ? { lavozim: c.company } : {}),
   });
   return `/trener?${q.toString()}`;
 }
@@ -132,15 +135,13 @@ export default function QongiroqPage() {
             <Card key={s.id} interactive className="flex flex-col gap-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="grid h-12 w-12 place-items-center rounded-full bg-ink text-base font-semibold text-onink">
-                    {initials(s.name)}
-                  </span>
+                  <PersonaAvatar persona={s.persona} size={48} />
                   <div>
                     <p className="font-semibold tracking-tight text-foreground">
                       {s.name}
                     </p>
                     <p className="text-xs text-muted">
-                      {t.sohalar[s.soha]} · {t.personalar[s.persona]}
+                      {s.lavozim} · {t.sohalar[s.soha]}
                     </p>
                   </div>
                 </div>
@@ -188,9 +189,7 @@ export default function QongiroqPage() {
             {created.map((c) => (
               <Card key={c.id} interactive className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <span className="grid h-12 w-12 place-items-center rounded-full bg-ink text-base font-semibold text-onink">
-                    {initials(c.name)}
-                  </span>
+                  <PersonaAvatar persona={c.persona} size={48} />
                   <div>
                     <p className="font-semibold tracking-tight text-foreground">
                       {c.name}

@@ -3,14 +3,21 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { getMessages } from "@/i18n";
-import { Button } from "@/components/ui";
+import { Button, PersonaAvatar } from "@/components/ui";
 import type { LiveHint } from "@/lib/coach";
+import type { PersonaKey } from "@/lib/content";
 
 const t = getMessages();
 
 type Turn = { role: "user" | "assistant"; content: string };
 
 export interface CallViewProps {
+  /** Mijozning real ismi (ssenariy yoki persona standart ismi) — sarlavhada ko'rinadi. */
+  clientName: string;
+  /** Mijozning lavozimi/roli — bo'lsa sarlavha ostida ko'rinadi. */
+  clientLavozim?: string | null;
+  /** Xarakter kaliti — illyustrativ avatar shu bo'yicha tanlanadi. */
+  persona: PersonaKey;
   personaLabel: string;
   sohaLabel: string;
   rejimLabel: string;
@@ -116,7 +123,6 @@ export function CallView(p: CallViewProps) {
             : t.trener.callReady;
 
   const tone = toneVar(p.interest);
-  const initial = p.personaLabel.trim().charAt(0).toUpperCase() || "M";
   const auraActive = state === "speaking" || state === "listening";
 
   return (
@@ -222,18 +228,18 @@ export function CallView(p: CallViewProps) {
             }
             transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
           />
-          <div
-            className="relative grid h-24 w-24 place-items-center rounded-full text-3xl font-semibold"
-            style={{ background: "var(--ink)", color: "var(--on-ink)" }}
-          >
-            {initial}
+          <div className="relative h-24 w-24 overflow-hidden rounded-full">
+            <PersonaAvatar persona={p.persona} size={96} />
           </div>
         </div>
 
         <div className="flex flex-col items-center gap-2">
           <div className="text-lg font-semibold tracking-tight">
-            {p.personaLabel}
+            {p.clientName}
           </div>
+          {p.clientLavozim && (
+            <div className="-mt-1.5 text-xs text-muted">{p.clientLavozim}</div>
+          )}
           <div
             className="flex items-center gap-2 text-sm"
             style={{ color: state === "ready" ? "var(--muted)" : tone }}
@@ -323,6 +329,15 @@ export function CallView(p: CallViewProps) {
               {p.personaLabel}
             </span>
           </div>
+          {p.clientLavozim && (
+            <div className="inset flex items-center gap-2 px-4 py-2.5 text-sm">
+              <span aria-hidden>💼</span>
+              <span className="text-muted">{t.trener.chipLavozim}:</span>
+              <span className="font-medium text-foreground">
+                {p.clientLavozim}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

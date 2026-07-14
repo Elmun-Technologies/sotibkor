@@ -48,6 +48,12 @@ export interface Persona {
    * src/lib/coach.ts `recommend()`) — otkaz repertuariga mos (prompts/personas/*.md).
    */
   primaryObjection?: ObjectionType;
+  /**
+   * Standart ism — aniq ssenariy (nomli mijoz) tanlanmagan bo'lsa shu
+   * ishlatiladi (avatar/CallView'da va {{mijoz_ismi}} prompt o'zgaruvchisida),
+   * shunday qilib persona doim jonli ism bilan tanishtiradi.
+   */
+  defaultName: string;
 }
 
 export const SOHALAR: Record<SohaKey, Soha> = {
@@ -93,6 +99,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
     key: "qimmatchi",
     promptFile: "personas/qimmatchi.md",
     primaryObjection: "narx",
+    defaultName: "Aziz aka",
     mockLines: [
       "Obbo, qimmat-ku bu. Boshqa joyda arzonroq beryapti-ku.",
       "Baribir qimmat. Chegirma yo'qmi ishqilib?",
@@ -103,6 +110,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
     key: "shubhali",
     promptFile: "personas/shubhali.md",
     primaryObjection: "ishonch",
+    defaultName: "Dilnoza opa",
     mockLines: [
       "Silaniki original o'zimi? Kafolat bormi umuman?",
       "E bilmadim-da, buzilib qolsa nima bo'ladi?",
@@ -113,6 +121,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
     key: "bandman",
     promptFile: "personas/bandman.md",
     primaryObjection: "vaqt",
+    defaultName: "Sardor",
     mockLines: [
       "Vaqtim yo'q, qisqa qiling, nima gap?",
       "Tez ayting, ketyapman.",
@@ -123,6 +132,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
     key: "bilagon",
     promptFile: "personas/bilagon.md",
     primaryObjection: "raqobat",
+    defaultName: "Jamshid aka",
     mockLines: [
       "Bu eskirgan-ku, yangisi chiqqan. Men bu sohada ishlaganman.",
       "Xarakteristikasini bilasizmi o'zi? Menga o'rgatmang.",
@@ -133,6 +143,7 @@ export const PERSONALAR: Record<PersonaKey, Persona> = {
     key: "yumshoq-lekin-olmaydi",
     promptFile: "personas/yumshoq-lekin-olmaydi.md",
     primaryObjection: "qaror",
+    defaultName: "Nodira",
     mockLines: [
       "Ha yaxshi ekan, zo'r narsa.",
       "Rahmat, o'ylab ko'ramiz. Keyinroq bir kelaman.",
