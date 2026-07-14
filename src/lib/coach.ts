@@ -277,3 +277,70 @@ export function recommend(
 
   return { weakestStage, focusObjection, message: msg };
 }
+
+export type LiveHintKey =
+  | "discountTooEarly"
+  | "priceTooEarly"
+  | "needsOpenQuestion"
+  | "tooLongMonologue"
+  | "tooShortReply"
+  | "goodPace";
+
+export interface LiveHint {
+  key: LiveHintKey;
+  tone: "good" | "warn" | "bad";
+}
+
+/**
+ * Suhbat DAVOMIDA jonli maslahat (closeme faqat suhbatdan KEYIN baho beradi —
+ * bu bizning farqlovchi xususiyatimiz). Sof evristika — LLM chaqiruvi YO'Q,
+ * shuning uchun ovoz aylanasiga (STT→LLM→TTS) hech qanday kechikish
+ * qo'shmaydi (CLAUDE.md §4). Har sotuvchi repликasidan keyin chaqiriladi,
+ * eng dolzarb signalni qaytaradi (yoki aniq narsa bo'lmasa `null`).
+ */
+export function liveHint(transcript: Turn[]): LiveHint | null {
+  const sellerTurns = transcript.filter((t) => t.role === "user");
+  if (sellerTurns.length === 0) return null;
+
+  const idx = sellerTurns.length - 1;
+  const last = lc(sellerTurns[idx].content);
+  const words = last.split(/\s+/).filter(Boolean).length;
+  const askedQuestionBefore = sellerTurns
+    .slice(0, idx)
+    .some((t) => t.content.includes("?"));
+
+  // Eng dolzarb (bad) — darrov chegirma taklif qilish (qiymatni himoya qilmasdan).
+  if (idx < 2 && has(last, ["chegirma", "arzon qilaman", "tushiraman"])) {
+    return { key: "discountTooEarly", tone: "bad" };
+  }
+
+  // Narxni ehtiyoj aniqlanmasdan juda erta aytish.
+  if (
+    idx < 2 &&
+    !askedQuestionBefore &&
+    has(last, ["so'm", "narx", "narxi", "qancha turadi"])
+  ) {
+    return { key: "priceTooEarly", tone: "warn" };
+  }
+
+  // Bir necha repликadan keyin hali ochiq savol yo'q.
+  const hasQuestion = sellerTurns.some((t) => t.content.includes("?"));
+  if (idx >= 2 && !hasQuestion) {
+    return { key: "needsOpenQuestion", tone: "warn" };
+  }
+
+  if (words > 60) return { key: "tooLongMonologue", tone: "warn" };
+  if (words > 0 && words <= 2 && idx >= 1) {
+    return { key: "tooShortReply", tone: "warn" };
+  }
+
+  // Yaxshi holat: savol berildi + qiymat tili ishlatildi.
+  if (
+    last.includes("?") &&
+    has(last, ["kafolat", "foyda", "tejash", "sifat", "xizmat", "qulay"])
+  ) {
+    return { key: "goodPace", tone: "good" };
+  }
+
+  return null;
+}

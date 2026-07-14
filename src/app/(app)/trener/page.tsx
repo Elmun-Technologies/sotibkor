@@ -16,7 +16,12 @@ import {
   type TilRejimKey,
 } from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
-import { interestScore, type ObjectionType } from "@/lib/coach";
+import {
+  interestScore,
+  liveHint,
+  type LiveHint,
+  type ObjectionType,
+} from "@/lib/coach";
 import type { ScoreResult } from "@/lib/scoring";
 import { PageShell, AppLoading } from "@/components/ui";
 import { SetupPanel } from "@/components/trener";
@@ -58,6 +63,7 @@ export default function TrenerPage() {
   const [busy, setBusy] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [interest, setInterest] = useState<number | null>(null);
+  const [coachHint, setCoachHint] = useState<LiveHint | null>(null);
   const [metrics, setMetrics] = useState<Metrics>({
     llmFirst: null,
     ttsFirst: null,
@@ -215,6 +221,9 @@ export default function TrenerPage() {
       setStreaming("");
       // Qiziqishni sotuvchi replikasidan darrov yangilaymiz
       setInterest(interestScore(history));
+      // Jonli murabbiy (10x-2): sof evristika, LLM chaqiruvi yo'q — ovoz
+      // aylanasiga kechikish qo'shmaydi (CLAUDE.md §4).
+      setCoachHint(liveHint(history));
 
       const sendStart = performance.now();
       let firstToken: number | null = null;
@@ -446,6 +455,7 @@ export default function TrenerPage() {
     setStreaming("");
     setScore(null);
     setInterest(null);
+    setCoachHint(null);
     setSessionId(null);
     setMetrics({ llmFirst: null, ttsFirst: null, total: null });
     ttsModeRef.current = "probe";
@@ -495,6 +505,7 @@ export default function TrenerPage() {
           }
           level={level}
           interest={interest}
+          coachHint={coachHint}
           cycleMs={metrics.total}
           turns={turns}
           streaming={streaming}

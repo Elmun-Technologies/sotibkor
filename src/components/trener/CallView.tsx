@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { getMessages } from "@/i18n";
 import { Button } from "@/components/ui";
+import type { LiveHint } from "@/lib/coach";
 
 const t = getMessages();
 
@@ -15,6 +16,8 @@ export interface CallViewProps {
   rejimLabel: string;
   level: number;
   interest: number | null;
+  /** Jonli murabbiy (10x-2) — suhbat DAVOMIDA ko'rinadigan evristik maslahat. */
+  coachHint?: LiveHint | null;
   cycleMs?: number | null;
   turns: Turn[];
   streaming: string;
@@ -269,6 +272,40 @@ export function CallView(p: CallViewProps) {
             >
               {p.interest}
             </span>
+          </div>
+        )}
+
+        {/* Jonli murabbiy (10x-2): closeme faqat suhbatdan keyin baho beradi —
+            biz suhbat davomida jonli maslahat ko'rsatamiz. */}
+        {p.coachHint && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mt-2 flex w-full max-w-xs items-center gap-2 rounded-full px-4 py-2 text-xs font-medium"
+            style={{
+              background: `color-mix(in srgb, ${
+                p.coachHint.tone === "bad"
+                  ? "var(--bad)"
+                  : p.coachHint.tone === "good"
+                    ? "var(--good)"
+                    : "var(--warn)"
+              } 12%, transparent)`,
+              color:
+                p.coachHint.tone === "bad"
+                  ? "var(--bad)"
+                  : p.coachHint.tone === "good"
+                    ? "var(--good)"
+                    : "var(--warn)",
+            }}
+          >
+            <span aria-hidden>
+              {p.coachHint.tone === "bad"
+                ? "⚠️"
+                : p.coachHint.tone === "good"
+                  ? "✓"
+                  : "💡"}
+            </span>
+            <span>{t.trener.hints[p.coachHint.key]}</span>
           </div>
         )}
 
