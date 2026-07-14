@@ -1,0 +1,13 @@
+{
+  "title": "Mikrofonni tekshiring",
+  "subtitle": "Suhbat boshlashdan oldin mikrofoningiz ishlayotganini tekshiring — bir necha so'z ayting.",
+  "waiting": "Mikrofon ruxsatini kutmoqda...",
+  "granted": "Mikrofon ulandi — gapiring, chiziqlar harakatlanishi kerak.",
+  "denied": "Mikrofonga ruxsat berilmadi yoki qurilma topilmadi.",
+  "meterLabel": "Mikrofon balandligi",
+  "hint": "Hech narsa harakatlanmasa — brauzer sozlamalaridan mikrofon ruxsatini tekshiring.",
+  "continue": "Suhbatni boshlash",
+  "starting": "Boshlanmoqda...",
+  "back": "Orqaga",
+  "deniedContinueHint": "Mikrofonsiz ham davom etishingiz mumkin — suhbat davomida matn kiritish rejimidan foydalaning."
+}

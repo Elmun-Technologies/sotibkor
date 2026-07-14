@@ -7,3 +7,5 @@ export { TranscriptReview } from "./TranscriptReview";
 export type { TranscriptReviewProps } from "./TranscriptReview";
 export { CallView } from "./CallView";
 export type { CallViewProps } from "./CallView";
+export { MicCheck } from "./MicCheck";
+export type { MicCheckProps } from "./MicCheck";

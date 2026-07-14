@@ -38,11 +38,15 @@ const ResultView = dynamic(
   () => import("@/components/trener/ResultView").then((m) => m.ResultView),
   { ssr: false, loading: () => <AppLoading /> },
 );
+const MicCheck = dynamic(
+  () => import("@/components/trener/MicCheck").then((m) => m.MicCheck),
+  { ssr: false, loading: () => <AppLoading /> },
+);
 
 const t = getMessages();
 
 type Turn = { role: "user" | "assistant"; content: string };
-type Stage = "setup" | "chat" | "result";
+type Stage = "setup" | "miccheck" | "chat" | "result";
 type Metrics = {
   llmFirst: number | null;
   ttsFirst: number | null;
@@ -115,7 +119,7 @@ export default function TrenerPage() {
     if (qn) setClientName(qn);
     const qlz = p.get("lavozim");
     if (qlz) setClientLavozim(qlz);
-    setStage("chat");
+    setStage("miccheck");
   }, [ready]);
 
   // Spaced-repetition tavsiyasi (issue #9): oxirgi safar eng ko'p qiynagan
@@ -495,7 +499,7 @@ export default function TrenerPage() {
           onLevel={setLevel}
           onRejim={setRejim}
           onTilRejimi={setTilRejimi}
-          onStart={startSession}
+          onStart={() => setStage("miccheck")}
           recommendedPersona={recommendedPersona}
           starting={starting}
           errorHint={trialExhausted ? t.trener.trialExhausted : null}
@@ -505,6 +509,26 @@ export default function TrenerPage() {
               : null
           }
         />
+      </PageShell>
+    );
+  }
+
+  if (stage === "miccheck") {
+    return (
+      <PageShell>
+        <MicCheck
+          onBack={() => setStage("setup")}
+          onContinue={() => void startSession()}
+          starting={starting}
+        />
+        {trialExhausted && (
+          <p role="alert" className="mt-3 text-sm text-[color:var(--bad)]">
+            {t.trener.trialExhausted}{" "}
+            <a href="/tariflar" className="underline underline-offset-2">
+              {t.trener.trialExhaustedCta}
+            </a>
+          </p>
+        )}
       </PageShell>
     );
   }
