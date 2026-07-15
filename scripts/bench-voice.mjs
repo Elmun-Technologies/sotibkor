@@ -36,10 +36,13 @@ async function benchLlmStreaming() {
     soha: "mebel",
     persona: "qimmatchi",
     level: 2,
-    history: [{ role: "user", content: "Assalomu alaykum, bu divan sizga yoqdimi?" }],
+    history: [
+      { role: "user", content: "Assalomu alaykum, bu divan sizga yoqdimi?" },
+    ],
   };
   const start = now();
   let firstToken = null;
+  let firstClause = null; // earlyFirst: birinchi ergash-gap (vergul/tire) chegarasi ≥14 belgi
   let firstSentence = null;
   let acc = "";
   try {
@@ -56,13 +59,22 @@ async function benchLlmStreaming() {
       const chunk = dec.decode(value, { stream: true });
       if (firstToken == null) firstToken = now() - start;
       acc += chunk;
-      if (firstSentence == null && /[.!?…]/.test(acc)) firstSentence = now() - start;
+      // earlyFirst optimizatsiyasi (src/lib/sentence.ts): birinchi tovush uchun
+      // to'liq gap emas, ergash-gap chegarasi ham yetarli.
+      if (firstClause == null) {
+        const cb = acc.match(/[,—:;]/);
+        if (cb && cb.index >= 14) firstClause = now() - start;
+      }
+      if (firstSentence == null && /[.!?…]/.test(acc))
+        firstSentence = now() - start;
     }
   } catch (err) {
-    console.error(`  (chat route ishlamadi: ${err.message}. Dev server ishga tushiring: npm run dev)`);
-    return { firstToken: null, firstSentence: null };
+    console.error(
+      `  (chat route ishlamadi: ${err.message}. Dev server ishga tushiring: npm run dev)`,
+    );
+    return { firstToken: null, firstClause: null, firstSentence: null };
   }
-  return { firstToken, firstSentence };
+  return { firstToken, firstClause, firstSentence };
 }
 
 async function main() {
@@ -72,23 +84,39 @@ async function main() {
   );
   console.log(`  Base:  ${BASE}\n`);
 
-  const { firstToken, firstSentence } = await benchLlmStreaming();
+  const { firstToken, firstClause, firstSentence } = await benchLlmStreaming();
 
   console.log("  Natijalar:");
   line("STT", null, BUDGET.stt);
-  console.log("     (STT brauzer/Aisha tomonda o'lchanadi — voice-test skiliga qarang)");
+  console.log(
+    "     (STT brauzer/Aisha tomonda o'lchanadi — voice-test skiliga qarang)",
+  );
   line("LLM first-token", firstToken, BUDGET.llmFirst);
-  line("TTS first (gap tayyor)", firstSentence, BUDGET.ttsFirst);
+  // TTFB'ni belgilaydigan bo'lak: earlyFirst (birinchi ergash-gap) yoki to'liq gap.
+  const firstAudioTrigger = firstClause ?? firstSentence;
+  line("Birinchi bo'lak (earlyFirst)", firstClause, BUDGET.ttsFirst);
+  line("To'liq gap (zaxira)", firstSentence, BUDGET.ttsFirst);
 
-  const perceived = firstSentence != null ? firstSentence + BUDGET.ttsFirst : null;
-  line("Jami (taxminiy perceived)", perceived, BUDGET.total);
+  const perceived =
+    firstAudioTrigger != null ? firstAudioTrigger + BUDGET.ttsFirst : null;
+  line("TTFB (taxminiy, birinchi tovush)", perceived, BUDGET.total);
 
   console.log("");
+  console.log(
+    "  Deadline'lar (osilishga qarshi): STT 8s · TTS 3.5s · LLM 1-token 4.5s —",
+  );
+  console.log(
+    "  oshsa klient zaxira (Web Speech / matn) rejimiga o'tadi, dialog muzlamaydi.",
+  );
   if (perceived != null && perceived > BUDGET.total) {
-    console.log("  ⚠️  Aylana byudjetdan oshdi — sekin bosqichni optimallashtiring.\n");
+    console.log(
+      "\n  ⚠️  Aylana byudjetdan oshdi — sekin bosqichni optimallashtiring.\n",
+    );
     process.exit(1);
   }
-  console.log("  Eslatma: real latency uchun kalitlarni sozlab, dev serverga qarshi ishga tushiring.\n");
+  console.log(
+    "\n  Eslatma: real latency uchun kalitlarni sozlab, dev serverga qarshi ishga tushiring.\n",
+  );
 }
 
 main();

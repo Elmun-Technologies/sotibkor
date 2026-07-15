@@ -11,6 +11,13 @@ const t = getMessages();
 
 type Turn = { role: "user" | "assistant"; content: string };
 
+export type VoiceMetrics = {
+  stt: number | null;
+  llmFirst: number | null;
+  ttsFirst: number | null;
+  total: number | null;
+};
+
 export interface CallViewProps {
   /** Mijozning real ismi (ssenariy yoki persona standart ismi) — sarlavhada ko'rinadi. */
   clientName: string;
@@ -25,7 +32,10 @@ export interface CallViewProps {
   interest: number | null;
   /** Jonli murabbiy (10x-2) — suhbat DAVOMIDA ko'rinadigan evristik maslahat. */
   coachHint?: LiveHint | null;
-  cycleMs?: number | null;
+  /** Ovoz aylanasi metrikalari — TTFB (birinchi tovushgacha) + bosqich taqsimoti. */
+  metrics?: VoiceMetrics | null;
+  /** Zaxira (fallback) rejimi signali — sekin ulanish/VPN'da nima bo'lganini bildiradi. */
+  fallbackNote?: string | null;
   turns: Turn[];
   streaming: string;
   input: string;
@@ -52,6 +62,17 @@ function fmt(sec: number): string {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
   return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+/** TTFB bosqichlari tooltip matni: STT + LLM + TTS (mavjud bo'lganlari). */
+function ttfbBreakdown(m: VoiceMetrics): string {
+  const parts: string[] = [];
+  if (m.stt != null) parts.push(`${t.trener.sttFirst} ${m.stt}${t.trener.ms}`);
+  if (m.llmFirst != null)
+    parts.push(`${t.trener.llmFirst} ${m.llmFirst}${t.trener.ms}`);
+  if (m.ttsFirst != null)
+    parts.push(`${t.trener.ttsFirst} ${m.ttsFirst}${t.trener.ms}`);
+  return parts.join(" · ");
 }
 
 /** Ekvalayzer — gapirish/tinglash paytida jonli to'lqin. */
@@ -165,16 +186,22 @@ export function CallView(p: CallViewProps) {
             {t.trener.callLive}
           </span>
           <span className="tabular-nums text-foreground">{fmt(sec)}</span>
-          {p.cycleMs != null && (
+          {p.metrics?.total != null && (
             <>
               <span className="text-faint">·</span>
               <span
                 className="tabular-nums"
+                title={ttfbBreakdown(p.metrics)}
                 style={{
-                  color: p.cycleMs > 2000 ? "var(--bad)" : "var(--good)",
+                  color: p.metrics.total > 2000 ? "var(--bad)" : "var(--good)",
                 }}
               >
-                {(p.cycleMs / 1000).toFixed(1)}s
+                {t.trener.ttfb} {(p.metrics.total / 1000).toFixed(1)}s
+                <span className="ml-1 text-faint normal-case">
+                  {p.metrics.total > 2000
+                    ? t.trener.ttfbSlow
+                    : t.trener.ttfbFast}
+                </span>
               </span>
             </>
           )}
@@ -253,6 +280,14 @@ export function CallView(p: CallViewProps) {
           </div>
           {state === "speaking" && (
             <p className="text-xs text-faint">{t.trener.bargeInHint}</p>
+          )}
+          {p.fallbackNote && (
+            <p
+              role="status"
+              className="max-w-xs text-center text-xs text-[color:var(--warn)]"
+            >
+              {p.fallbackNote}
+            </p>
           )}
         </div>
 

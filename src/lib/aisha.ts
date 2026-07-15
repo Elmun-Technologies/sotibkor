@@ -39,6 +39,33 @@ const AUTH_SCHEME = (process.env.AISHA_AUTH_SCHEME ?? "raw").toLowerCase();
 /** TTS uchun standart ovoz (agar akkauntda bir nechta ovoz bo'lsa). */
 const DEFAULT_VOICE = process.env.AISHA_TTS_VOICE ?? "";
 
+// Server tomonidagi deadline'lar: sekin/osilgan ulanish (VPN) route'ni ushlab
+// qolmasin — belgilangan vaqtda javob kelmasa uzamiz, route 502 qaytaradi va
+// klient darrov zaxira (Web Speech / matn) rejimiga o'tadi. Latency kritik yo'l.
+const STT_TIMEOUT_MS = Number(process.env.AISHA_STT_TIMEOUT_MS) || 8000;
+const TTS_TIMEOUT_MS = Number(process.env.AISHA_TTS_TIMEOUT_MS) || 4000;
+
+/** `fetch`, lekin `timeoutMs` ichida javob kelmasa AbortController bilan uziladi. */
+async function fetchDeadline(
+  url: string,
+  init: RequestInit,
+  timeoutMs: number,
+  label: string,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (err) {
+    if (controller.signal.aborted) {
+      throw new Error(`Aisha ${label} deadline (${timeoutMs}ms) oshib ketdi`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export interface SttRequest {
   audio: ArrayBuffer | Blob;
   mimeType: string;
@@ -105,11 +132,16 @@ export async function speechToText(req: SttRequest): Promise<SttResult> {
   form.append("run_diarization", "false");
   if (req.language) form.append("language", req.language);
 
-  const res = await fetch(`${getBaseUrl()}${STT_PATH}`, {
-    method: "POST",
-    headers: authHeader(), // multipart Content-Type'ni fetch o'zi qo'yadi
-    body: form,
-  });
+  const res = await fetchDeadline(
+    `${getBaseUrl()}${STT_PATH}`,
+    {
+      method: "POST",
+      headers: authHeader(), // multipart Content-Type'ni fetch o'zi qo'yadi
+      body: form,
+    },
+    STT_TIMEOUT_MS,
+    "STT",
+  );
 
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
@@ -141,14 +173,19 @@ export async function textToSpeech(req: TtsRequest): Promise<TtsResult> {
   const started = Date.now();
   const voice = req.voice ?? DEFAULT_VOICE;
 
-  const res = await fetch(`${getBaseUrl()}${TTS_PATH}`, {
-    method: "POST",
-    headers: { ...authHeader(), "Content-Type": "application/json" },
-    body: JSON.stringify({
-      text: req.text,
-      ...(voice ? { voice } : {}),
-    }),
-  });
+  const res = await fetchDeadline(
+    `${getBaseUrl()}${TTS_PATH}`,
+    {
+      method: "POST",
+      headers: { ...authHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: req.text,
+        ...(voice ? { voice } : {}),
+      }),
+    },
+    TTS_TIMEOUT_MS,
+    "TTS",
+  );
 
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
@@ -168,7 +205,12 @@ export async function textToSpeech(req: TtsRequest): Promise<TtsResult> {
     };
     const url = data.url ?? data.result?.url;
     if (url) {
-      const audioRes = await fetch(url);
+      const audioRes = await fetchDeadline(
+        url,
+        {},
+        TTS_TIMEOUT_MS,
+        "TTS-audio",
+      );
       const buf = await audioRes.arrayBuffer();
       return {
         audio: buf,
