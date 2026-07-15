@@ -244,5 +244,29 @@ Maqsad: to'liq aylana **< 2000 ms** (idrok qilinadigan).
 
 - Kritik yo'lda (STT→LLM→TTS) og'ir sinxron ish yo'q (DB yozish, analitika — fonda).
 - LLM javobi **gap-gap** oqim qilib TTS'ga uzatiladi, butun javob kutilmaydi.
+- **earlyFirst** (`src/lib/sentence.ts`): BIRINCHI bo'lak to'liq gap emas, ergash-gap
+  chegarasida (vergul/tire, ≥14 belgi) ham TTS'ga uzatiladi — persona uzun gap bilan
+  boshlaganda ham birinchi tovush tezroq eshitiladi (TTFB pastroq).
 - Transkript/ball DB'ga yozish suhbatdan keyin yoki fonda (`waitUntil`).
 - Har turn uchun `latency_ms` o'lchanadi va saqlanadi; benchmark skripti (issue #5) buni monitoring qiladi.
+
+### TTFB (birinchi tovushgacha vaqt) va deadline'lar
+
+Raqobatchining (CloseMe) eng katta zaifi — **dialog osilishi va sekin javob**.
+Bizning javob: har bosqichga qat'iy **deadline** + tez **fallback**, va foydalanuvchiga
+**TTFB** (sotuvchi gapirib bo'lgandan birinchi tovushgacha) real vaqtda ko'rsatiladi
+(`/trener` yuqori paneldagi badge; <2s bo'lsa yashil "Tez", oshsa qizil "Sekin").
+
+| Bosqich     | Klient deadline    | Server deadline                           | Deadline oshsa (fallback)                     |
+| ----------- | ------------------ | ----------------------------------------- | --------------------------------------------- |
+| STT (Aisha) | 8000 ms            | `AISHA_STT_TIMEOUT_MS` (8s)               | Matn kiritish rejimi (foydalanuvchiga signal) |
+| LLM 1-token | 4500 ms (watchdog) | `OPENAI_TIMEOUT_MS` (15s), `maxRetries:0` | So'rov uziladi, "mijoz javob bermadi"         |
+| TTS (Aisha) | 3500 ms            | `AISHA_TTS_TIMEOUT_MS` (4s)               | Brauzer Web Speech (zaxira ovoz) + signal     |
+
+- **Klient** (`src/lib/fetchDeadline.ts`): `fetchWithTimeout` (STT/TTS) + `firstTokenWatchdog`
+  (LLM oqimi) — sekin ulanish/VPN'da chaqiruv AbortController bilan uziladi, dialog muzlamaydi.
+- **Server** (`aisha.ts`, `llm.ts`): AbortController timeout + OpenAI klient timeout — osilgan
+  ulanish route'ni (serverless funksiyani) ham ushlab qolmaydi, tez 502 qaytaradi.
+- **Fallback shaffof**: nima bo'lganini foydalanuvchi ko'radi ("Ulanish sekin — zaxira ovozga
+  o'tildi") — jim qolish yo'q.
+- TTFB bosqichlari (STT/LLM/TTS) badge tooltip'ida ko'rinadi; `npm run bench:voice` buni o'lchaydi.

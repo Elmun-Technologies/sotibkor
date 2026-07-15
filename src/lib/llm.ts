@@ -26,7 +26,13 @@ function getClient(): OpenAI {
     throw new Error("OPENAI_API_KEY sozlanmagan (.env.local ni tekshiring).");
   }
   if (!client) {
-    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      // Osilgan ulanish (VPN) kritik yo'lni ushlab qolmasin: butun so'rovga
+      // qat'iy deadline. Streaming persona chaqiruvida qayta-urinishlar (retry)
+      // latency qo'shadi — u yerda alohida maxRetries:0 beriladi.
+      timeout: Number(process.env.OPENAI_TIMEOUT_MS) || 15000,
+    });
   }
   return client;
 }
@@ -68,15 +74,20 @@ export async function* streamPersona(opts: {
   maxTokens?: number;
 }): AsyncGenerator<string, void, unknown> {
   const openai = getClient();
-  const stream = await openai.chat.completions.create({
-    model: opts.model ?? DEFAULT_MODEL,
-    max_tokens: opts.maxTokens ?? 512,
-    stream: true,
-    messages: [
-      { role: "system", content: opts.systemPrompt },
-      ...opts.history.map((t) => ({ role: t.role, content: t.content })),
-    ],
-  });
+  const stream = await openai.chat.completions.create(
+    {
+      model: opts.model ?? DEFAULT_MODEL,
+      max_tokens: opts.maxTokens ?? 512,
+      stream: true,
+      messages: [
+        { role: "system", content: opts.systemPrompt },
+        ...opts.history.map((t) => ({ role: t.role, content: t.content })),
+      ],
+    },
+    // Kritik yo'l: qayta-urinish latency qo'shadi — birinchi tokenni tez
+    // olishimiz kerak. Xato bo'lsa klient darrov fallback'ga o'tadi.
+    { maxRetries: 0 },
+  );
 
   for await (const chunk of stream) {
     const delta = chunk.choices[0]?.delta?.content;

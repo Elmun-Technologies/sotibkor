@@ -18,6 +18,12 @@ import {
   type TilRejimKey,
 } from "@/lib/content";
 import { SentenceStreamer } from "@/lib/sentence";
+import {
+  fetchWithTimeout,
+  firstTokenWatchdog,
+  isTimeoutError,
+  VOICE_TIMEOUTS,
+} from "@/lib/fetchDeadline";
 import { uploadClip } from "@/lib/archiveClient";
 import { markFirstSessionDone, markPlanDayDone } from "@/lib/progress";
 import { recordChallengeScore } from "@/lib/challenge";
@@ -52,8 +58,13 @@ const t = getMessages();
 type Turn = { role: "user" | "assistant"; content: string };
 type Stage = "setup" | "miccheck" | "chat" | "result";
 type Metrics = {
+  /** Sotuvchi gapirib bo'lgach STT matni tayyor bo'lguncha (faqat ovoz kirishida). */
+  stt: number | null;
+  /** So'rov ketgandan LLM birinchi tokeniga qadar. */
   llmFirst: number | null;
+  /** Birinchi gap tayyor bo'lgach birinchi tovushga qadar (TTS). */
   ttsFirst: number | null;
+  /** To'liq aylana: sotuvchi gapirib bo'lgandan birinchi tovushgacha (TTFB). */
   total: number | null;
 };
 
@@ -78,10 +89,14 @@ export default function TrenerPage() {
   const [interest, setInterest] = useState<number | null>(null);
   const [coachHint, setCoachHint] = useState<LiveHint | null>(null);
   const [metrics, setMetrics] = useState<Metrics>({
+    stt: null,
     llmFirst: null,
     ttsFirst: null,
     total: null,
   });
+  // Zaxira (fallback) rejimi haqida qisqa signal — sekin ulanish/VPN'da nima
+  // bo'lganini foydalanuvchiga ko'rsatadi (dialog jim qolmaydi).
+  const [fallbackNote, setFallbackNote] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
   const [recognizing, setRecognizing] = useState(false);
   const [sttHint, setSttHint] = useState<string | null>(null);
@@ -195,11 +210,15 @@ export default function TrenerPage() {
       if (cancelRef.current) return;
       if (ttsModeRef.current !== "web") {
         try {
-          const res = await fetch("/api/tts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text }),
-          });
+          const res = await fetchWithTimeout(
+            "/api/tts",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text }),
+            },
+            VOICE_TIMEOUTS.tts,
+          );
           if (res.ok) {
             ttsModeRef.current = "aisha";
             if (cancelRef.current) return;
@@ -229,9 +248,16 @@ export default function TrenerPage() {
               void audio.play().catch(() => done(resolve));
             });
           }
+          // Aisha xato qaytardi (501/502) — brauzer ovoziga o'tamiz.
           ttsModeRef.current = "web";
-        } catch {
+          setFallbackNote(t.trener.fallbackWeb);
+        } catch (err) {
+          // Deadline oshdi yoki tarmoq uzildi (sekin ulanish/VPN) — dialog
+          // osilib qolmasligi uchun darrov brauzer ovoziga o'tamiz.
           ttsModeRef.current = "web";
+          setFallbackNote(
+            isTimeoutError(err) ? t.trener.fallbackSlow : t.trener.fallbackWeb,
+          );
         }
       }
       if (
@@ -247,6 +273,10 @@ export default function TrenerPage() {
           u.onend = () => resolve();
           u.onerror = () => resolve();
           window.speechSynthesis.speak(u);
+          // `onstart` ba'zi muhitlarda (ovozsiz/headless) ishlamaydi — TTFB
+          // o'lchovi yo'qolmasligi uchun boshlanishni shu yerda ham belgilaymiz
+          // (chaqiruvchi firstAudio==null bilan takrorlanishdan himoyalangan).
+          onStart();
         });
       }
       onStart();
@@ -255,11 +285,12 @@ export default function TrenerPage() {
   );
 
   const sendSeller = useCallback(
-    async (text: string) => {
+    async (text: string, loop?: { start: number; sttMs: number }) => {
       const clean = text.trim();
       if (!clean || busy) return;
       stopSpeaking();
       cancelRef.current = false;
+      setFallbackNote(null);
 
       const history: Turn[] = [...turns, { role: "user", content: clean }];
       setTurns(history);
@@ -273,6 +304,11 @@ export default function TrenerPage() {
       setCoachHint(liveHint(history));
 
       const sendStart = performance.now();
+      // TTFB'ni sotuvchi GAPIRIB BO'LGAN paytdan o'lchaymiz (ovoz kirishida
+      // STT vaqti ham to'liq aylanaga kiradi). Matn kiritishda loop yo'q —
+      // hisob so'rov ketgan paytdan boshlanadi.
+      const loopStart = loop?.start ?? sendStart;
+      const sttMs = loop?.sttMs ?? null;
       let firstToken: number | null = null;
       let firstSentenceReady: number | null = null;
       let firstAudio: number | null = null;
@@ -289,6 +325,7 @@ export default function TrenerPage() {
             if (firstAudio == null) {
               firstAudio = performance.now();
               setMetrics({
+                stt: sttMs != null ? Math.round(sttMs) : null,
                 llmFirst:
                   firstToken != null
                     ? Math.round(firstToken - sendStart)
@@ -297,7 +334,7 @@ export default function TrenerPage() {
                   firstSentenceReady != null
                     ? Math.round(firstAudio - firstSentenceReady)
                     : null,
-                total: Math.round(firstAudio - sendStart),
+                total: Math.round(firstAudio - loopStart),
               });
             }
           });
@@ -305,6 +342,13 @@ export default function TrenerPage() {
         draining = false;
         setSpeaking(false);
       };
+
+      // Birinchi token watchdog: LLM oqimi belgilangan vaqtda birinchi baytni
+      // bermasa (osilgan ulanish/VPN), so'rovni uzamiz — dialog muzlab qolmaydi.
+      const chatController = new AbortController();
+      const watchdog = firstTokenWatchdog(VOICE_TIMEOUTS.llmFirstToken, () =>
+        chatController.abort(),
+      );
 
       let acc = "";
       try {
@@ -321,17 +365,21 @@ export default function TrenerPage() {
             mijozIsmi: effectiveClientName,
             history,
           }),
+          signal: chatController.signal,
         });
         if (!res.ok) throw new Error(`chat_failed_${res.status}`);
         const reader = res.body?.getReader();
         const dec = new TextDecoder();
-        const sp = new SentenceStreamer();
+        const sp = new SentenceStreamer({ earlyFirst: true });
         if (reader) {
           for (;;) {
             const { done, value } = await reader.read();
             if (done) break;
             const chunk = dec.decode(value, { stream: true });
-            if (firstToken == null) firstToken = performance.now();
+            if (firstToken == null) {
+              firstToken = performance.now();
+              watchdog.armed(); // birinchi token keldi — watchdog o'chadi
+            }
             acc += chunk;
             setStreaming(acc);
             for (const sentence of sp.push(chunk)) {
@@ -352,8 +400,10 @@ export default function TrenerPage() {
         // tushunarli signal beramiz (masalan stream boshlanib, darrov uzilsa).
         if (!acc.trim()) setSttHint(t.trener.chatError);
       } catch {
+        // Watchdog uzgan (osilish) yoki tarmoq xatosi — bir xil signal.
         setSttHint(t.trener.chatError);
       } finally {
+        watchdog.clear();
         const full: Turn[] = [
           ...history,
           { role: "assistant", content: acc.trim() || "..." },
@@ -407,16 +457,29 @@ export default function TrenerPage() {
         }
         const form = new FormData();
         form.append("audio", blob, "rec.webm");
+        // To'liq aylana (TTFB) shu paytdan boshlanadi — sotuvchi gapirib bo'ldi.
+        const micStop = performance.now();
         try {
-          const res = await fetch("/api/stt", { method: "POST", body: form });
+          const res = await fetchWithTimeout(
+            "/api/stt",
+            { method: "POST", body: form },
+            VOICE_TIMEOUTS.stt,
+          );
           if (res.ok) {
             const data = (await res.json()) as { text?: string };
-            if (data.text) await sendSeller(data.text);
+            const sttMs = performance.now() - micStop;
+            if (data.text)
+              await sendSeller(data.text, { start: micStop, sttMs });
           } else {
             setSttHint(t.trener.sttUnavailable);
           }
-        } catch {
-          setSttHint(t.trener.sttUnavailable);
+        } catch (err) {
+          // Deadline oshdi (sekin ulanish/VPN) yoki tarmoq xatosi — matn rejimiga.
+          setSttHint(
+            isTimeoutError(err)
+              ? t.trener.fallbackStt
+              : t.trener.sttUnavailable,
+          );
         } finally {
           setRecognizing(false);
         }
@@ -526,7 +589,8 @@ export default function TrenerPage() {
     setSessionId(null);
     setClientName(null);
     setClientLavozim(null);
-    setMetrics({ llmFirst: null, ttsFirst: null, total: null });
+    setMetrics({ stt: null, llmFirst: null, ttsFirst: null, total: null });
+    setFallbackNote(null);
     ttsModeRef.current = "probe";
     mijozClipRef.current = 0;
     sotuvchiClipRef.current = 0;
@@ -600,7 +664,8 @@ export default function TrenerPage() {
           level={level}
           interest={interest}
           coachHint={coachHint}
-          cycleMs={metrics.total}
+          metrics={metrics}
+          fallbackNote={fallbackNote}
           turns={turns}
           streaming={streaming}
           input={input}
