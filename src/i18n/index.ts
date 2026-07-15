@@ -34,6 +34,8 @@ import yordam from "./yordam.json";
 import miccheck from "./miccheck.json";
 import arxiv from "./arxiv.json";
 import drill from "./drill.json";
+import chat from "./chat.json";
+import rop from "./rop.json";
 
 export type Locale = "uz" | "ru";
 export const DEFAULT_LOCALE: Locale = "uz";
@@ -66,6 +68,8 @@ const messages = {
   miccheck,
   arxiv,
   drill,
+  chat,
+  rop,
 } as const;
 
 export type Messages = typeof messages;
