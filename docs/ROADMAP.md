@@ -92,7 +92,7 @@ Skafold + mock-rejim ilovasi tayyor: ro'yxatdan o'tish (menejer/ROP), onboarding
 Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
 
 - ✅ **Sidebar ilova qobig'i** (`(app)` route-group + `AppShell`) — chapda doimiy navigatsiya, bepul suhbat hisoblagichi, foydalanuvchi kartasi; mobilda drawer.
-- ✅ **E'tirozlar playbook** (`/etirozlar`) — ikki panelli ro'yxat+tafsilot (closeme uslubida), har e'tirozga bir nechta uslub teglangan javob (Logika/Ekspertlik/Intriga/Dojim/Bosim/Yumor), sevimli/nusxalash, "o'z javobingni sina" (mock AI baho).
+- ✅ **E'tirozlar playbook** (`/etirozlar`) — ikki panelli ro'yxat+tafsilot (closeme uslubida). **31 e'tirozning HAR biriga aynan 6 ta javob** — har biri boshqa uslubda (Logika/Ekspertlik/Intriga/Dojim/Bosim/Yumor), jaydari o'zbek+aralash ohangda (jami 186 javob; test bilan har e'tirozda 6 uslub borligi tekshiriladi). Sevimli/nusxalash. **"O'z javobingni sina" baholovchisi** (`src/lib/objectionEval.ts` — sof, testlanadigan) foydalanuvchi javobi qaysi 6 uslubdan biriga tushishini aniqlaydi (~78% aniqlik, kutubxona teglariga round-trip test) va **kuchli + zaif tomonini** alohida ko'rsatadi (avvalgi mock faqat bitta umumiy izoh berardi va 4 uslubni ajratardi).
 - ✅ **Tezkor mashq** (`/etirozlar` → drill) — closeme "Тренировка"ga o'xshash: e'tirozlarni checkbox + takror-hisoblagich bilan tanlash, qiyinlik darajasi, ketma-ket savol-javob (har javobga darhol mock AI ball+feedback), yakunda o'rtacha ball va eng kuchli/zaif tur.
 - ✅ **Qo'ng'iroq ssenariylari** (`/qongiroq`) — nomli mijoz katalogi (soha × persona × qiyinlik), filtrlar, "o'z mijozingni yarat".
 - ✅ **Vazifalar** (`/vazifalar`) — menejer topshiriqlari + ROP topshiriq biriktirish va jamoa holati (rol bo'yicha).
@@ -168,7 +168,7 @@ Yangi (closeme'dan moslashtirilgan, sidebar ilova qobig'i bilan):
 
 ### Mock-rejimda "100%" nimani anglatadi
 
-Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugallangan: 16 sahifa (landing, ro'yxatdan o'tish, onboarding, bosh sahifa, trener/qo'ng'iroq, e'tirozlar+tezkor mashq, qo'ng'iroq ssenariylari, muzokaralar, vazifalar, analitika, reyting, yutuqlar, tariflar, profil+sozlash, arxiv), sidebar ilova qobig'i, yordam vidjeti — barchasi ishlaydi, o'zaro bog'langan, i18n orqali, typecheck/lint/122 test/build doim yashil.
+Kalitsiz (mock) rejimda kutish mumkin bo'lgan barcha sahifa/oqim/UI ishi tugallangan: 16 sahifa (landing, ro'yxatdan o'tish, onboarding, bosh sahifa, trener/qo'ng'iroq, e'tirozlar+tezkor mashq, qo'ng'iroq ssenariylari, muzokaralar, vazifalar, analitika, reyting, yutuqlar, tariflar, profil+sozlash, arxiv), sidebar ilova qobig'i, yordam vidjeti — barchasi ishlaydi, o'zaro bog'langan, i18n orqali, typecheck/lint/139 test/build doim yashil.
 
 **Quyidagilar FAQAT tashqi hisob ma'lumotlari (API kalit/loyihalar) bilan davom etadi — men ularsiz "tugata olmayman":**
 

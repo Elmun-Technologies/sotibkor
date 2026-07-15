@@ -10,6 +10,7 @@ import {
   type ObjectionEntry,
   type AnswerStyle,
 } from "@/lib/objections";
+import { evaluateAnswer } from "@/lib/objectionEval";
 import { OBJECTION_TYPES, type ObjectionType } from "@/lib/coach";
 
 const t = getMessages();
@@ -61,43 +62,33 @@ function trainHref(type: ObjectionType): string {
   return `/trener?${q.toString()}`;
 }
 
-/** Juda soddalashtirilgan mock baholovchi (real LLM emas — demo). */
+/**
+ * Baholovchi (src/lib/objectionEval.ts) — 6 uslubdan qaysi biriga tushishini
+ * aniqlab, ball + kuchli/zaif tomonni beradi. `feedback` — drill oqimi uchun
+ * qisqa umumiy izoh (ball asosida). Playbook "O'z javobingni sina" esa kuchli
+ * va zaif tomonni alohida ko'rsatadi.
+ */
 function mockEvaluate(answer: string): {
   score: number;
   style: AnswerStyle;
+  strength: string;
+  weakness: string;
   feedback: string;
 } {
-  const s = answer.toLowerCase();
-  const len = answer.trim().length;
-  const acknowledges = /tushun|to'g'ri|haqli|albatta|roppa/.test(s);
-  const reframes = /lekin|ammo|shuning|qiymat|foyda|natija|solishtir/.test(s);
-  const nextStep = /keling|qadam|uchrash|sinab|ko'r|bugun|ertaga/.test(s);
-  const argues = /noto'g'ri|unaqa emas|xato|siz bilmaysiz/.test(s);
-
-  let score = 40;
-  if (len > 40) score += 8;
-  if (acknowledges) score += 16;
-  if (reframes) score += 20;
-  if (nextStep) score += 12;
-  if (argues) score -= 18;
-  score = Math.max(12, Math.min(96, score));
-
-  const style: AnswerStyle = argues
-    ? "bosim"
-    : reframes
-      ? "logika"
-      : acknowledges
-        ? "ekspertlik"
-        : "intriga";
-
+  const r = evaluateAnswer(answer);
   const feedback =
-    score >= 70
+    r.score >= 70
       ? t.etirozlar.feedbackStrong
-      : score >= 45
+      : r.score >= 45
         ? t.etirozlar.feedbackMid
         : t.etirozlar.feedbackWeak;
-
-  return { score, style, feedback };
+  return {
+    score: r.score,
+    style: r.style,
+    strength: t.etirozlar.eval.strength[r.strength],
+    weakness: t.etirozlar.eval.weakness[r.weakness],
+    feedback,
+  };
 }
 
 function scoreColor(score: number): string {
@@ -323,10 +314,10 @@ function PlaybookView() {
           </div>
 
           {result && (
-            <div className="grid gap-4 rounded-lg2 border border-border bg-surface2 p-5 sm:grid-cols-[auto_1fr] sm:items-center">
+            <div className="flex flex-col gap-4 rounded-lg2 border border-border bg-surface2 p-5">
               <div className="flex items-center gap-4">
                 <div
-                  className="grid h-16 w-16 place-items-center rounded-full text-xl font-semibold tabular-nums"
+                  className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-xl font-semibold tabular-nums"
                   style={{
                     color: scoreColor(result.score),
                     backgroundColor: `color-mix(in srgb, ${scoreColor(result.score)} 12%, transparent)`,
@@ -343,9 +334,24 @@ function PlaybookView() {
                   </div>
                 </div>
               </div>
-              <p className="text-[15px] leading-relaxed text-foreground">
-                {result.feedback}
-              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg2 border border-[color:var(--good)]/30 bg-[color:var(--good)]/[.06] p-3">
+                  <div className="text-[11px] uppercase tracking-wider text-[color:var(--good)]">
+                    ✓ {t.etirozlar.tryStrengthLabel}
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-foreground">
+                    {result.strength}
+                  </p>
+                </div>
+                <div className="rounded-lg2 border border-[color:var(--warn)]/30 bg-[color:var(--warn)]/[.06] p-3">
+                  <div className="text-[11px] uppercase tracking-wider text-[color:var(--warn)]">
+                    ↑ {t.etirozlar.tryWeaknessLabel}
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-foreground">
+                    {result.weakness}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </Card>
