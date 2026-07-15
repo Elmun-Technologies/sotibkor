@@ -210,6 +210,7 @@ export const MOCK_TEAM: TeamRow[] = [
     done: 8,
     target: 10,
     avg: 74,
+    streakDays: 5,
     funnel: {
       kontakt: 95,
       ehtiyoj: 80,
@@ -224,6 +225,7 @@ export const MOCK_TEAM: TeamRow[] = [
     done: 10,
     target: 10,
     avg: 81,
+    streakDays: 9,
     funnel: {
       kontakt: 98,
       ehtiyoj: 90,
@@ -238,6 +240,7 @@ export const MOCK_TEAM: TeamRow[] = [
     done: 4,
     target: 10,
     avg: 63,
+    streakDays: 2,
     funnel: {
       kontakt: 88,
       ehtiyoj: 62,
@@ -252,6 +255,7 @@ export const MOCK_TEAM: TeamRow[] = [
     done: 6,
     target: 10,
     avg: 69,
+    streakDays: 4,
     funnel: {
       kontakt: 92,
       ehtiyoj: 70,

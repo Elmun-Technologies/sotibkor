@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { getMessages } from "@/i18n";
-import { getUser, logout, type AuthUser } from "@/lib/auth";
+import { getUser, logout, type AuthUser, type Role } from "@/lib/auth";
 import { ThemeToggle } from "./ThemeToggle";
 import { SupportWidget } from "./SupportWidget";
 
@@ -18,6 +18,8 @@ type IconKey =
   | "muzokaralar"
   | "etirozlar"
   | "drill"
+  | "chat"
+  | "rop"
   | "dars"
   | "arxiv"
   | "analitika"
@@ -86,6 +88,21 @@ function Icon({ name }: { name: IconKey }) {
           <path d="M12 14l3-2" />
         </svg>
       );
+    case "chat":
+      return (
+        <svg {...common}>
+          <path d="M20 4H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3v4l5-4h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1Z" />
+          <path d="M8 9h8M8 12h5" />
+        </svg>
+      );
+    case "rop":
+      return (
+        <svg {...common}>
+          <circle cx="9" cy="8" r="3" />
+          <path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" />
+          <path d="M16 11l2 2 3.5-3.5" />
+        </svg>
+      );
     case "dars":
       return (
         <svg {...common}>
@@ -144,15 +161,19 @@ interface NavItem {
   href: string;
   label: string;
   icon: IconKey;
+  /** Faqat shu rol uchun (berilmasa — hamma ko'radi). */
+  role?: Role;
 }
 
 const NAV: NavItem[] = [
   { href: "/home", label: t.nav.home, icon: "home" },
   { href: "/vazifalar", label: t.nav.vazifalar, icon: "vazifalar" },
+  { href: "/rop", label: t.nav.rop, icon: "rop", role: "rop" },
   { href: "/qongiroq", label: t.nav.qongiroq, icon: "qongiroq" },
   { href: "/muzokaralar", label: t.nav.muzokaralar, icon: "muzokaralar" },
   { href: "/etirozlar", label: t.nav.etirozlar, icon: "etirozlar" },
   { href: "/drill", label: t.nav.drill, icon: "drill" },
+  { href: "/chat", label: t.nav.chat, icon: "chat" },
   { href: "/dars", label: t.nav.dars, icon: "dars" },
   { href: "/arxiv", label: t.nav.arxiv, icon: "arxiv" },
   { href: "/analitika", label: t.nav.analitika, icon: "analitika" },
@@ -220,9 +241,11 @@ function SidebarInner({
         </span>
       </Link>
 
-      {/* Navigatsiya */}
+      {/* Navigatsiya — rolga bog'liq bandlar (masalan /rop) faqat ROP'ga */}
       <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto">
-        {NAV.map((item) => {
+        {NAV.filter(
+          (item) => !item.role || item.role === (user?.role ?? "menejer"),
+        ).map((item) => {
           const active =
             pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (

@@ -1,0 +1,17 @@
+{
+  "title": "Community",
+  "subtitle": "O'zbek sotuvchilar bir-biriga yordam beradigan joy — savol ber, tajriba ulash, motivatsiya ol.",
+  "channelsTitle": "Kanallar",
+  "channels": {
+    "umumiy": { "name": "Umumiy", "desc": "Umumiy suhbat" },
+    "narx": { "name": "Narx e'tirozlari", "desc": "Narx bilan ishlash" },
+    "qongiroq": { "name": "Sovuq qo'ng'iroq", "desc": "Qo'ng'iroq texnikasi" },
+    "motivatsiya": { "name": "Motivatsiya", "desc": "Ruh baland bo'lsin" },
+    "savol-javob": { "name": "Savol-javob", "desc": "Yordam so'rash" }
+  },
+  "placeholder": "Xabar yozing...",
+  "send": "Yuborish",
+  "empty": "Bu kanalda hali xabar yo'q — birinchi bo'lib yozing!",
+  "you": "Siz",
+  "note": "Xabarlar shu qurilmada saqlanadi; real vaqtli community keyingi bosqichda (Supabase)."
+}

@@ -16,6 +16,7 @@ import {
   MOCK_ASSIGNMENTS_DONE,
   MOCK_TEAM,
 } from "@/lib/mock";
+import { assignmentsForMember } from "@/lib/ropTasks";
 import type { Assignment, TaskStatus } from "@/lib/types";
 
 const t = getMessages();
@@ -85,14 +86,26 @@ export default function VazifalarPage() {
   const ready = useAuthGate("/vazifalar");
   const [role, setRole] = useState<Role>("menejer");
   const [tab, setTab] = useState<"active" | "done">("active");
-
-  const [taskName, setTaskName] = useState("");
-  const [target, setTarget] = useState("10");
-  const [due, setDue] = useState("5");
-  const [assigned, setAssigned] = useState(false);
+  // ROP tomonidan menejerga tayinlangan vazifalar (ism bo'yicha).
+  const [ropTasks, setRopTasks] = useState<Assignment[]>([]);
 
   useEffect(() => {
-    if (ready) setRole(getUser()?.role ?? "menejer");
+    if (!ready) return;
+    const u = getUser();
+    setRole(u?.role ?? "menejer");
+    const mine = assignmentsForMember(u?.name ?? "");
+    setRopTasks(
+      mine.map((a) => ({
+        id: a.id,
+        title: a.title,
+        by: t.vazifalar.ropAssignedBy,
+        target: a.target,
+        done: 0,
+        dueDays: 7,
+        status: "new" as TaskStatus,
+        focus: a.focus,
+      })),
+    );
   }, [ready]);
 
   const teamAvg = useMemo(
@@ -108,67 +121,18 @@ export default function VazifalarPage() {
     return (
       <PageShell title={t.vazifalar.title} lead={t.vazifalar.subtitleRop}>
         <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
-          {/* Yangi topshiriq */}
+          {/* ROP paneliga o'tish */}
           <Card className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <span aria-hidden>🎯</span>
               <h2 className="text-xl font-semibold tracking-tight">
-                {t.vazifalar.ropCreateTitle}
+                {t.vazifalar.ropCtaTitle}
               </h2>
             </div>
-            <p className="text-sm text-muted">{t.vazifalar.ropCreateLead}</p>
-            <label className="block">
-              <span className="mb-1.5 block text-sm text-foreground">
-                {t.vazifalar.ropTaskName}
-              </span>
-              <input
-                value={taskName}
-                onChange={(e) => {
-                  setTaskName(e.target.value);
-                  setAssigned(false);
-                }}
-                placeholder={t.vazifalar.ropTaskNamePh}
-                className="w-full rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] outline-none transition placeholder:text-faint focus:border-foreground/40"
-              />
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <span className="mb-1.5 block text-sm text-foreground">
-                  {t.vazifalar.ropTarget}
-                </span>
-                <input
-                  value={target}
-                  onChange={(e) => setTarget(e.target.value)}
-                  inputMode="numeric"
-                  className="w-full rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] outline-none transition focus:border-foreground/40"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block text-sm text-foreground">
-                  {t.vazifalar.ropDue}
-                </span>
-                <input
-                  value={due}
-                  onChange={(e) => setDue(e.target.value)}
-                  inputMode="numeric"
-                  className="w-full rounded-lg2 border border-border bg-surface2 px-4 py-3 text-[15px] outline-none transition focus:border-foreground/40"
-                />
-              </label>
+            <p className="text-sm text-muted">{t.vazifalar.ropCtaLead}</p>
+            <div className="mt-auto">
+              <Button href="/rop">{t.vazifalar.ropCtaBtn}</Button>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                onClick={() => setAssigned(true)}
-                disabled={!taskName.trim()}
-              >
-                {t.vazifalar.ropAssign}
-              </Button>
-              {assigned && (
-                <span className="inline-flex items-center gap-1.5 text-sm text-[color:var(--good)]">
-                  ✓ {taskName.trim()}
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-faint">{t.vazifalar.ropHint}</p>
           </Card>
 
           {/* Jamoa holati */}
@@ -230,7 +194,9 @@ export default function VazifalarPage() {
 
   // ---------- Menejer ko'rinishi ----------
   const list =
-    tab === "active" ? MOCK_ASSIGNMENTS_ACTIVE : MOCK_ASSIGNMENTS_DONE;
+    tab === "active"
+      ? [...ropTasks, ...MOCK_ASSIGNMENTS_ACTIVE]
+      : MOCK_ASSIGNMENTS_DONE;
 
   return (
     <PageShell title={t.vazifalar.title} lead={t.vazifalar.subtitleMenejer}>
