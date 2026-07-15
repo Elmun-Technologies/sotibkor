@@ -40,6 +40,24 @@
   "feedbackStrong": "Kuchli javob — qiymatga fokuslanding, bahsga kirmading.",
   "feedbackMid": "Yaxshi boshlanish, lekin aniq keyingi qadam qo'shsang kuchliroq bo'ladi.",
   "feedbackWeak": "Bahslashuvga o'xshadi — mijozning e'tirozini avval tan ol, keyin qayta ramkala.",
+  "tryStrengthLabel": "Kuchli tomoni",
+  "tryWeaknessLabel": "Yaxshilash mumkin",
+  "eval": {
+    "strength": {
+      "reframe": "E'tirozni qiymatga qayta ramkaladingiz — eng kuchli usul.",
+      "acknowledge": "Mijozni tan oldingiz — bu ishonch uyg'otadi.",
+      "nextStep": "Aniq keyingi qadam taklif qildingiz — suhbatni oldinga surdingiz.",
+      "question": "Savol bilan mijozni gapga tortdingiz — tashabbusni oldingiz.",
+      "clear": "Aniq va tushunarli javob — mijoz chalkashmaydi."
+    },
+    "weakness": {
+      "argues": "Bahsga kirdingiz — avval e'tirozni tan oling, keyin qayta ramkalang.",
+      "tooShort": "Juda qisqa — bitta qiymat yoki savol qo'shsangiz kuchliroq bo'ladi.",
+      "noClose": "Keyingi qadam yo'q — savol yoki aniq taklif bilan yakunlang.",
+      "noEmpathy": "Mijozni tan olmadingiz — 'tushunaman' bilan boshlash ishonch beradi.",
+      "none": "Zaif tomon deyarli yo'q — zo'r javob!"
+    }
+  },
   "drillSetupTitle": "Tezkor mashq",
   "drillSetupLead": "E'tirozlarni tanlang va necha marta takrorlashni belgilang — AI mijoz sifatida o'qiydi, siz tez javob berasiz.",
   "drillDifficulty": "Qiyinlik",
