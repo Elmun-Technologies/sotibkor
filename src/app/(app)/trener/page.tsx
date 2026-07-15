@@ -20,6 +20,7 @@ import {
 import { SentenceStreamer } from "@/lib/sentence";
 import { uploadClip } from "@/lib/archiveClient";
 import { markFirstSessionDone, markPlanDayDone } from "@/lib/progress";
+import { recordChallengeScore } from "@/lib/challenge";
 import {
   interestScore,
   liveHint,
@@ -110,6 +111,9 @@ export default function TrenerPage() {
   }, [sessionId]);
   const mijozClipRef = useRef(0);
   const sotuvchiClipRef = useRef(0);
+  // Haftalik challenge (10x-5): shu sessiya challenge bo'lsa, yakunda ball
+  // lokal eng yaxshi challenge baliga yoziladi.
+  const isChallengeRef = useRef(false);
 
   // Dars sahifasidan preset (/trener?soha=..&persona=..&level=..&rejim=..):
   // to'g'ri parametrlar bo'lsa sozlash tayyor va suhbat darrov boshlanadi.
@@ -133,6 +137,7 @@ export default function TrenerPage() {
     if (qn) setClientName(qn);
     const qlz = p.get("lavozim");
     if (qlz) setClientLavozim(qlz);
+    isChallengeRef.current = p.get("challenge") === "1";
     setStage("miccheck");
   }, [ready]);
 
@@ -457,6 +462,8 @@ export default function TrenerPage() {
       // (dushanba=0 asosli). Bugun qaysi persona bo'lishidan qat'i nazar —
       // "bugun mashq qilding" signali.
       markPlanDayDone((new Date().getDay() + 6) % 7);
+      // Haftalik challenge (10x-5): challenge sessiyasi bo'lsa ballni yozamiz.
+      if (isChallengeRef.current) recordChallengeScore(data.total);
       // Sessiyani orqa fonda saqlaymiz — Supabase sozlanmagan bo'lsa
       // route jimgina no-op qiladi, natija ekraniga bu bog'liq emas.
       void fetch("/api/session", {

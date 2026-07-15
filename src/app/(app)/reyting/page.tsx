@@ -1,12 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Chip, Button } from "@/components/ui";
+import { PageShell, Card, Chip, Button, PersonaAvatar } from "@/components/ui";
 import { LeaderboardRow, AchievementCard } from "@/components/gamification";
 import { ACHIEVEMENTS, MOCK_LEADERBOARD, MOCK_ACHIEVEMENTS } from "@/lib/mock";
+import { weeklyChallenge, getChallengeBest } from "@/lib/challenge";
+import { scenarioHref } from "@/lib/scenarios";
 
 const t = getMessages();
+
+const CHALLENGE = weeklyChallenge();
+const CHALLENGE_HREF = `${scenarioHref(CHALLENGE)}&challenge=1`;
+
+function scoreTone(v: number): string {
+  return v >= 66 ? "var(--good)" : v >= 40 ? "var(--warn)" : "var(--bad)";
+}
 
 const XP_BY_CODE = new Map(ACHIEVEMENTS.map((a) => [a.code, a.xp]));
 
@@ -23,6 +32,11 @@ type Tab = "leaderboard" | "achievements";
 
 export default function ReytingPage() {
   const [tab, setTab] = useState<Tab>("leaderboard");
+  const [best, setBest] = useState<number | null>(null);
+
+  useEffect(() => {
+    setBest(getChallengeBest());
+  }, []);
 
   return (
     <PageShell title={t.reyting.title} lead={t.reyting.subtitle}>
@@ -43,6 +57,52 @@ export default function ReytingPage() {
 
       {tab === "leaderboard" ? (
         <div>
+          {/* Haftalik challenge (10x-5) — bu hafta hamma bir xil mijoz bilan kurashadi */}
+          <Card className="mb-4 flex flex-col gap-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span aria-hidden>🏆</span>
+                <div>
+                  <h2 className="text-lg font-semibold tracking-tight">
+                    {t.reyting.challengeTitle}
+                  </h2>
+                  <p className="text-sm text-muted">
+                    {t.reyting.challengeLead}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="inset flex items-center gap-3 p-3">
+              <PersonaAvatar persona={CHALLENGE.persona} size={44} />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold tracking-tight text-foreground">
+                  {CHALLENGE.name}
+                </p>
+                <p className="text-xs text-muted">
+                  {CHALLENGE.lavozim} · {t.sohalar[CHALLENGE.soha]} ·{" "}
+                  {t.qongiroq.difficulty[CHALLENGE.difficulty]}
+                </p>
+              </div>
+              {best != null && (
+                <div className="text-right">
+                  <div className="eyebrow">{t.reyting.challengeYourBest}</div>
+                  <div
+                    className="text-2xl font-semibold tabular-nums"
+                    style={{ color: scoreTone(best) }}
+                  >
+                    {best}
+                  </div>
+                </div>
+              )}
+            </div>
+            <Button href={CHALLENGE_HREF} className="w-full sm:w-auto">
+              {best != null
+                ? t.reyting.challengeRetry
+                : t.reyting.challengeStart}{" "}
+              →
+            </Button>
+          </Card>
+
           {ME && (
             <Card className="mb-4 flex items-center justify-between">
               <span className="eyebrow">{t.reyting.yourRank}</span>
