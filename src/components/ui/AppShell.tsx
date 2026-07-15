@@ -17,6 +17,7 @@ type IconKey =
   | "qongiroq"
   | "muzokaralar"
   | "etirozlar"
+  | "drill"
   | "dars"
   | "arxiv"
   | "analitika"
@@ -73,6 +74,16 @@ function Icon({ name }: { name: IconKey }) {
       return (
         <svg {...common}>
           <path d="M20 4H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3v4l5-4h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1Z" />
+        </svg>
+      );
+    case "drill":
+      return (
+        <svg {...common}>
+          <path d="M12 3v3" />
+          <path d="M5.6 5.6l2.1 2.1" />
+          <path d="M18.4 5.6l-2.1 2.1" />
+          <circle cx="12" cy="14" r="6" />
+          <path d="M12 14l3-2" />
         </svg>
       );
     case "dars":
@@ -141,6 +152,7 @@ const NAV: NavItem[] = [
   { href: "/qongiroq", label: t.nav.qongiroq, icon: "qongiroq" },
   { href: "/muzokaralar", label: t.nav.muzokaralar, icon: "muzokaralar" },
   { href: "/etirozlar", label: t.nav.etirozlar, icon: "etirozlar" },
+  { href: "/drill", label: t.nav.drill, icon: "drill" },
   { href: "/dars", label: t.nav.dars, icon: "dars" },
   { href: "/arxiv", label: t.nav.arxiv, icon: "arxiv" },
   { href: "/analitika", label: t.nav.analitika, icon: "analitika" },

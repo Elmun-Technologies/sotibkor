@@ -33,6 +33,7 @@ import tariflar from "./tariflar.json";
 import yordam from "./yordam.json";
 import miccheck from "./miccheck.json";
 import arxiv from "./arxiv.json";
+import drill from "./drill.json";
 
 export type Locale = "uz" | "ru";
 export const DEFAULT_LOCALE: Locale = "uz";
@@ -64,6 +65,7 @@ const messages = {
   yordam,
   miccheck,
   arxiv,
+  drill,
 } as const;
 
 export type Messages = typeof messages;
