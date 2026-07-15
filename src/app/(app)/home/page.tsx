@@ -6,11 +6,25 @@ import { getMessages } from "@/i18n";
 import { Card, Button, Eyebrow, AppLoading } from "@/components/ui";
 import { getUser, isOnboarded } from "@/lib/auth";
 import { useAuthGate } from "@/lib/useAuthGate";
-import { hasFinishedSession } from "@/lib/progress";
+import { hasFinishedSession, getCompletedPlanDays } from "@/lib/progress";
 import { getFavorites, toggleFavorite } from "@/lib/favorites";
+import { generateWeeklyPlan, type PlanDay } from "@/lib/weeklyPlan";
+import { PersonaAvatar } from "@/components/ui";
 import { OBJECTION_LIBRARY } from "@/lib/objections";
 import type { ObjectionType } from "@/lib/coach";
 import type { PersonaKey } from "@/lib/content";
+
+/** Reja kuni uchun trener preset havolasi. */
+function planHref(d: PlanDay): string {
+  const q = new URLSearchParams({
+    soha: d.soha,
+    persona: d.persona,
+    level: String(d.level),
+    rejim: "qongiroq",
+    focus: d.objection,
+  });
+  return `/trener?${q.toString()}`;
+}
 
 /** Yarim tundagacha qolgan vaqt (soat:daqiqa) — keyingi kun e'tirozi. */
 function msToMidnight(now: Date): number {
@@ -57,9 +71,15 @@ export default function HomePage() {
   const [sessionDone, setSessionDone] = useState(false);
   const [isFav, setIsFav] = useState(false);
   const [countdown, setCountdown] = useState<string | null>(null);
+  const [weakObjection, setWeakObjection] = useState<ObjectionType | null>(
+    null,
+  );
+  const [completedDays, setCompletedDays] = useState<Set<number>>(new Set());
+  const [todayIndex, setTodayIndex] = useState(0);
 
   const obj = OBJECTION_LIBRARY[dayIdx % OBJECTION_LIBRARY.length];
   const quote = t.home.quotes[dayIdx % t.home.quotes.length];
+  const plan = generateWeeklyPlan(weakObjection);
 
   useEffect(() => {
     if (!ready) return;
@@ -78,6 +98,16 @@ export default function HomePage() {
             : t.home.greetEve,
     );
     setDayIdx(now.getDate());
+    setTodayIndex((now.getDay() + 6) % 7); // dushanba=0
+    setCompletedDays(getCompletedPlanDays());
+    // Zaif e'tiroz (spaced-repetition) — reja shu bo'yicha markazlashadi.
+    // Supabase yo'q bo'lsa route null qaytaradi (reja umumiy rejaga tushadi).
+    fetch("/api/session")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { weakObjection?: ObjectionType | null } | null) => {
+        if (data?.weakObjection) setWeakObjection(data.weakObjection);
+      })
+      .catch(() => {});
   }, [ready]);
 
   // Sevimli holatini shu kunning e'tirozi bo'yicha o'qiymiz.
@@ -175,6 +205,59 @@ export default function HomePage() {
           </div>
         </Card>
       )}
+
+      {/* Haftalik reja (10x-4) — zaif e'tirozga qarab tuzilgan 7 kunlik mashq */}
+      <Card className="mb-4 flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <span aria-hidden>🗓️</span>
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight">
+              {t.home.planTitle}
+            </h2>
+            <p className="text-sm text-muted">{t.home.planLead}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-7 gap-1.5">
+          {plan.map((d) => {
+            const isToday = d.dayIndex === todayIndex;
+            const done = completedDays.has(d.dayIndex);
+            return (
+              <Link
+                key={d.dayIndex}
+                href={planHref(d)}
+                className="flex flex-col items-center gap-1.5 rounded-xl border p-2 text-center transition hover:border-foreground/30"
+                style={{
+                  borderColor: isToday
+                    ? "color-mix(in srgb, var(--accent) 55%, transparent)"
+                    : "var(--border)",
+                  background: isToday
+                    ? "color-mix(in srgb, var(--accent) 8%, transparent)"
+                    : "transparent",
+                }}
+              >
+                <span className="font-mono text-[10px] uppercase tracking-wider text-muted">
+                  {t.home.weekdays[d.dayIndex]}
+                </span>
+                <span className="relative">
+                  <PersonaAvatar persona={d.persona} size={30} />
+                  {done && (
+                    <span
+                      aria-hidden
+                      className="absolute -bottom-1 -right-1 grid h-3.5 w-3.5 place-items-center rounded-full text-[8px]"
+                      style={{ background: "var(--good)", color: "#fff" }}
+                    >
+                      ✓
+                    </span>
+                  )}
+                </span>
+                <span className="text-[10px] leading-tight text-foreground">
+                  {t.etirozlar.types[d.objection]}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Kun e'tirozi */}

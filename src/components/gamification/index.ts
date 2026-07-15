@@ -17,3 +17,5 @@ export { ActivityCalendar } from "./ActivityCalendar";
 export type { ActivityCalendarProps } from "./ActivityCalendar";
 export { RadarChart } from "./RadarChart";
 export type { RadarChartProps, RadarAxis } from "./RadarChart";
+export { Certificate } from "./Certificate";
+export type { CertificateProps } from "./Certificate";
