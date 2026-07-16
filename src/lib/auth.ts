@@ -48,6 +48,18 @@ export function register(user: AuthUser): void {
   }
 }
 
+/**
+ * Demo uchun rolni almashtiradi (menejer ↔ rop) — real auth'da rol
+ * onboardingда belgilanadi. Kalitsiz demo'da ROP panelini ko'rish uchun.
+ * Foydalanuvchi bo'lmasa jimgina no-op.
+ */
+export function setUserRole(role: Role): void {
+  if (typeof window === "undefined") return;
+  const u = getUser();
+  if (!u) return;
+  register({ ...u, role });
+}
+
 export async function logout(): Promise<void> {
   if (typeof window === "undefined") return;
   try {
