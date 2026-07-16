@@ -85,6 +85,12 @@ export default function Home() {
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
+              href="/biznes"
+              className="hidden text-sm font-medium text-muted transition hover:text-foreground sm:inline"
+            >
+              {t.landing.navBiznes}
+            </Link>
+            <Link
               href="/boshlash"
               className="hidden text-sm font-medium text-muted transition hover:text-foreground sm:inline"
             >

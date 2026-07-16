@@ -1,0 +1,87 @@
+{
+  "navBack": "Yakka tartibda",
+  "navCta": "Jamoa uchun boshlash",
+  "heroBadge": "Jamoalar uchun · B2B",
+  "heroTitle": "Butun jamoangizni sotuvchiga aylantiring",
+  "heroSubtitle": "Bir martalik qimmat trening emas — har kuni ishlaydigan AI trenajor. Menejerlaringiz o'zbekcha jonli suhbatlarda mashq qiladi, siz ROP panelidan har birining progressini raqamlarda ko'rasiz.",
+  "heroCtaPrimary": "Jamoa uchun boshlash",
+  "heroCtaSecondary": "ROP panelini ko'rish",
+  "stats": [
+    { "value": "<2s", "label": "Ovozli javob — jonli suhbat tezligida" },
+    { "value": "31", "label": "E'tiroz turi, har biriga 6 uslub javob" },
+    { "value": "5", "label": "Mijoz personasi — jaydari o'zbekcha otkaz" },
+    { "value": "24/7", "label": "Mashq — vaqt va trener cheklovsiz" }
+  ],
+  "problemEyebrow": "Muammo",
+  "problemTitle": "An'anaviy jamoa trening'i nega ishlamaydi",
+  "problems": [
+    {
+      "title": "Bir martalik va qimmat",
+      "desc": "Tashqi trener keladi, ketadi — bir oydan keyin hammasi unutiladi. Har safar yangi pul."
+    },
+    {
+      "title": "O'lchab bo'lmaydi",
+      "desc": "Kim yaxshi, kim zaif — bilib bo'lmaydi. Faqat oy oxiridagi savdo raqami qoladi, sabab noaniq."
+    },
+    {
+      "title": "Yangi xodim sekin kirishadi",
+      "desc": "Yangi sotuvchi real mijozlarda 'o'rganadi' — ya'ni sizning mijozlaringizni yo'qotib."
+    },
+    {
+      "title": "Real mijozda mashq qilinadi",
+      "desc": "Xatolar jonli qo'ng'iroqlarda sodir bo'ladi. Xavfsiz mashq maydoni yo'q."
+    }
+  ],
+  "solutionEyebrow": "Yechim",
+  "solutionTitle": "Bitta panel — butun jamoa nazorati",
+  "solutionLead": "Sotuvchi Trainer jamoangizni doimiy, o'lchanadigan va xavfsiz mashq muhitiga qo'yadi.",
+  "features": [
+    {
+      "title": "ROP paneli",
+      "desc": "Har a'zoga vazifa tayinlang, o'rtacha ball, streak va oxirgi faollikni bir joyda ko'ring. Jamoa leaderboardi motivatsiya beradi."
+    },
+    {
+      "title": "Jamoa analitikasi",
+      "desc": "O'rtacha voronka va eng zaif e'tiroz turlari — jamoa qayerda oqayotganini aniq ko'rsatadi. Trening'ni raqamga asoslang."
+    },
+    {
+      "title": "Ovozli AI trenajor",
+      "desc": "Menejer AI mijoz bilan jonli o'zbekcha gaplashadi — otkaz beradi, savdolashadi. Suhbat oxirida rubrika bo'yicha halol baho."
+    },
+    {
+      "title": "Community",
+      "desc": "Sotuvchilar bir-biriga yordam beradigan ichki chat — eng yaxshi javoblar va texnikalar jamoada tarqaladi."
+    },
+    {
+      "title": "Vazifa va spaced-repetition",
+      "desc": "Zaif e'tirozni avtomatik aniqlab, aynan shu bo'yicha takroriy drill beradi. Bo'shliq yopilguncha mashq."
+    },
+    {
+      "title": "Ma'lumot xavfsizligi",
+      "desc": "Har suhbat, transkript va baho sizning hisobingizda. API kalitlar server tomonda — mijoz ma'lumoti sizniki bo'lib qoladi."
+    }
+  ],
+  "howEyebrow": "Qanday ishlaydi",
+  "howTitle": "Uch qadamda jamoa mashqi",
+  "how": [
+    "Jamoangizni qo'shing — har menejerga alohida hisob, siz ROP sifatida hammasini ko'rasiz.",
+    "Vazifa tayinlang — kimga, qaysi e'tiroz bo'yicha, necha marta. Yoki zaif nuqtani AI o'zi tanlaydi.",
+    "Progressni kuzating — o'rtacha ball, voronka va leaderboard real vaqtda yangilanadi."
+  ],
+  "roiEyebrow": "Natija",
+  "roiTitle": "Nega bu ishlaydi",
+  "roi": [
+    "Yangi xodim real mijozgacha yuzlab mashq suhbatidan o'tadi — sizning mijozlaringiz hisobiga emas.",
+    "Zaif nuqta oy oxirida emas, birinchi kundanoq raqamda ko'rinadi.",
+    "Doimiy mashq — bir martalik trening emas. Ko'nikma unutilmaydi, mustahkamlanadi.",
+    "Jaydari o'zbek/aralash til — real O'zbekiston bozori, kitobiy ingliz skript emas."
+  ],
+  "pricingEyebrow": "Tariflar",
+  "pricingTitle": "Jamoa hajmiga mos tarif",
+  "pricingLead": "Kichik jamoadan katta savdo bo'limigacha. Har menejerga alohida hisob, ROP paneli hammasida.",
+  "pricingCta": "Tariflarni ko'rish",
+  "ctaTitle": "Jamoangiz uchun demo boshlang",
+  "ctaDesc": "Bir necha daqiqada ROP panelini sinab ko'ring — jamoa qo'shing, vazifa tayinlang, natijani ko'ring.",
+  "ctaBtn": "Jamoa uchun boshlash",
+  "ctaNote": "Karta talab qilinmaydi — bepul sinab ko'ring."
+}

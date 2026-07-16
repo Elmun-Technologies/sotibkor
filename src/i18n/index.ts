@@ -36,6 +36,7 @@ import arxiv from "./arxiv.json";
 import drill from "./drill.json";
 import chat from "./chat.json";
 import rop from "./rop.json";
+import biznes from "./biznes.json";
 
 export type Locale = "uz" | "ru";
 export const DEFAULT_LOCALE: Locale = "uz";
@@ -70,6 +71,7 @@ const messages = {
   drill,
   chat,
   rop,
+  biznes,
 } as const;
 
 export type Messages = typeof messages;
