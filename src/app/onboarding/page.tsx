@@ -84,7 +84,7 @@ export default function OnboardingPage() {
   if (!ready) return <AppLoading />;
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
+    <main className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col justify-center px-4 py-10 sm:px-6 sm:py-14">
       {/* Progress */}
       <div
         className="mb-8 flex gap-2"

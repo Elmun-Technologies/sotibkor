@@ -23,74 +23,82 @@ export function ProgressMap({ xp, className = "" }: ProgressMapProps) {
   const segments = Math.max(1, LEVELS.length - 1);
 
   return (
-    <div className={`overflow-x-auto ${className}`}>
-      <div className="flex min-w-[520px] items-start">
-        {LEVELS.map((lvl, i) => {
-          const passed = i < currentIndex;
-          const isCurrent = i === currentIndex;
-          const state = passed ? "passed" : isCurrent ? "current" : "future";
+    <div className={`relative ${className}`}>
+      <div className="overflow-x-auto">
+        <div className="flex min-w-[520px] items-start">
+          {LEVELS.map((lvl, i) => {
+            const passed = i < currentIndex;
+            const isCurrent = i === currentIndex;
+            const state = passed ? "passed" : isCurrent ? "current" : "future";
 
-          const dotClass =
-            state === "passed"
-              ? "border-transparent bg-ink text-onink"
-              : state === "current"
-                ? "border-[color:var(--accent)] bg-[color:var(--accent)]/15 text-foreground shadow-soft"
-                : "border-border bg-surface text-muted";
+            const dotClass =
+              state === "passed"
+                ? "border-transparent bg-ink text-onink"
+                : state === "current"
+                  ? "border-[color:var(--accent)] bg-[color:var(--accent)]/15 text-foreground shadow-soft"
+                  : "border-border bg-surface text-muted";
 
-          // Chiziq (bu tugundan keyingisiga): o'tilgan bo'lsa 100%, joriy bo'lsa progress.
-          const fill = passed ? 1 : isCurrent ? progress : 0;
+            // Chiziq (bu tugundan keyingisiga): o'tilgan bo'lsa 100%, joriy bo'lsa progress.
+            const fill = passed ? 1 : isCurrent ? progress : 0;
 
-          return (
-            <div
-              key={lvl.key}
-              className="flex min-w-0 flex-1 flex-col items-center"
-            >
-              <div className="flex w-full items-center">
-                {/* chap yarim chiziq (birinchi tugunda ko'rinmas) */}
-                <div className="h-1 flex-1">
-                  {i > 0 && (
-                    <div className="h-1 rounded-full bg-[color:var(--fg)]/10" />
-                  )}
+            return (
+              <div
+                key={lvl.key}
+                className="flex min-w-0 flex-1 flex-col items-center"
+              >
+                <div className="flex w-full items-center">
+                  {/* chap yarim chiziq (birinchi tugunda ko'rinmas) */}
+                  <div className="h-1 flex-1">
+                    {i > 0 && (
+                      <div className="h-1 rounded-full bg-[color:var(--fg)]/10" />
+                    )}
+                  </div>
+
+                  <div
+                    className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 font-mono text-sm font-bold tabular-nums transition-colors ${dotClass}`}
+                  >
+                    {i + 1}
+                  </div>
+
+                  {/* o'ng yarim chiziq (oxirgi tugunda ko'rinmas) */}
+                  <div className="relative h-1 flex-1">
+                    {i < segments && (
+                      <div className="h-1 overflow-hidden rounded-full bg-[color:var(--fg)]/10">
+                        <motion.div
+                          className="h-full rounded-full bg-[color:var(--accent)]"
+                          initial={reduce ? false : { width: 0 }}
+                          animate={{ width: `${fill * 100}%` }}
+                          transition={
+                            reduce
+                              ? { duration: 0 }
+                              : { duration: 0.9, ease: "easeOut" }
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div
-                  className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border-2 font-mono text-sm font-bold tabular-nums transition-colors ${dotClass}`}
+                  className={`mt-2 max-w-[92px] text-center text-[11px] leading-tight ${
+                    isCurrent ? "font-semibold text-foreground" : "text-muted"
+                  }`}
                 >
-                  {i + 1}
+                  {t.profil.daraja[lvl.key]}
                 </div>
-
-                {/* o'ng yarim chiziq (oxirgi tugunda ko'rinmas) */}
-                <div className="relative h-1 flex-1">
-                  {i < segments && (
-                    <div className="h-1 overflow-hidden rounded-full bg-[color:var(--fg)]/10">
-                      <motion.div
-                        className="h-full rounded-full bg-[color:var(--accent)]"
-                        initial={reduce ? false : { width: 0 }}
-                        animate={{ width: `${fill * 100}%` }}
-                        transition={
-                          reduce
-                            ? { duration: 0 }
-                            : { duration: 0.9, ease: "easeOut" }
-                        }
-                      />
-                    </div>
-                  )}
+                <div className="mt-0.5 font-mono text-[10px] tabular-nums text-muted">
+                  {lvl.minXp.toLocaleString("ru-RU")}
                 </div>
               </div>
-
-              <div
-                className={`mt-2 max-w-[92px] text-center text-[11px] leading-tight ${
-                  isCurrent ? "font-semibold text-foreground" : "text-muted"
-                }`}
-              >
-                {t.profil.daraja[lvl.key]}
-              </div>
-              <div className="mt-0.5 font-mono text-[10px] tabular-nums text-muted">
-                {lvl.minXp.toLocaleString("ru-RU")}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+      </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute right-0 top-0 flex h-11 w-9 items-center justify-end bg-gradient-to-l from-surface via-surface to-transparent pr-0.5 text-muted md:hidden"
+      >
+        →
       </div>
     </div>
   );

@@ -70,11 +70,17 @@ export default function YutuqlarPage() {
         {CATEGORY_ORDER.map((cat) => {
           const items = BY_CATEGORY.get(cat) ?? [];
           if (items.length === 0) return null;
+          const catEarned = items.filter((a) => a.earned).length;
           return (
             <div key={cat}>
-              <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
-                {t.achievements.categories[cat]}
-              </h2>
+              <div className="mb-4 flex items-baseline justify-between gap-3">
+                <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                  {t.achievements.categories[cat]}
+                </h2>
+                <span className="font-mono text-xs tabular-nums text-muted">
+                  {catEarned}/{items.length}
+                </span>
+              </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {items.map((a, i) => (
                   <AchievementCard

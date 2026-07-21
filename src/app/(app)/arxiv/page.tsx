@@ -9,6 +9,7 @@ import {
   PageShell,
   Card,
   Badge,
+  Button,
   PersonaAvatar,
   AppLoading,
 } from "@/components/ui";
@@ -280,20 +281,19 @@ export default function ArxivPage() {
         {detail ? (
           <DetailPanel detail={detail} onClose={() => setSelectedId(null)} />
         ) : detailError ? (
-          <div className="space-y-3">
+          <Card className="flex flex-col items-center gap-4 py-12 text-center">
+            <span className="text-3xl" aria-hidden>
+              ⚠️
+            </span>
             <p className="text-sm text-[color:var(--bad)]">
               {t.arxiv.detailError}
             </p>
-            <button
-              type="button"
-              onClick={() => setSelectedId(null)}
-              className="text-sm font-medium text-muted hover:text-foreground"
-            >
+            <Button variant="ghost" onClick={() => setSelectedId(null)}>
               ← {t.arxiv.backToList}
-            </button>
-          </div>
+            </Button>
+          </Card>
         ) : (
-          <p className="text-sm text-muted">{t.arxiv.loading}</p>
+          <AppLoading />
         )}
       </PageShell>
     );
@@ -302,13 +302,28 @@ export default function ArxivPage() {
   return (
     <PageShell title={t.arxiv.title} lead={t.arxiv.subtitle}>
       {!supabaseOn && (
-        <Card className="mb-6 text-sm text-muted">{t.arxiv.mockNote}</Card>
+        <div className="mb-6 rounded-lg2 border border-hair bg-surface2 px-4 py-2.5 text-xs text-muted">
+          {t.arxiv.mockNote}
+        </div>
       )}
       {sessions === null ? (
-        <p className="text-sm text-muted">{t.arxiv.loading}</p>
+        <AppLoading />
       ) : sessions.length === 0 ? (
-        <Card className="py-12 text-center text-sm text-muted">
-          {t.arxiv.empty}
+        <Card className="flex flex-col items-center gap-4 py-16 text-center">
+          <span className="text-3xl" aria-hidden>
+            📞
+          </span>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              {t.arxiv.emptyTitle}
+            </h2>
+            <p className="mx-auto mt-1.5 max-w-md text-sm text-muted">
+              {t.arxiv.empty}
+            </p>
+          </div>
+          <Button href="/qongiroq" variant="ghost">
+            {t.arxiv.emptyCta}
+          </Button>
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
