@@ -97,13 +97,13 @@ export default function BiznesPage() {
                 className="flex items-end justify-between rounded-lg2 p-4"
               >
                 <span className="font-mono text-[11px] uppercase tracking-widest text-foreground/70">
-                  {b.pricingEyebrow}
+                  {b.heroPreviewLabel}
                 </span>
                 <span className="font-mono text-2xl font-semibold tabular-nums text-foreground">
                   72
                 </span>
               </Art>
-              <div className="flex flex-col divide-y divide-hair">
+              <div className="flex flex-1 flex-col justify-center divide-y divide-hair">
                 {[
                   { n: "Dilnoza", v: 81 },
                   { n: "Aziz", v: 74 },

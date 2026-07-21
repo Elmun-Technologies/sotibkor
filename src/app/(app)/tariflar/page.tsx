@@ -55,7 +55,17 @@ export default function TariflarPage() {
         </Card>
         <Card className="flex flex-col gap-1">
           <Eyebrow>{t.tariflar.freeLeft}</Eyebrow>
-          <div className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-[color:var(--good)]">
+          <div
+            className="mt-1 text-2xl font-semibold tabular-nums tracking-tight"
+            style={{
+              color:
+                freeLeft === 0
+                  ? "var(--bad)"
+                  : freeLeft <= trialLimit / 2
+                    ? "var(--warn)"
+                    : "var(--good)",
+            }}
+          >
             {freeLeft}/{trialLimit}
           </div>
         </Card>

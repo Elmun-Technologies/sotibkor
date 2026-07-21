@@ -6,6 +6,7 @@
   "heroSubtitle": "Bir martalik qimmat trening emas — har kuni ishlaydigan AI trenajor. Menejerlaringiz o'zbekcha jonli suhbatlarda mashq qiladi, siz ROP panelidan har birining progressini raqamlarda ko'rasiz.",
   "heroCtaPrimary": "Jamoa uchun boshlash",
   "heroCtaSecondary": "ROP panelini ko'rish",
+  "heroPreviewLabel": "Jamoa reytingi",
   "stats": [
     { "value": "<2s", "label": "Ovozli javob — jonli suhbat tezligida" },
     { "value": "31", "label": "E'tiroz turi, har biriga 6 uslub javob" },

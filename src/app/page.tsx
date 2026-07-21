@@ -167,7 +167,7 @@ export default function Home() {
                   ))}
                 </span>
               </Art>
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-1 flex-col justify-center gap-2.5">
                 <DemoLine role="client" text={t.landing.demo.c1} />
                 <DemoLine role="seller" text={t.landing.demo.s1} />
                 <DemoLine role="client" text={t.landing.demo.c2} />
