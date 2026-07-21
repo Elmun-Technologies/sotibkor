@@ -4,5 +4,8 @@
   "persona": "Mijoz turi",
   "level": "Qiyinlik darajasi",
   "start": "Suhbatni boshlash",
-  "mockNote": "Kalitsiz demo rejim: mijoz oldindan yozilgan javob beradi va brauzer ovozida gapiradi. Real AI uchun OPENAI_API_KEY va AISHA_API_KEY qo'shing."
+  "mockNote": "Demo rejim: mijoz hozircha oldindan tayyorlangan javob beradi va brauzer ovozida gapiradi. To'liq jonli AI suhbat administrator tomonidan yoqilganda ishga tushadi.",
+  "levelEasy": "1–2 · O'rgatuvchi rejim — mijoz tez roziligini bildiradi.",
+  "levelMed": "3–5 · Manipulyatsiya boshlanadi — narx tortishadi, ikkilanadi.",
+  "levelHard": "6+ · Faqat mukammal ishlov berilganda ochiladi."
 }

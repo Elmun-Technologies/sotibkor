@@ -28,6 +28,14 @@ const TIL_REJIM_LABEL: Record<TilRejimKey, string> = {
   rus: t.trener.tilRus,
 };
 
+function levelHint(level: number): string {
+  return level <= 2
+    ? t.setup.levelEasy
+    : level <= 5
+      ? t.setup.levelMed
+      : t.setup.levelHard;
+}
+
 export interface SetupPanelProps {
   soha: SohaKey;
   persona: PersonaKey;
@@ -108,16 +116,44 @@ export function SetupPanel({
         </Field>
 
         <Field label={t.setup.persona}>
-          <div className="flex flex-wrap gap-2">
-            {PERSONA_KEYS.map((k) => (
-              <Chip key={k} active={persona === k} onClick={() => onPersona(k)}>
-                <span className="inline-flex items-center gap-1.5">
-                  <PersonaAvatar persona={k} size={18} />
-                  {t.personalar[k]}
-                  {k === recommendedPersona ? " ★" : ""}
-                </span>
-              </Chip>
-            ))}
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+            {PERSONA_KEYS.map((k) => {
+              const active = persona === k;
+              const recommended = k === recommendedPersona;
+              return (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => onPersona(k)}
+                  aria-pressed={active}
+                  className={`relative flex flex-col items-center gap-2 rounded-2xl border px-3 py-4 text-center transition-all duration-150 active:scale-[0.97] ${
+                    active
+                      ? "border-transparent bg-ink text-onink"
+                      : "border-border hover:border-foreground/30 hover:bg-foreground/[.03]"
+                  }`}
+                >
+                  {recommended && (
+                    <span
+                      className="absolute -top-2 right-2 rounded-full border border-border bg-surface px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider"
+                      style={{ color: "var(--accent)" }}
+                    >
+                      ★ {t.trener.recommendedBadge}
+                    </span>
+                  )}
+                  <PersonaAvatar persona={k} size={36} />
+                  <span className="text-sm font-medium leading-tight">
+                    {t.personalar[k]}
+                  </span>
+                  <span
+                    className={`text-[11px] leading-tight ${
+                      active ? "text-[color:var(--on-ink-muted)]" : "text-muted"
+                    }`}
+                  >
+                    {t.personalar.traits[k]}
+                  </span>
+                </button>
+              );
+            })}
           </div>
           {recommendedPersona && (
             <p className="mt-2 text-xs text-muted">
@@ -137,6 +173,7 @@ export function SetupPanel({
               <Badge tone="neon">L{level}</Badge>
             </span>
           </div>
+          <p className="mt-2 text-xs text-muted">{levelHint(level)}</p>
         </Field>
 
         <Field label={t.trener.rejim}>

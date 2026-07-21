@@ -39,6 +39,60 @@ function Stars({ n, max }: { n: number; max: number }) {
   );
 }
 
+function StatusDot({
+  index,
+  completion,
+  unlocked,
+}: {
+  index: number;
+  completion: number;
+  unlocked: boolean;
+}) {
+  if (completion >= 100) {
+    return (
+      <span
+        aria-hidden
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-semibold"
+        style={{
+          background: "color-mix(in srgb, var(--good) 18%, transparent)",
+          color: "var(--good)",
+        }}
+      >
+        ✓
+      </span>
+    );
+  }
+  if (!unlocked) {
+    return (
+      <span
+        aria-hidden
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-border text-xs text-faint"
+      >
+        🔒
+      </span>
+    );
+  }
+  if (completion > 0) {
+    return (
+      <span
+        aria-hidden
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 font-mono text-xs tabular-nums text-foreground"
+        style={{ borderColor: "var(--accent)" }}
+      >
+        {String(index + 1).padStart(2, "0")}
+      </span>
+    );
+  }
+  return (
+    <span
+      aria-hidden
+      className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-border font-mono text-xs tabular-nums text-muted"
+    >
+      {String(index + 1).padStart(2, "0")}
+    </span>
+  );
+}
+
 function LessonRow({ lesson, index }: { lesson: Lesson; index: number }) {
   const p = lessonProgress(lesson.id);
   const unlocked = isLessonUnlocked(lesson.id);
@@ -52,11 +106,15 @@ function LessonRow({ lesson, index }: { lesson: Lesson; index: number }) {
         : { label: t.dars.start, variant: "primary" as const };
 
   return (
-    <div className="flex flex-col gap-3 border-t border-hair py-4 first:border-t-0 sm:flex-row sm:items-center">
+    <div
+      className={`flex flex-col gap-3 border-t border-hair py-4 first:border-t-0 sm:flex-row sm:items-center ${unlocked ? "" : "opacity-70"}`}
+    >
       <div className="flex min-w-0 flex-1 items-start gap-3">
-        <span className="font-mono text-sm tabular-nums text-faint">
-          {String(index + 1).padStart(2, "0")}
-        </span>
+        <StatusDot
+          index={index}
+          completion={p.completion}
+          unlocked={unlocked}
+        />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-semibold tracking-tight text-foreground">
@@ -86,7 +144,7 @@ function LessonRow({ lesson, index }: { lesson: Lesson; index: number }) {
           </Button>
         ) : (
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-5 py-2.5 text-sm text-faint">
-            🔒 {t.dars.locked}
+            {t.dars.locked}
           </span>
         )}
       </div>

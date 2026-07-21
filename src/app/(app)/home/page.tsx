@@ -149,17 +149,20 @@ export default function HomePage() {
           </h1>
           <p className="mt-3 text-lg text-muted">{t.home.subtitle}</p>
         </div>
-        <div className="ink flex items-center gap-4 px-5 py-4">
+        <Link
+          href="/trener"
+          className="ink flex items-center gap-4 px-5 py-4 transition-transform duration-150 hover:-translate-y-0.5 active:scale-[0.98]"
+        >
           <div className="grid h-14 w-14 place-items-center rounded-full border-2 border-[color:var(--on-ink)]/25 text-2xl font-semibold tabular-nums">
             0
           </div>
           <div>
             <div className="text-sm font-semibold">{t.home.streakTitle}</div>
             <div className="text-xs text-[color:var(--on-ink-muted)]">
-              {t.home.streakStart}
+              {t.home.streakStart} →
             </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Boshlash checklisti — barcha qadam bajarilgach yashiriladi */}
@@ -260,11 +263,20 @@ export default function HomePage() {
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Kun e'tirozi */}
+        {/* Kun e'tirozi — kunlik asosiy mashq, shu sabab boshqalardan ajralib turadi */}
         <Card className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span aria-hidden>⚡</span>
+          <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2.5">
+              <span
+                aria-hidden
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-base"
+                style={{
+                  background:
+                    "color-mix(in srgb, var(--warn) 18%, transparent)",
+                }}
+              >
+                ⚡
+              </span>
               <h2 className="text-xl font-semibold tracking-tight">
                 {t.home.objTitle}
               </h2>
@@ -308,15 +320,17 @@ export default function HomePage() {
           </div>
         </Card>
 
-        {/* Kun fikri */}
+        {/* Kun fikri — ilhomlantiruvchi, lekin ikkinchi darajali (harakat talab qilmaydi) */}
         <Card className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-muted">
             <span aria-hidden>💡</span>
-            <h2 className="text-xl font-semibold tracking-tight">
+            <h2 className="text-sm font-medium uppercase tracking-wide">
               {t.home.quoteTitle}
             </h2>
           </div>
-          <p className="text-lg leading-relaxed text-foreground">{quote.t}</p>
+          <p className="text-lg italic leading-relaxed text-foreground/80">
+            “{quote.t}”
+          </p>
           <div className="mt-auto flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-full bg-surface2 text-sm font-semibold">
               {quote.a.charAt(0)}
@@ -332,7 +346,7 @@ export default function HomePage() {
 
         {/* Mening qo'ng'iroqlarim */}
         <Card className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
             <h2 className="text-xl font-semibold tracking-tight">
               {t.home.callsTitle}
             </h2>
@@ -343,7 +357,13 @@ export default function HomePage() {
               {t.home.callsSeeAll} →
             </Link>
           </div>
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border py-8 text-center">
+            <span
+              aria-hidden
+              className="grid h-10 w-10 place-items-center rounded-full bg-surface2 text-lg"
+            >
+              🎙️
+            </span>
             <p className="text-sm text-muted">{t.home.callsEmpty}</p>
             <Button href="/dars" variant="ghost">
               {t.home.startTraining}

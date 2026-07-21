@@ -3,5 +3,12 @@
   "shubhali": "Shubhali",
   "bandman": "Bandman",
   "bilagon": "Bilag'on",
-  "yumshoq-lekin-olmaydi": "Yumshoq-lekin-olmaydi"
+  "yumshoq-lekin-olmaydi": "Yumshoq-lekin-olmaydi",
+  "traits": {
+    "qimmatchi": "Narxni doim tortishtiradi",
+    "shubhali": "Dalil va kafolat so'raydi",
+    "bandman": "Vaqti yo'q, qisqa gapiring",
+    "bilagon": "Hammasini biladi, sinaydi",
+    "yumshoq-lekin-olmaydi": "Rozidek ko'rinadi, olmaydi"
+  }
 }
