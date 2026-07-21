@@ -96,9 +96,14 @@ function ScenarioCard({ s }: { s: NegotiationScenario }) {
 
   return (
     <Card
-      interactive={!s.locked}
-      className={`flex flex-col gap-4 ${s.locked ? "opacity-70" : ""}`}
+      className={`relative flex flex-col gap-4 ${s.locked ? "overflow-hidden" : ""}`}
     >
+      {s.locked && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(135deg,transparent,transparent_10px,color-mix(in_srgb,var(--foreground)_3%,transparent)_10px,color-mix(in_srgb,var(--foreground)_3%,transparent)_11px)]"
+        />
+      )}
       <div className="flex items-start justify-between gap-3">
         <span
           className={`grid h-11 w-11 place-items-center rounded-xl ${
@@ -119,11 +124,15 @@ function ScenarioCard({ s }: { s: NegotiationScenario }) {
           {s.title}
         </p>
         <div className="mt-2 flex items-center gap-2.5">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-surface2 text-xs font-semibold">
+          <span
+            className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-semibold ${s.locked ? "bg-foreground/[.06] text-faint" : "bg-surface2"}`}
+          >
             {initials(s.clientName)}
           </span>
           <div className="min-w-0 leading-tight">
-            <div className="truncate text-sm font-medium text-foreground">
+            <div
+              className={`truncate text-sm font-medium ${s.locked ? "text-muted" : "text-foreground"}`}
+            >
               {s.clientName}
             </div>
             <div className="truncate text-xs text-muted">
@@ -164,7 +173,8 @@ function ScenarioCard({ s }: { s: NegotiationScenario }) {
           {t.muzokaralar.details}
         </button>
         {s.locked ? (
-          <span className="text-xs text-faint">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground/[.06] px-3 py-1.5 text-xs font-medium text-muted [&_svg]:h-3.5 [&_svg]:w-3.5">
+            <ScenarioIcon icon="lock" />
             {t.muzokaralar.levelLabel} {s.level} {t.muzokaralar.lockedLabel}
           </span>
         ) : (

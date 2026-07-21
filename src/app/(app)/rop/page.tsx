@@ -374,80 +374,137 @@ export default function RopPage() {
       <h2 className="mb-3 text-lg font-semibold tracking-tight">
         {t.rop.teamListTitle}
       </h2>
-      <Card className="mb-6 overflow-x-auto p-0">
-        <table className="w-full min-w-[560px] text-sm">
-          <thead>
-            <tr className="border-b border-hair text-left font-mono text-[11px] uppercase tracking-wider text-muted">
-              <th className="px-4 py-3 font-medium">{t.rop.colName}</th>
-              <th className="px-3 py-3 text-center font-medium">
-                {t.rop.colAvg}
-              </th>
-              <th className="px-3 py-3 text-center font-medium">
-                {t.rop.colStreak}
-              </th>
-              <th className="px-3 py-3 font-medium">{t.rop.colActivity}</th>
-              <th className="px-3 py-3 font-medium">{t.rop.colWeak}</th>
-              <th className="px-4 py-3" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-hair">
-            {team.map((m) => (
-              <tr key={m.name}>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink text-xs font-semibold text-onink">
-                      {m.name[0]}
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {m.name}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-3 py-3 text-center">
-                  <span
-                    className="font-mono font-semibold tabular-nums"
-                    style={{ color: scoreColor(m.avg) }}
-                  >
-                    {m.avg}
-                  </span>
-                </td>
-                <td className="px-3 py-3 text-center font-mono tabular-nums text-foreground">
-                  {m.streakDays}
-                  <span className="text-xs text-muted">
-                    {" "}
-                    {t.rop.streakUnit}
-                  </span>
-                </td>
-                <td className="px-3 py-3">
-                  <span className="inline-flex items-center gap-1.5 text-xs text-muted">
-                    <span
-                      className="h-1.5 w-1.5 rounded-full"
-                      style={{
-                        backgroundColor:
-                          m.lastActiveHours < 24
-                            ? "var(--good)"
-                            : "var(--faint)",
-                      }}
-                    />
-                    {activityLabel(m.lastActiveHours)}
-                  </span>
-                </td>
-                <td className="px-3 py-3 text-xs text-muted">
-                  {m.weakObjection ? t.etirozlar.types[m.weakObjection] : "—"}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button
-                    type="button"
-                    onClick={() => quickAssign(m.name)}
-                    className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-foreground/40 hover:bg-surface2"
-                  >
-                    {t.rop.assignQuick}
-                  </button>
-                </td>
+      <Card className="mb-6 p-0">
+        {/* Desktop/tablet: jadval */}
+        <div className="hidden overflow-x-auto sm:block">
+          <table className="w-full min-w-[560px] text-sm">
+            <thead>
+              <tr className="border-b border-hair text-left font-mono text-[11px] uppercase tracking-wider text-muted">
+                <th className="px-4 py-3 font-medium">{t.rop.colName}</th>
+                <th className="px-3 py-3 text-center font-medium">
+                  {t.rop.colAvg}
+                </th>
+                <th className="px-3 py-3 text-center font-medium">
+                  {t.rop.colStreak}
+                </th>
+                <th className="px-3 py-3 font-medium">{t.rop.colActivity}</th>
+                <th className="px-3 py-3 font-medium">{t.rop.colWeak}</th>
+                <th className="px-4 py-3" />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-hair">
+              {team.map((m) => (
+                <tr key={m.name}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink text-xs font-semibold text-onink">
+                        {m.name[0]}
+                      </span>
+                      <span className="font-medium text-foreground">
+                        {m.name}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-3 py-3 text-center">
+                    <span
+                      className="font-mono font-semibold tabular-nums"
+                      style={{ color: scoreColor(m.avg) }}
+                    >
+                      {m.avg}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-center font-mono tabular-nums text-foreground">
+                    {m.streakDays}
+                    <span className="text-xs text-muted">
+                      {" "}
+                      {t.rop.streakUnit}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3">
+                    <span className="inline-flex items-center gap-1.5 text-xs text-muted">
+                      <span
+                        className="h-1.5 w-1.5 rounded-full"
+                        style={{
+                          backgroundColor:
+                            m.lastActiveHours < 24
+                              ? "var(--good)"
+                              : "var(--faint)",
+                        }}
+                      />
+                      {activityLabel(m.lastActiveHours)}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-xs text-muted">
+                    {m.weakObjection ? t.etirozlar.types[m.weakObjection] : "—"}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      type="button"
+                      onClick={() => quickAssign(m.name)}
+                      className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground transition hover:border-foreground/40 hover:bg-surface2"
+                    >
+                      {t.rop.assignQuick}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobil: karta-qatorlar (jadval kesilib qolmasligi uchun) */}
+        <div className="divide-y divide-hair sm:hidden">
+          {team.map((m) => (
+            <div key={m.name} className="flex flex-col gap-3 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-ink text-xs font-semibold text-onink">
+                    {m.name[0]}
+                  </span>
+                  <span className="truncate font-medium text-foreground">
+                    {m.name}
+                  </span>
+                </div>
+                <span
+                  className="shrink-0 font-mono text-base font-semibold tabular-nums"
+                  style={{ color: scoreColor(m.avg) }}
+                >
+                  {m.avg}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted">
+                <span className="inline-flex items-center gap-1">
+                  {t.rop.colStreak}:{" "}
+                  <span className="font-mono tabular-nums text-foreground">
+                    {m.streakDays}
+                  </span>
+                  {t.rop.streakUnit}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{
+                      backgroundColor:
+                        m.lastActiveHours < 24 ? "var(--good)" : "var(--faint)",
+                    }}
+                  />
+                  {activityLabel(m.lastActiveHours)}
+                </span>
+                <span>
+                  {t.rop.colWeak}:{" "}
+                  {m.weakObjection ? t.etirozlar.types[m.weakObjection] : "—"}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => quickAssign(m.name)}
+                className="min-h-[44px] rounded-full border border-border px-4 text-sm font-medium text-foreground transition hover:border-foreground/40 hover:bg-surface2 active:scale-[0.98]"
+              >
+                {t.rop.assignQuick}
+              </button>
+            </div>
+          ))}
+        </div>
       </Card>
 
       {/* Jamoa leaderboardi */}

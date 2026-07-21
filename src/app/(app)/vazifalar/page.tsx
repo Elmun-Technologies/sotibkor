@@ -16,7 +16,7 @@ import {
   MOCK_ASSIGNMENTS_DONE,
   MOCK_TEAM,
 } from "@/lib/mock";
-import { assignmentsForMember } from "@/lib/ropTasks";
+import { assignmentsForMember, getRopAssignments } from "@/lib/ropTasks";
 import type { Assignment, TaskStatus } from "@/lib/types";
 
 const t = getMessages();
@@ -43,7 +43,7 @@ function TaskCard({ task }: { task: Assignment }) {
   const pct = Math.round((task.done / task.target) * 100);
   const isDone = task.status === "done";
   return (
-    <Card interactive className="flex flex-col gap-4">
+    <Card className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-semibold tracking-tight text-foreground">
@@ -88,6 +88,7 @@ export default function VazifalarPage() {
   const [tab, setTab] = useState<"active" | "done">("active");
   // ROP tomonidan menejerga tayinlangan vazifalar (ism bo'yicha).
   const [ropTasks, setRopTasks] = useState<Assignment[]>([]);
+  const [openTasksCount, setOpenTasksCount] = useState(0);
 
   useEffect(() => {
     if (!ready) return;
@@ -106,6 +107,7 @@ export default function VazifalarPage() {
         focus: a.focus,
       })),
     );
+    setOpenTasksCount(getRopAssignments().length);
   }, [ready]);
 
   const teamAvg = useMemo(
@@ -130,6 +132,32 @@ export default function VazifalarPage() {
               </h2>
             </div>
             <p className="text-sm text-muted">{t.vazifalar.ropCtaLead}</p>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="inset p-3 text-center">
+                <div className="text-xl font-semibold tabular-nums text-foreground">
+                  {MOCK_TEAM.length}
+                </div>
+                <div className="mt-0.5 text-xs text-muted">
+                  {t.vazifalar.ropCtaMembers}
+                </div>
+              </div>
+              <div className="inset p-3 text-center">
+                <div className="text-xl font-semibold tabular-nums text-foreground">
+                  {teamAvg}
+                </div>
+                <div className="mt-0.5 text-xs text-muted">
+                  {t.vazifalar.ropCtaAvg}
+                </div>
+              </div>
+              <div className="inset p-3 text-center">
+                <div className="text-xl font-semibold tabular-nums text-foreground">
+                  {openTasksCount}
+                </div>
+                <div className="mt-0.5 text-xs text-muted">
+                  {t.vazifalar.ropCtaOpenTasks}
+                </div>
+              </div>
+            </div>
             <div className="mt-auto">
               <Button href="/rop">{t.vazifalar.ropCtaBtn}</Button>
             </div>
