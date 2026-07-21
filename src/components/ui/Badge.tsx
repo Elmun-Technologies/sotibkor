@@ -5,8 +5,8 @@ type Tone = "neon" | "muted" | "good" | "warn";
 const TONES: Record<Tone, string> = {
   neon: "border-border text-foreground",
   muted: "border-border text-muted",
-  good: "border-[color:var(--good)]/40 text-[color:var(--good)]",
-  warn: "border-[color:var(--warn)]/40 text-[color:var(--warn)]",
+  good: "border-[color:var(--good)]/40 text-[color:var(--good-text)]",
+  warn: "border-[color:var(--warn)]/40 text-[color:var(--warn-text)]",
 };
 
 export interface BadgeProps {

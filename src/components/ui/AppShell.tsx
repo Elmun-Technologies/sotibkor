@@ -8,6 +8,8 @@ import { getMessages } from "@/i18n";
 import { getUser, logout, type AuthUser, type Role } from "@/lib/auth";
 import { ThemeToggle } from "./ThemeToggle";
 import { SupportWidget } from "./SupportWidget";
+import { IconButton } from "./IconButton";
+import { Button } from "./Button";
 
 const t = getMessages();
 
@@ -285,7 +287,7 @@ function SidebarInner({
       {/* Bepul suhbatlar karta */}
       <div className="rounded-2xl border border-[color:var(--good)]/30 bg-[color:var(--good)]/[.06] p-4">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--good)]">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--good-text)]">
             {t.nav.free}
           </span>
           <span className="font-mono text-xs tabular-nums text-muted">
@@ -301,13 +303,14 @@ function SidebarInner({
         <p className="mt-2 text-xs text-muted">
           {freeLeft ?? "…"} {t.nav.freeCalls}
         </p>
-        <Link
+        <Button
           href="/tariflar"
           onClick={onNavigate}
-          className="mt-3 flex w-full items-center justify-center rounded-full bg-ink px-4 py-2 text-xs font-medium text-onink transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
+          size="sm"
+          className="mt-3 w-full"
         >
           {t.nav.plan}
-        </Link>
+        </Button>
       </div>
 
       {/* Foydalanuvchi karta */}
@@ -321,12 +324,7 @@ function SidebarInner({
           </div>
           <div className="truncate text-xs text-muted">{roleLabel}</div>
         </div>
-        <button
-          type="button"
-          onClick={onLogout}
-          aria-label={t.nav.logout}
-          className="grid h-10 w-10 place-items-center rounded-full text-faint transition-all duration-150 hover:bg-foreground/[.05] hover:text-foreground active:scale-[0.93]"
-        >
+        <IconButton onClick={onLogout} aria-label={t.nav.logout} tone="muted">
           <svg
             width="16"
             height="16"
@@ -342,7 +340,7 @@ function SidebarInner({
             <path d="M10 8 6 12l4 4" />
             <path d="M6 12h11" />
           </svg>
-        </button>
+        </IconButton>
       </div>
 
       <div className="flex items-center justify-between px-1">
@@ -461,12 +459,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Link>
         <div className="flex items-center gap-1">
           <ThemeToggle />
-          <button
+          <IconButton
             ref={menuBtnRef}
-            type="button"
+            bordered
             onClick={() => setOpen(true)}
             aria-label={t.nav.menu}
-            className="grid h-10 w-10 place-items-center rounded-full border border-border text-foreground transition-all duration-150 hover:bg-foreground/[.05] active:scale-[0.93]"
           >
             <svg
               width="18"
@@ -480,7 +477,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <path d="M4 7h16M4 12h16M4 17h16" />
             </svg>
-          </button>
+          </IconButton>
         </div>
       </header>
 

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { getMessages } from "@/i18n";
+import { IconButton } from "./IconButton";
 
 const t = getMessages();
 
@@ -161,15 +162,15 @@ export function SupportWidget() {
               }
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
-              <button
+              <IconButton
                 ref={closeBtnRef}
-                type="button"
                 onClick={() => setOpen(false)}
                 aria-label={t.yordam.close}
-                className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full text-faint transition-all duration-150 hover:bg-foreground/[.06] hover:text-foreground active:scale-[0.93]"
+                tone="muted"
+                className="absolute right-3 top-3"
               >
                 ✕
-              </button>
+              </IconButton>
               <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[color:var(--good)]/10 text-[color:var(--good)]">
                 <svg
                   width="20"

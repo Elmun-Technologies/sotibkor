@@ -17,6 +17,8 @@ export { AppShell } from "./AppShell";
 export { AppLoading } from "./AppLoading";
 export { SupportWidget } from "./SupportWidget";
 export { ThemeToggle } from "./ThemeToggle";
+export { IconButton } from "./IconButton";
+export type { IconButtonProps } from "./IconButton";
 export { Eyebrow } from "./Eyebrow";
 export type { EyebrowProps } from "./Eyebrow";
 export { Tag } from "./Tag";

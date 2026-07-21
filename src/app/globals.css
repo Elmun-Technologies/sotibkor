@@ -34,6 +34,12 @@
   --live: #e0393b;
   --info: #0284c7; /* etirozlar "intriga" uslubi */
   --fun: #8b5cf6; /* etirozlar "yumor" uslubi */
+  /* Kichik matn (Badge) uchun to'qroq variantlar — --good/--warn o'zi
+     kichik matnda WCAG AA (4.5:1) ga yetmaydi (~3.4:1/~3.7:1); grafik
+     elementlar (chart chiziq/nuqta) da 3:1 yetarli bo'lgani uchun ular
+     o'zgarishsiz qoladi. */
+  --good-text: #0d7d40;
+  --warn-text: #93610a;
 
   --r-card: 28px;
   --r-lg: 20px;
@@ -73,6 +79,10 @@
   --info: #38bdf8;
   --fun: #a78bfa;
   --ring: #5b9dff;
+  /* Dark'da --good/--warn allaqachon AA'dan yuqori (yorqin rang qora fonda) —
+     Badge shu tokenlarni bevosita ishlatadi. */
+  --good-text: var(--good);
+  --warn-text: var(--warn);
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 40px rgba(0, 0, 0, 0.35);
   --shadow-card-hover:
@@ -106,6 +116,8 @@
     --info: #38bdf8;
     --fun: #a78bfa;
     --ring: #5b9dff;
+    --good-text: var(--good);
+    --warn-text: var(--warn);
     --shadow-card:
       0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 40px rgba(0, 0, 0, 0.35);
     --shadow-card-hover:

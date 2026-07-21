@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getMessages } from "@/i18n";
+import { IconButton } from "./IconButton";
 
 type Theme = "light" | "dark";
 
@@ -36,16 +37,15 @@ export function ThemeToggle() {
   const label = theme === "light" ? t.nav.themeDark : t.nav.themeLight;
 
   return (
-    <button
-      type="button"
+    <IconButton
+      bordered
       onClick={toggle}
       aria-label={t.nav.theme}
       title={label}
-      className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground/80 transition-all duration-150 hover:bg-foreground/[.05] active:scale-[0.93]"
     >
       <span aria-hidden className="text-base leading-none">
         {theme === "light" ? "☾" : "☀"}
       </span>
-    </button>
+    </IconButton>
   );
 }
