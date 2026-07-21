@@ -49,7 +49,7 @@
   "customDesc": "Qo'shimcha kontekst · ixtiyoriy",
   "customDescPh": "Masalan: doim narxni cho'zadi, raqobatchini ro'kach qiladi, qaror qilishga shoshmaydi...",
   "customBtn": "Mijoz yaratish",
-  "customHint": "Yaratilgan mijozlar shu qurilmada saqlanadi; hisobingizga bog'lash keyingi bosqichda (Supabase).",
+  "customHint": "Yaratilgan mijozlar shu qurilmada saqlanadi va hisobingiz ulangan bo'lsa avtomatik unga ham bog'lanadi.",
   "createdTitle": "Yaratilgan mijozlaringiz",
   "resultEmpty": "Bu filtrga mos ssenariy yo'q."
 }

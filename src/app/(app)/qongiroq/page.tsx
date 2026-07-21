@@ -219,7 +219,7 @@ export default function QongiroqPage() {
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {created.map((c) => (
-              <Card key={c.id} interactive className="flex flex-col gap-4">
+              <Card key={c.id} className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                   <PersonaAvatar persona={c.persona} size={48} />
                   <div>
@@ -396,7 +396,7 @@ function ViewToggleBtn({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+      className={`rounded-full px-3.5 py-2 text-xs font-medium transition ${
         active ? "bg-ink text-onink" : "text-muted hover:text-foreground"
       }`}
     >
@@ -453,7 +453,7 @@ function ScenarioCard({
   const til = (override.tilRejimi as TilRejimKey | undefined) ?? "aralash";
 
   return (
-    <Card interactive className="flex flex-col gap-4">
+    <Card className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <PersonaAvatar persona={s.persona} size={48} />
@@ -554,7 +554,7 @@ function ScenarioCard({
           onClick={onToggleSettings}
           aria-pressed={settingsOpen}
           aria-label={t.qongiroq.settingsTitle}
-          className="rounded-full border border-border px-3 py-2 text-sm text-muted transition hover:text-foreground"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border text-sm text-muted transition-all duration-150 hover:text-foreground active:scale-[0.93]"
         >
           ⚙
         </button>

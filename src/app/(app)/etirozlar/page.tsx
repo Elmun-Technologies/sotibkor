@@ -174,7 +174,20 @@ function PlaybookView() {
             />
           ))}
         </div>
-        <Card className="flex max-h-[640px] flex-col gap-1 overflow-y-auto p-2">
+        <select
+          value={selected.id}
+          onChange={(e) => selectObjection(e.target.value)}
+          aria-label={t.etirozlar.selectAria}
+          className="w-full rounded-xl border border-border bg-surface2 px-4 py-3 text-sm font-medium text-foreground outline-none transition focus:border-foreground/40 lg:hidden"
+        >
+          {list.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.text} · {o.answers.length} {t.etirozlar.answersCount}
+            </option>
+          ))}
+        </select>
+
+        <Card className="hidden max-h-[640px] flex-col gap-1 overflow-y-auto p-2 lg:flex">
           {list.map((o) => {
             const active = o.id === selected.id;
             return (
@@ -385,7 +398,6 @@ function FilterChip({
     </button>
   );
 }
-
 
 /* ---------------- Sahifa ---------------- */
 

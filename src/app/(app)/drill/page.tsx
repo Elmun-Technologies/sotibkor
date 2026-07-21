@@ -421,27 +421,29 @@ export default function DrillPage() {
           return (
             <div
               key={o.id}
-              className="flex items-center gap-3 border-t border-hair px-3 py-2.5 first:border-t-0"
+              className="flex flex-col gap-2.5 border-t border-hair px-3 py-3 first:border-t-0 sm:flex-row sm:items-center sm:gap-3 sm:py-2.5"
             >
-              <button
-                type="button"
-                onClick={() => toggle(o.id)}
-                aria-pressed={checked}
-                className={`grid h-8 w-8 shrink-0 place-items-center rounded-md border transition-all duration-150 active:scale-[0.93] ${
-                  checked
-                    ? "border-ink bg-ink text-onink"
-                    : "border-border text-transparent"
-                }`}
-              >
-                ✓
-              </button>
-              <span className="min-w-0 flex-1 truncate text-sm text-foreground">
-                {o.text}
-              </span>
-              <span className="hidden shrink-0 sm:block">
-                <StyleTagType type={o.type} />
-              </span>
-              <div className="flex shrink-0 items-center gap-1">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => toggle(o.id)}
+                  aria-pressed={checked}
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-md border transition-all duration-150 active:scale-[0.93] ${
+                    checked
+                      ? "border-ink bg-ink text-onink"
+                      : "border-border text-transparent"
+                  }`}
+                >
+                  ✓
+                </button>
+                <span className="min-w-0 flex-1 text-sm text-foreground sm:truncate">
+                  {o.text}
+                </span>
+                <span className="hidden shrink-0 sm:block">
+                  <StyleTagType type={o.type} />
+                </span>
+              </div>
+              <div className="flex shrink-0 items-center justify-end gap-1 pl-11 sm:pl-0">
                 <button
                   type="button"
                   onClick={() => bump(o.id, -1)}
