@@ -5,14 +5,22 @@ import { getMessages } from "@/i18n";
 import { PageShell, Card, Button, AppLoading } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { getUser } from "@/lib/auth";
+import { hasSupabaseAuth } from "@/lib/config";
 import {
   CHANNELS,
   channelMessages,
   channelCount,
   postMessage,
+  currentChatUserId,
+  fetchChannelMessagesRemote,
+  channelCountsRemote,
+  postMessageRemote,
+  subscribeChannel,
   type ChannelId,
   type ChatMessage,
 } from "@/lib/chat";
+
+const LIVE = hasSupabaseAuth();
 
 const t = getMessages();
 
@@ -35,6 +43,7 @@ function timeLabel(iso: string): string {
 export default function ChatPage() {
   const ready = useAuthGate("/chat");
   const [name, setName] = useState("");
+  const [myUserId, setMyUserId] = useState<string | null>(null);
   const [channel, setChannel] = useState<ChannelId>("umumiy");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -45,14 +54,42 @@ export default function ChatPage() {
     if (ready) setName(getUser()?.name ?? t.chat.you);
   }, [ready]);
 
-  // Kanal xabarlarini o'qiymiz + kanal sonlarini yangilaymiz.
+  useEffect(() => {
+    if (!ready || !LIVE) return;
+    void currentChatUserId().then(setMyUserId);
+  }, [ready]);
+
+  // Kanal xabarlarini o'qiymiz + kanal sonlarini yangilaymiz. Live rejimda
+  // Supabase'dan o'qiladi va yangi xabarlarga real vaqtli obuna bo'linadi.
   useEffect(() => {
     if (!ready) return;
-    setMessages(channelMessages(channel));
-    const c: Record<string, number> = {};
-    for (const ch of CHANNELS) c[ch] = channelCount(ch);
-    setCounts(c);
-  }, [ready, channel]);
+
+    if (!LIVE) {
+      setMessages(channelMessages(channel));
+      const c: Record<string, number> = {};
+      for (const ch of CHANNELS) c[ch] = channelCount(ch);
+      setCounts(c);
+      return;
+    }
+
+    let active = true;
+    void fetchChannelMessagesRemote(channel, myUserId).then((msgs) => {
+      if (active) setMessages(msgs);
+    });
+    void channelCountsRemote().then((c) => {
+      if (active) setCounts((prev) => ({ ...prev, ...c }));
+    });
+    const unsubscribe = subscribeChannel(channel, myUserId, (m) => {
+      setMessages((prev) =>
+        prev.some((p) => p.id === m.id) ? prev : [...prev, m],
+      );
+      setCounts((prev) => ({ ...prev, [channel]: (prev[channel] ?? 0) + 1 }));
+    });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [ready, channel, myUserId]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -60,11 +97,23 @@ export default function ChatPage() {
   }, [messages]);
 
   const send = () => {
-    if (!input.trim()) return;
-    const next = postMessage(channel, name, input, new Date().toISOString());
-    setMessages(next);
-    setCounts((prev) => ({ ...prev, [channel]: (prev[channel] ?? 0) + 1 }));
+    const text = input.trim();
+    if (!text) return;
     setInput("");
+
+    if (!LIVE) {
+      const next = postMessage(channel, name, text, new Date().toISOString());
+      setMessages(next);
+      setCounts((prev) => ({ ...prev, [channel]: (prev[channel] ?? 0) + 1 }));
+      return;
+    }
+
+    void postMessageRemote(channel, name, text).then((msg) => {
+      if (!msg) return;
+      setMessages((prev) =>
+        prev.some((p) => p.id === msg.id) ? prev : [...prev, msg],
+      );
+    });
   };
 
   if (!ready) return <AppLoading />;

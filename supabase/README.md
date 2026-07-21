@@ -17,6 +17,15 @@ usp, audience, spheres, onboarded, last_active`), `role` ni `'menejer' |
 - `supabase/migrations/0003_trial_and_weak_objection.sql` — kartasiz sinov
   izohini to'g'irlaydi (5 suhbat) va spaced-repetition uchun
   `weak_objection_type`/`weak_objection_at` ustunlarini qo'shadi.
+- `supabase/migrations/0004_session_audio.sql` — `/arxiv` audio arxivi
+  (`session_audio` jadvali + `call-audio` xususiy Storage bucket).
+- `supabase/migrations/0005_custom_clients.sql` — `/qongiroq` "o'z
+  mijozingni yarat" endi hisobga bog'lanadi (`custom_clients`, `users`
+  bilan bir xil "faqat o'zini" RLS — brauzer klienti to'g'ridan-to'g'ri yozadi).
+- `supabase/migrations/0006_chat_messages.sql` — community (`/chat`) real
+  vaqtli xabarlar (`chat_messages`, o'qish ochiq/yozish faqat o'z nomidan)
+  - Realtime publication'ga qo'shiladi (`alter publication supabase_realtime
+add table chat_messages`).
 
 ## Muhit o'zgaruvchilari
 
@@ -50,7 +59,8 @@ supabase db reset      # migrations/ ni qayta qo'llaydi
 
 ### Variant B — SQL Editor (Dashboard)
 
-`0001_init.sql`, keyin `0002_google_auth.sql`, keyin `0003_trial_and_weak_objection.sql`
+`0001_init.sql`, keyin `0002_google_auth.sql`, `0003_trial_and_weak_objection.sql`,
+`0004_session_audio.sql`, `0005_custom_clients.sql`, `0006_chat_messages.sql`
 mazmunini tartib bilan nusxalab, Supabase Dashboard → SQL Editor → Run.
 
 ### Variant C — psql
@@ -59,6 +69,9 @@ mazmunini tartib bilan nusxalab, Supabase Dashboard → SQL Editor → Run.
 psql "$DATABASE_URL" -f supabase/migrations/0001_init.sql
 psql "$DATABASE_URL" -f supabase/migrations/0002_google_auth.sql
 psql "$DATABASE_URL" -f supabase/migrations/0003_trial_and_weak_objection.sql
+psql "$DATABASE_URL" -f supabase/migrations/0004_session_audio.sql
+psql "$DATABASE_URL" -f supabase/migrations/0005_custom_clients.sql
+psql "$DATABASE_URL" -f supabase/migrations/0006_chat_messages.sql
 ```
 
 ## RLS eslatmasi
@@ -70,9 +83,20 @@ chetlab o'tadi, shuning uchun server yozishlari ishlaydi.
 `0002_google_auth.sql` `users` jadvali uchun `select`/`insert`/`update`
 siyosatlarini qo'shadi (`auth.uid() = id`) — brauzer klienti (anon key,
 `src/lib/auth.ts`) Google kirishdan keyin shu jadvalga to'g'ridan-to'g'ri
-yozadi. Boshqa jadvallar (`sessions, transcripts, scores, ...`) faqat server
-xizmat kaliti orqali yoziladi, shuning uchun ularga hozircha siyosat kerak
-emas.
+yozadi. `0005_custom_clients.sql` (`custom_clients`) va `0006_chat_messages.sql`
+(`chat_messages`) ham xuddi shu naqshda — brauzer klienti to'g'ridan-to'g'ri
+yozadi, RLS "faqat o'zini" (yoki `chat_messages`da o'qish uchun "hammaga
+ochiq") himoyalaydi. Qolgan jadvallar (`sessions, transcripts, scores, ...`)
+faqat server xizmat kaliti orqali yoziladi, shuning uchun ularga hozircha
+siyosat kerak emas.
+
+## Realtime (community chat)
+
+`0006_chat_messages.sql` `chat_messages` jadvalini `supabase_realtime`
+publication'ga qo'shadi — bu SQL orqali avtomatik yoqiladi (Dashboard'da
+qo'lda "Enable Realtime" bosish shart emas). `src/lib/chat.ts`
+`subscribeChannel()` shu publication orqali kanal bo'yicha jonli
+`postgres_changes` (INSERT) oqimiga obuna bo'ladi.
 
 ## Google OAuth sozlash
 

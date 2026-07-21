@@ -2,10 +2,17 @@
 
 /**
  * Community chat — o'zbek sotuvchilar bir-biriga yordam beradigan umumiy
- * chat + kanallar. Xabarlar localStorage'da saqlanadi (jonli, real Supabase
- * ulanmaguncha lokal — auth keshi bilan bir xil yondashuv). Seed xabarlar
- * (boshqa sotuvchilardan) demo ma'lumot — kanallar bo'sh ko'rinmasin uchun.
+ * chat + kanallar.
+ *
+ * Ikki rejim:
+ *  - Mock (Supabase yo'q): xabarlar localStorage'da (seed + saqlangan) —
+ *    quyidagi sof funksiyalar (`channelMessages`/`postMessage`/`channelCount`).
+ *  - Live (`hasSupabaseAuth()`): xabarlar `chat_messages` jadvalida, barcha
+ *    foydalanuvchilar Supabase Realtime (`postgres_changes`) orqali jonli
+ *    ko'radi — pastdagi `*Remote`/`subscribeChannel` funksiyalari.
  */
+
+import { hasSupabaseAuth } from "./config";
 
 export type ChannelId =
   "umumiy" | "narx" | "qongiroq" | "motivatsiya" | "savol-javob";
@@ -150,4 +157,162 @@ export function postMessage(
   };
   saveStored([...loadStored(), msg]);
   return channelMessages(channel);
+}
+
+/* ---- Live (Supabase Realtime) — `hasSupabaseAuth()` yoqilgan bo'lsa ---- */
+
+interface ChatMessageRow {
+  id: string;
+  channel: ChannelId;
+  user_id: string | null;
+  author: string;
+  text: string;
+  created_at: string;
+}
+
+function rowToMessage(
+  row: ChatMessageRow,
+  myUserId: string | null,
+): ChatMessage {
+  return {
+    id: row.id,
+    channel: row.channel,
+    author: row.author,
+    text: row.text,
+    at: row.created_at,
+    mine: row.user_id !== null && row.user_id === myUserId,
+  };
+}
+
+/** Joriy foydalanuvchi id'si (Supabase Auth). Sessiya yo'q bo'lsa `null`. */
+export async function currentChatUserId(): Promise<string | null> {
+  if (!hasSupabaseAuth()) return null;
+  try {
+    const { createClient } = await import("./supabase/browser");
+    const {
+      data: { user },
+    } = await createClient().auth.getUser();
+    return user?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Kanaldagi so'nggi xabarlarni Supabase'dan o'qiydi (eng ko'p 200 ta, eskisi birinchi). */
+export async function fetchChannelMessagesRemote(
+  channel: ChannelId,
+  myUserId: string | null,
+): Promise<ChatMessage[]> {
+  if (!hasSupabaseAuth()) return [];
+  try {
+    const { createClient } = await import("./supabase/browser");
+    const { data, error } = await createClient()
+      .from("chat_messages")
+      .select("id,channel,user_id,author,text,created_at")
+      .eq("channel", channel)
+      .order("created_at", { ascending: true })
+      .limit(200)
+      .returns<ChatMessageRow[]>();
+    if (error || !data) return [];
+    return data.map((r) => rowToMessage(r, myUserId));
+  } catch {
+    return [];
+  }
+}
+
+/** Har kanal bo'yicha xabarlar soni (Supabase'dan). */
+export async function channelCountsRemote(): Promise<
+  Partial<Record<ChannelId, number>>
+> {
+  if (!hasSupabaseAuth()) return {};
+  try {
+    const { createClient } = await import("./supabase/browser");
+    const supabase = createClient();
+    const entries = await Promise.all(
+      CHANNELS.map(async (ch) => {
+        const { count } = await supabase
+          .from("chat_messages")
+          .select("id", { count: "exact", head: true })
+          .eq("channel", ch);
+        return [ch, count ?? 0] as const;
+      }),
+    );
+    return Object.fromEntries(entries);
+  } catch {
+    return {};
+  }
+}
+
+/** Yangi xabarni Supabase'ga yozadi. Muvaffaqiyatsiz bo'lsa `null`. */
+export async function postMessageRemote(
+  channel: ChannelId,
+  author: string,
+  text: string,
+): Promise<ChatMessage | null> {
+  const clean = text.trim().slice(0, 1000);
+  if (!clean || !hasSupabaseAuth()) return null;
+  try {
+    const { createClient } = await import("./supabase/browser");
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from("chat_messages")
+      .insert({ channel, user_id: user.id, author, text: clean })
+      .select("id,channel,user_id,author,text,created_at")
+      .single<ChatMessageRow>();
+    if (error || !data) return null;
+    return rowToMessage(data, user.id);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Kanaldagi yangi xabarlarga (INSERT) jonli obuna bo'ladi. Tozalash uchun
+ * qaytarilgan funksiyani chaqiring (masalan `useEffect` cleanup'da).
+ * Supabase yo'q bo'lsa — no-op obuna (jimgina hech narsa qilmaydi).
+ */
+export function subscribeChannel(
+  channel: ChannelId,
+  myUserId: string | null,
+  onInsert: (message: ChatMessage) => void,
+): () => void {
+  if (!hasSupabaseAuth()) return () => {};
+
+  let cancelled = false;
+  let cleanup: (() => void) | null = null;
+
+  void (async () => {
+    const { createClient } = await import("./supabase/browser");
+    const supabase = createClient();
+    if (cancelled) return;
+
+    const rtChannel = supabase
+      .channel(`chat-${channel}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+          filter: `channel=eq.${channel}`,
+        },
+        (payload) => {
+          onInsert(rowToMessage(payload.new as ChatMessageRow, myUserId));
+        },
+      )
+      .subscribe();
+
+    cleanup = () => void supabase.removeChannel(rtChannel);
+    if (cancelled) cleanup();
+  })();
+
+  return () => {
+    cancelled = true;
+    cleanup?.();
+  };
 }

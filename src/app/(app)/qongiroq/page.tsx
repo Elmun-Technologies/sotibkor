@@ -29,8 +29,8 @@ import {
   type TilRejimKey,
 } from "@/lib/content";
 import {
-  getCustomClients,
-  saveCustomClients,
+  addCustomClient,
+  syncCustomClientsFromSupabase,
   type CustomClient,
 } from "@/lib/customClients";
 
@@ -105,10 +105,12 @@ export default function QongiroqPage() {
 
   const ready = useAuthGate("/qongiroq");
 
-  // Yaratilgan mijozlar localStorage'da saqlanadi (jonli, reload'da yo'qolmaydi).
+  // Yaratilgan mijozlar localStorage'da saqlanadi va hisobga bog'lanadi
+  // (Supabase ulangan bo'lsa) — reload'da va boshqa qurilmada yo'qolmaydi.
   useEffect(() => {
-    setCreated(getCustomClients());
-  }, []);
+    if (!ready) return;
+    void syncCustomClientsFromSupabase().then(setCreated);
+  }, [ready]);
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -326,21 +328,15 @@ export default function QongiroqPage() {
             <Button
               onClick={() => {
                 if (!name.trim()) return;
-                setCreated((list) => {
-                  const next = [
-                    ...list,
-                    {
-                      id: `${list.length}-${name.trim()}-${customPersona}`,
-                      name: name.trim(),
-                      company: company.trim(),
-                      soha: customSoha,
-                      persona: customPersona,
-                      desc: desc.trim(),
-                    },
-                  ];
-                  saveCustomClients(next);
-                  return next;
-                });
+                setCreated(
+                  addCustomClient({
+                    name: name.trim(),
+                    company: company.trim(),
+                    soha: customSoha,
+                    persona: customPersona,
+                    desc: desc.trim(),
+                  }),
+                );
                 setName("");
                 setCompany("");
                 setDesc("");

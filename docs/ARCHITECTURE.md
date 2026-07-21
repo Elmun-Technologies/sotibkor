@@ -163,6 +163,32 @@ session_audio (
   mime_type     text,
   created_at    timestamptz DEFAULT now()
 )
+
+-- Foydalanuvchi yaratgan mijozlar (/qongiroq "o'z mijozingni yarat")
+-- hisobga bog'langan — brauzer klienti (anon key) "faqat o'zini" RLS bilan
+-- to'g'ridan-to'g'ri yozadi (users jadvali bilan bir xil naqsh).
+custom_clients (
+  id          uuid PRIMARY KEY,
+  user_id     uuid REFERENCES users(id),
+  name        text,
+  company     text,
+  soha        text,
+  persona     text,
+  description text,
+  created_at  timestamptz DEFAULT now()
+)
+
+-- Community (/chat) xabarlari — o'qish ochiq (barcha kirgan foydalanuvchi),
+-- yozish faqat o'z nomidan. Realtime publication'ga qo'shilgan — brauzer
+-- Supabase Realtime (postgres_changes/INSERT) orqali jonli oladi.
+chat_messages (
+  id         uuid PRIMARY KEY,
+  channel    text,                          -- 'umumiy' | 'narx' | 'qongiroq' | 'motivatsiya' | 'savol-javob'
+  user_id    uuid REFERENCES users(id),
+  author     text,
+  text       text,
+  created_at timestamptz DEFAULT now()
+)
 ```
 
 ### Storage (audio arxiv)
