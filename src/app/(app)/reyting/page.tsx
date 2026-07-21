@@ -116,9 +116,28 @@ export default function ReytingPage() {
             <p className="text-sm text-muted">{t.reyting.empty}</p>
           ) : (
             <div className="space-y-2">
-              {MOCK_LEADERBOARD.map((entry, i) => (
-                <LeaderboardRow key={entry.rank} entry={entry} index={i} />
-              ))}
+              {MOCK_LEADERBOARD.map((entry, i) => {
+                const tierGradient =
+                  entry.rank === 1
+                    ? "from-amber-400/80 via-amber-300/40 to-transparent"
+                    : entry.rank === 2
+                      ? "from-slate-400/70 via-slate-300/35 to-transparent"
+                      : entry.rank === 3
+                        ? "from-orange-500/60 via-orange-400/30 to-transparent"
+                        : "";
+                return (
+                  <div
+                    key={entry.rank}
+                    className={
+                      tierGradient
+                        ? `rounded-2xl bg-gradient-to-r p-[1.5px] ${tierGradient} ${entry.rank === 3 ? "mb-2.5" : ""}`
+                        : ""
+                    }
+                  >
+                    <LeaderboardRow entry={entry} index={i} />
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

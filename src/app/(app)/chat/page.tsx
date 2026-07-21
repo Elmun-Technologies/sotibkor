@@ -124,38 +124,40 @@ export default function ChatPage() {
         {/* Kanallar */}
         <div className="flex flex-col gap-2">
           <div className="eyebrow px-1">{t.chat.channelsTitle}</div>
-          {CHANNELS.map((ch) => {
-            const active = ch === channel;
-            return (
-              <button
-                key={ch}
-                type="button"
-                onClick={() => setChannel(ch)}
-                aria-pressed={active}
-                className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-left transition ${
-                  active
-                    ? "border-transparent bg-ink text-onink"
-                    : "border-border text-foreground hover:border-foreground/30"
-                }`}
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium">
-                    #{t.chat.channels[ch].name}
+          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
+            {CHANNELS.map((ch) => {
+              const active = ch === channel;
+              return (
+                <button
+                  key={ch}
+                  type="button"
+                  onClick={() => setChannel(ch)}
+                  aria-pressed={active}
+                  className={`flex shrink-0 items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-left transition lg:w-full lg:shrink ${
+                    active
+                      ? "border-transparent bg-ink text-onink"
+                      : "border-border text-foreground hover:border-foreground/30"
+                  }`}
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium">
+                      #{t.chat.channels[ch].name}
+                    </span>
+                    <span
+                      className={`hidden truncate text-xs lg:block ${active ? "text-[color:var(--on-ink-muted)]" : "text-muted"}`}
+                    >
+                      {t.chat.channels[ch].desc}
+                    </span>
                   </span>
                   <span
-                    className={`block truncate text-xs ${active ? "text-[color:var(--on-ink-muted)]" : "text-muted"}`}
+                    className={`shrink-0 font-mono text-xs tabular-nums ${active ? "text-[color:var(--on-ink-muted)]" : "text-faint"}`}
                   >
-                    {t.chat.channels[ch].desc}
+                    {counts[ch] ?? 0}
                   </span>
-                </span>
-                <span
-                  className={`shrink-0 font-mono text-xs tabular-nums ${active ? "text-[color:var(--on-ink-muted)]" : "text-faint"}`}
-                >
-                  {counts[ch] ?? 0}
-                </span>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Xabarlar */}
@@ -174,12 +176,21 @@ export default function ChatPage() {
             className="flex-1 space-y-4 overflow-y-auto px-5 py-2"
           >
             {messages.length === 0 ? (
-              <p className="py-10 text-center text-sm text-muted">
-                {t.chat.empty}
-              </p>
+              <div className="flex flex-col items-center gap-2 py-14 text-center">
+                <span
+                  className="grid h-11 w-11 place-items-center rounded-full bg-surface2 text-lg"
+                  aria-hidden
+                >
+                  💬
+                </span>
+                <p className="text-sm text-muted">{t.chat.empty}</p>
+              </div>
             ) : (
               messages.map((m) => (
-                <div key={m.id} className="flex gap-3">
+                <div
+                  key={m.id}
+                  className={`flex gap-3 ${m.mine ? "flex-row-reverse" : ""}`}
+                >
                   <span
                     className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-semibold"
                     style={{
@@ -189,8 +200,12 @@ export default function ChatPage() {
                   >
                     {initials(m.author)}
                   </span>
-                  <div className="min-w-0">
-                    <div className="flex items-baseline gap-2">
+                  <div
+                    className={`flex min-w-0 max-w-[80%] flex-col gap-1 sm:max-w-[70%] ${m.mine ? "items-end" : "items-start"}`}
+                  >
+                    <div
+                      className={`flex items-baseline gap-2 ${m.mine ? "flex-row-reverse" : ""}`}
+                    >
                       <span className="text-sm font-medium text-foreground">
                         {m.mine ? t.chat.you : m.author}
                       </span>
@@ -198,7 +213,14 @@ export default function ChatPage() {
                         {timeLabel(m.at)}
                       </span>
                     </div>
-                    <p className="text-[15px] leading-relaxed text-foreground">
+                    <p
+                      className={`min-w-0 rounded-2xl px-3.5 py-2 text-[15px] leading-relaxed ${
+                        m.mine
+                          ? "rounded-tr-sm bg-ink text-onink"
+                          : "rounded-tl-sm bg-surface2 text-foreground"
+                      }`}
+                      style={{ overflowWrap: "anywhere" }}
+                    >
                       {m.text}
                     </p>
                   </div>

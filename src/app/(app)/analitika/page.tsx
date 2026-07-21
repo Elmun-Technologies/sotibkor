@@ -196,34 +196,36 @@ export default function AnalitikaPage() {
       </div>
 
       {/* Ustki statistikalar */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="flex flex-col gap-1">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="card flex flex-col gap-1 p-4 sm:p-7">
           <Eyebrow>{t.analitika.levelLabel}</Eyebrow>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="text-4xl font-semibold tabular-nums tracking-tight">
+            <span className="text-2xl font-semibold tabular-nums tracking-tight sm:text-4xl">
               {levelIndex}
             </span>
-            <span className="text-lg text-faint">/ {LEVELS.length}</span>
+            <span className="text-sm text-faint sm:text-lg">
+              / {LEVELS.length}
+            </span>
           </div>
-          <span className="text-sm text-muted">
+          <span className="text-xs text-muted sm:text-sm">
             {t.profil.daraja[level.current.key]}
           </span>
-        </Card>
-        <Card className="flex flex-col gap-1">
+        </div>
+        <div className="card flex flex-col gap-1 p-4 sm:p-7">
           <Eyebrow>{t.analitika.sessionsLabel}</Eyebrow>
-          <div className="mt-1 text-4xl font-semibold tabular-nums tracking-tight">
+          <div className="mt-1 text-2xl font-semibold tabular-nums tracking-tight sm:text-4xl">
             {MOCK_USER.sessionsCount}
           </div>
-        </Card>
-        <Card className="flex flex-col gap-1">
+        </div>
+        <div className="card flex flex-col gap-1 p-4 sm:p-7">
           <Eyebrow>{t.analitika.avgScoreLabel}</Eyebrow>
           <div
-            className="mt-1 text-4xl font-semibold tabular-nums tracking-tight"
+            className="mt-1 text-2xl font-semibold tabular-nums tracking-tight sm:text-4xl"
             style={{ color: scoreColor(avgScore) }}
           >
             {avgScore}
           </div>
-        </Card>
+        </div>
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -324,13 +326,16 @@ export default function AnalitikaPage() {
         </Card>
 
         {/* Xatolar */}
-        <Card className="flex flex-col gap-3">
+        <Card className="flex flex-col gap-3 lg:col-span-2">
           <h2 className="text-lg font-semibold tracking-tight">
             {t.analitika.errorsTitle}
           </h2>
-          <ul className="flex flex-col gap-2.5">
+          <ul className="grid gap-2.5 sm:grid-cols-3">
             {t.analitika.errors.map((e) => (
-              <li key={e} className="flex items-start gap-2.5 text-sm">
+              <li
+                key={e}
+                className="inset flex items-start gap-2.5 p-3.5 text-sm"
+              >
                 <span className="mt-0.5 text-[color:var(--bad)]" aria-hidden>
                   ●
                 </span>
