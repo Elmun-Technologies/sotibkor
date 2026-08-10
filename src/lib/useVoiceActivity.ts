@@ -18,6 +18,7 @@
  */
 
 import { useEffect, useRef } from "react";
+import { vadConfig } from "./config";
 
 /**
  * Vaqt-domeni bayt bufferidan (0..255, 128 markazlangan) RMS balandligini
@@ -50,8 +51,9 @@ export function useVoiceActivity({
   enabled,
   listening,
   onVoice,
-  thresholdRms = 30,
-  sustainMs = 220,
+  // Env orqali kalibrlanuvchi (config.ts → NEXT_PUBLIC_VAD_*); per-call override ham mumkin.
+  thresholdRms = vadConfig().thresholdRms,
+  sustainMs = vadConfig().sustainMs,
 }: VoiceActivityOptions): void {
   const listeningRef = useRef(listening);
   useEffect(() => {

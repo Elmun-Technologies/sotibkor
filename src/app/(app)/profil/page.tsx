@@ -10,6 +10,7 @@ import {
   Chip,
   Button,
   AppLoading,
+  Reveal,
 } from "@/components/ui";
 import {
   LevelBadge,
@@ -91,8 +92,8 @@ function ProductSettingsCard() {
   return (
     <Card className="mb-6 flex flex-col gap-5">
       <div>
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">
-          {t.profil.productTitle}
+        <h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight text-foreground">
+          <span aria-hidden>📦</span> {t.profil.productTitle}
         </h2>
         <p className="mt-1 text-sm text-muted">{t.profil.productLead}</p>
       </div>
@@ -208,6 +209,7 @@ export default function ProfilPage() {
   return (
     <PageShell title={t.profil.title} lead={t.profil.subtitle}>
       {/* Daraja + asosiy ko'rsatkichlar */}
+      <Reveal>
       <Card className="mb-6">
         <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:gap-10">
           <LevelBadge xp={MOCK_USER.xp} />
@@ -241,12 +243,14 @@ export default function ProfilPage() {
           </div>
         </div>
       </Card>
+      </Reveal>
 
       {/* Sertifikat (10x-8) — erishgan daraja uchun ulashiladigan guvohnoma */}
+      <Reveal>
       <Card className="mb-6 flex flex-col gap-4">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            {t.profil.certSectionTitle}
+          <h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight text-foreground">
+            <span aria-hidden>🎓</span> {t.profil.certSectionTitle}
           </h2>
           <p className="mt-1 text-sm text-muted">{t.profil.certSectionLead}</p>
         </div>
@@ -258,34 +262,42 @@ export default function ProfilPage() {
           dateStr={certDate}
         />
       </Card>
+      </Reveal>
 
       {/* Mahsulot ma'lumotlari (tahrirlanadigan) */}
-      <ProductSettingsCard />
+      <Reveal>
+        <ProductSettingsCard />
+      </Reveal>
 
       {/* O'sish xaritasi */}
+      <Reveal>
       <Card className="mb-6">
-        <h2 className="mb-5 text-xl font-semibold tracking-tight text-foreground">
-          {t.profil.progressTitle}
+        <h2 className="mb-5 flex items-center gap-2 text-xl font-semibold tracking-tight text-foreground">
+          <span aria-hidden>🧭</span> {t.profil.progressTitle}
         </h2>
         <ProgressMap xp={MOCK_USER.xp} />
       </Card>
+      </Reveal>
 
       {/* Ball dinamikasi (trend) */}
+      <Reveal>
       <Card className="mb-6">
         <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            {t.profil.trendTitle}
+          <h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight text-foreground">
+            <span aria-hidden>📈</span> {t.profil.trendTitle}
           </h2>
           <span className="text-sm text-muted">{t.profil.trendHint}</span>
         </div>
         <TrendChart data={MOCK_SCORE_HISTORY} />
       </Card>
+      </Reveal>
 
       {/* Faollik kalendari + kunlik maqsad */}
+      <Reveal>
       <Card className="mb-6">
         <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            {t.profil.activityTitle}
+          <h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight text-foreground">
+            <span aria-hidden>📅</span> {t.profil.activityTitle}
           </h2>
           <span className="text-sm text-muted">
             {t.profil.longestStreak}: {MOCK_LONGEST.days} {t.profil.streakDays}{" "}
@@ -294,11 +306,13 @@ export default function ProfilPage() {
         </div>
         <ActivityCalendar activeDays={MOCK_ACTIVE_DAYS} daily={MOCK_DAILY} />
       </Card>
+      </Reveal>
 
       {/* Yutuqlar */}
+      <Reveal>
       <div className="mb-4 flex items-baseline justify-between">
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">
-          {t.profil.achievementsTitle}
+        <h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight text-foreground">
+          <span aria-hidden>🏆</span> {t.profil.achievementsTitle}
         </h2>
         <Link
           href="/yutuqlar"
@@ -319,6 +333,7 @@ export default function ProfilPage() {
           />
         ))}
       </div>
+      </Reveal>
     </PageShell>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { getMessages } from "@/i18n";
-import { PageShell, Card, AppLoading } from "@/components/ui";
+import { PageShell, Card, AppLoading, Reveal } from "@/components/ui";
 import { AchievementCard } from "@/components/gamification";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { ACHIEVEMENTS, MOCK_ACHIEVEMENTS } from "@/lib/mock";
@@ -47,6 +47,7 @@ export default function YutuqlarPage() {
 
   return (
     <PageShell title={t.yutuqlar.title} lead={t.yutuqlar.subtitle}>
+      <Reveal>
       <Card className="mb-8 flex flex-wrap items-center gap-8">
         <div>
           <div className="text-4xl font-semibold tabular-nums tracking-tight">
@@ -65,15 +66,17 @@ export default function YutuqlarPage() {
           <div className="mt-1 text-sm text-muted">{t.yutuqlar.xpLabel}</div>
         </div>
       </Card>
+      </Reveal>
 
       <div className="flex flex-col gap-10">
         {CATEGORY_ORDER.map((cat) => {
           const items = BY_CATEGORY.get(cat) ?? [];
           if (items.length === 0) return null;
           return (
-            <div key={cat}>
-              <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
-                {t.achievements.categories[cat]}
+            <Reveal key={cat}>
+            <div>
+              <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
+                <span aria-hidden>🏅</span> {t.achievements.categories[cat]}
               </h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {items.map((a, i) => (
@@ -88,6 +91,7 @@ export default function YutuqlarPage() {
                 ))}
               </div>
             </div>
+            </Reveal>
           );
         })}
       </div>

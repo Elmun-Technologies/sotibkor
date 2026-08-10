@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, AppLoading } from "@/components/ui";
+import { PageShell, Card, Button, AppLoading, Reveal } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { OBJECTION_LIBRARY } from "@/lib/objections";
 import { evaluateAnswer } from "@/lib/objectionEval";
@@ -352,6 +352,7 @@ export default function DrillPage() {
     <PageShell title={t.drill.title} lead={t.drill.subtitle}>
       {/* Spaced-repetition tavsiyasi */}
       {weakType && (
+        <Reveal>
         <Card className="mb-4 flex flex-col gap-3 border-[color:var(--accent)]/30 bg-[color:var(--accent)]/[.05] sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
             <span aria-hidden>🎯</span>
@@ -372,9 +373,11 @@ export default function DrillPage() {
             {t.drill.recommendApply}
           </Button>
         </Card>
+        </Reveal>
       )}
 
       {/* Qiyinlik */}
+      <Reveal>
       <Card className="mb-4 flex flex-col gap-3">
         <div className="eyebrow">{t.drill.difficulty}</div>
         <div className="inline-flex w-fit gap-1 rounded-full bg-surface2 p-1">
@@ -393,8 +396,9 @@ export default function DrillPage() {
               {DIFF_LABEL[k]}
             </button>
           ))}
-        </div>
-      </Card>
+          </div>
+        </Card>
+        </Reveal>
 
       {/* E'tiroz tanlash */}
       <div className="mb-3 flex items-center justify-between">
@@ -414,6 +418,7 @@ export default function DrillPage() {
         </button>
       </div>
 
+      <Reveal>
       <Card className="flex flex-col gap-1 p-2">
         {OBJECTION_LIBRARY.map((o) => {
           const count = counts[o.id] ?? 0;
@@ -467,6 +472,7 @@ export default function DrillPage() {
           );
         })}
       </Card>
+      </Reveal>
 
       <div className="sticky bottom-4 mt-4 flex items-center gap-4 self-start rounded-full border border-border bg-surface px-5 py-3 shadow-[var(--shadow-card-hover)]">
         <Button onClick={start} disabled={totalRounds === 0}>
@@ -478,9 +484,10 @@ export default function DrillPage() {
       </div>
 
       {/* Tarix */}
+      <Reveal>
       <div className="mt-10">
-        <h2 className="mb-3 text-lg font-semibold tracking-tight">
-          {t.drill.historyTitle}
+        <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold tracking-tight">
+          <span aria-hidden>📜</span> {t.drill.historyTitle}
         </h2>
         {history.length === 0 ? (
           <Card className="py-8 text-center text-sm text-muted">
@@ -530,6 +537,7 @@ export default function DrillPage() {
           </div>
         )}
       </div>
+      </Reveal>
     </PageShell>
   );
 }

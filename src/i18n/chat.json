@@ -1,9 +1,11 @@
 {
   "title": "Community",
-  "subtitle": "O'zbek sotuvchilar bir-biriga yordam beradigan joy — savol ber, tajriba ulash, motivatsiya ol.",
-  "channelsTitle": "Kanallar",
+  "subtitle": "O'zbek sotuvchilar bir-biriga yordam beradigan joy — savol ber, tajriba ulash, ruhlan.",
+  "heroTitle": "Jamoa bilan gaplashamiz",
+  "heroLead": "Savol bering, o'z tajribangizni ulashing, bir-biringizni ruxlantiring. Bu yerda siz yolg'iz emassiz.",
+  "channelsTitle": "Mavzular",
   "channels": {
-    "umumiy": { "name": "Umumiy", "desc": "Umumiy suhbat" },
+    "umumiy": { "name": "Umumiy", "desc": "Istalgan mavzu" },
     "narx": { "name": "Narx e'tirozlari", "desc": "Narx bilan ishlash" },
     "qongiroq": { "name": "Sovuq qo'ng'iroq", "desc": "Qo'ng'iroq texnikasi" },
     "motivatsiya": { "name": "Motivatsiya", "desc": "Ruh baland bo'lsin" },
@@ -11,7 +13,13 @@
   },
   "placeholder": "Xabar yozing...",
   "send": "Yuborish",
-  "empty": "Bu kanalda hali xabar yo'q — birinchi bo'lib yozing!",
+  "empty": "Bu mavzuda hali xabar yo'q.",
+  "starterTitle": "Boshlash uchun g'oya:",
+  "starters": [
+    "Narx e'tiroziga birinchi javobda qanday tayyor bo'lish mumkin?",
+    "Sovuq qo'ng'iroqda qanday kirish gapini ishlatasiz?",
+    "Eng qiyin mijoz turi qaysi va uni qanday aldash kerak?"
+  ],
   "you": "Siz",
-  "note": "Xabarlar shu qurilmada saqlanadi; real vaqtli community keyingi bosqichda (Supabase)."
+  "note": "Hozircha xabarlar faqat sizning qurilmangizda saqlanadi. Tez orada — haqiqiy jamoa (real-time)."
 }

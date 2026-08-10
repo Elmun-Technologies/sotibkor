@@ -9,8 +9,11 @@ import {
   PageShell,
   Card,
   Badge,
+  Button,
   PersonaAvatar,
   AppLoading,
+  EmptyState,
+  Reveal,
 } from "@/components/ui";
 
 const t = getMessages();
@@ -140,8 +143,8 @@ function DetailPanel({
         <Card className="space-y-3">
           {detail.score.strengths.length > 0 && (
             <div>
-              <p className="mb-1.5 font-mono text-[11px] uppercase tracking-widest text-muted">
-                {t.arxiv.strengthsTitle}
+              <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-muted">
+                <span aria-hidden>✅</span> {t.arxiv.strengthsTitle}
               </p>
               <ul className="space-y-1 text-sm text-foreground">
                 {detail.score.strengths.map((s, i) => (
@@ -152,8 +155,8 @@ function DetailPanel({
           )}
           {detail.score.mistakes.length > 0 && (
             <div>
-              <p className="mb-1.5 font-mono text-[11px] uppercase tracking-widest text-muted">
-                {t.arxiv.mistakesTitle}
+              <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-muted">
+                <span aria-hidden>⚠️</span> {t.arxiv.mistakesTitle}
               </p>
               <ul className="space-y-1 text-sm text-foreground">
                 {detail.score.mistakes.map((m, i) => (
@@ -169,8 +172,8 @@ function DetailPanel({
       )}
 
       <Card className="space-y-3">
-        <p className="font-mono text-[11px] uppercase tracking-widest text-muted">
-          {t.arxiv.audioTitle}
+        <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-muted">
+          <span aria-hidden>🎧</span> {t.arxiv.audioTitle}
         </p>
         {detail.audio.length === 0 ? (
           <p className="text-sm text-muted">{t.arxiv.noAudio}</p>
@@ -196,8 +199,8 @@ function DetailPanel({
       </Card>
 
       <Card className="space-y-2">
-        <p className="mb-1 font-mono text-[11px] uppercase tracking-widest text-muted">
-          {t.arxiv.transcriptTitle}
+        <p className="mb-1 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-muted">
+          <span aria-hidden>💬</span> {t.arxiv.transcriptTitle}
         </p>
         <div className="max-h-96 space-y-2 overflow-y-auto">
           {detail.transcript.map((turn) => (
@@ -307,17 +310,23 @@ export default function ArxivPage() {
       {sessions === null ? (
         <p className="text-sm text-muted">{t.arxiv.loading}</p>
       ) : sessions.length === 0 ? (
-        <Card className="py-12 text-center text-sm text-muted">
-          {t.arxiv.empty}
+        <Card className="py-6">
+          <EmptyState art="clipboard" title={t.arxiv.emptyTitle}>
+            {t.arxiv.empty}
+          </EmptyState>
+          <div className="flex justify-center pb-2">
+            <Button href="/dars">{t.arxiv.emptyCta}</Button>
+          </div>
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {sessions.map((s) => (
-            <SessionCard
-              key={s.id}
-              session={s}
-              onView={() => openDetail(s.id)}
-            />
+          {sessions.map((s, i) => (
+            <Reveal key={s.id} delay={i * 0.04}>
+              <SessionCard
+                session={s}
+                onView={() => openDetail(s.id)}
+              />
+            </Reveal>
           ))}
         </div>
       )}

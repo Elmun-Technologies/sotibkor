@@ -25,3 +25,8 @@ export { Art } from "./Art";
 export type { ArtProps, ArtVariant } from "./Art";
 export { PersonaAvatar } from "./PersonaAvatar";
 export type { PersonaAvatarProps } from "./PersonaAvatar";
+export { Illustration } from "./Illustration";
+export type { IllustrationProps, IllustrationName } from "./Illustration";
+export { EmptyState } from "./Illustration";
+export { Reveal } from "./Reveal";
+export type { RevealProps } from "./Reveal";

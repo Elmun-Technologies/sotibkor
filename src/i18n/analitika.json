@@ -18,7 +18,9 @@
   "sessionsLabel": "Bu davrda trening",
   "avgScoreLabel": "O'rtacha ball",
   "trendTitle": "Ball trendi",
+  "trendCaption": "Vaqt bo'yicha o'rtacha ball qanday o'zgarayotgani",
   "funnelTitle": "Suhbat voronkasi",
+  "funnelCaption": "Suhbat oxirigacha yetgan mijozlar foizi (yuqoridan pastga)",
   "funnelStages": {
     "kontakt": "Kontakt o'rnatildi",
     "ehtiyoj": "Ehtiyoj aniqlandi",
@@ -31,10 +33,12 @@
   "teamWeakStage": "Zaif bosqich",
   "teamWeakObjection": "Zaif e'tiroz",
   "objTitle": "E'tirozlar bo'yicha statistika",
+  "objCaption": "Eng ko'p uchragan va eng zaif e'tirozlar — ustuvor mashq",
   "objType": "Tur",
   "objMet": "Uchragan",
   "objResolved": "Muvaffaqiyatli yopilgan",
   "errorsTitle": "Xulq-atvor xatolari",
+  "errorsCaption": "Takrorlanuvchi xatti-harakatlar — ularga e'tibor bering",
   "insightsTitle": "AI xulosalari",
   "insightsCta": "Ko'nikmani oshirish",
   "insights": [

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, Eyebrow, AppLoading } from "@/components/ui";
+import { PageShell, Card, Button, Eyebrow, AppLoading, Reveal } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { TRIAL_LIMIT } from "@/lib/trial";
 
@@ -37,6 +37,7 @@ export default function TariflarPage() {
 
   return (
     <PageShell title={t.tariflar.title} lead={t.tariflar.subtitle}>
+      <Reveal>
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
         <Card className="flex flex-col gap-1">
           <Eyebrow>{t.tariflar.currentPlan}</Eyebrow>
@@ -60,7 +61,9 @@ export default function TariflarPage() {
           </div>
         </Card>
       </div>
+      </Reveal>
 
+      <Reveal>
       <div className="grid gap-4 lg:grid-cols-4">
         {PLAN_ORDER.map((key) => {
           const plan = t.tariflar.plans[key];
@@ -141,6 +144,7 @@ export default function TariflarPage() {
           );
         })}
       </div>
+      </Reveal>
 
       {notice && (
         <p className="mt-6 text-center text-sm text-muted">

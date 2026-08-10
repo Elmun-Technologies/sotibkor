@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, AppLoading } from "@/components/ui";
+import { PageShell, Card, Button, AppLoading, Reveal } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { getFavorites, toggleFavorite } from "@/lib/favorites";
 import {
@@ -204,6 +204,7 @@ function PlaybookView() {
 
       {/* O'ng: tafsilot */}
       <div className="flex flex-col gap-6">
+        <Reveal>
         <Card className="flex flex-col gap-5">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -276,8 +277,10 @@ function PlaybookView() {
             </Button>
           </div>
         </Card>
+        </Reveal>
 
         {/* O'z javobingni sina */}
+        <Reveal>
         <Card className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <span aria-hidden>🧪</span>
@@ -356,6 +359,7 @@ function PlaybookView() {
             </div>
           )}
         </Card>
+        </Reveal>
       </div>
     </div>
   );

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Chip, Button, PersonaAvatar } from "@/components/ui";
+import { PageShell, Card, Chip, Button, PersonaAvatar, AppLoading, Reveal } from "@/components/ui";
+import { useAuthGate } from "@/lib/useAuthGate";
 import { LeaderboardRow, AchievementCard } from "@/components/gamification";
 import { ACHIEVEMENTS, MOCK_LEADERBOARD, MOCK_ACHIEVEMENTS } from "@/lib/mock";
 import { weeklyChallenge, getChallengeBest } from "@/lib/challenge";
@@ -31,12 +32,15 @@ const ACHIEVEMENTS_PREVIEW = [...MOCK_ACHIEVEMENTS]
 type Tab = "leaderboard" | "achievements";
 
 export default function ReytingPage() {
+  const ready = useAuthGate("/reyting");
   const [tab, setTab] = useState<Tab>("leaderboard");
   const [best, setBest] = useState<number | null>(null);
 
   useEffect(() => {
     setBest(getChallengeBest());
   }, []);
+
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.reyting.title} lead={t.reyting.subtitle}>
@@ -55,6 +59,7 @@ export default function ReytingPage() {
         </Chip>
       </div>
 
+      <Reveal>
       {tab === "leaderboard" ? (
         <div>
           {/* Haftalik challenge (10x-5) — bu hafta hamma bir xil mijoz bilan kurashadi */}
@@ -156,6 +161,7 @@ export default function ReytingPage() {
           </div>
         </div>
       )}
+      </Reveal>
     </PageShell>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, AppLoading } from "@/components/ui";
+import { PageShell, Card, Button, AppLoading, Reveal } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
 import {
   NEGOTIATIONS,
@@ -240,7 +240,9 @@ export default function MuzokaralarPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((s) => (
-              <ScenarioCard key={s.id} s={s} />
+              <Reveal key={s.id}>
+                <ScenarioCard s={s} />
+              </Reveal>
             ))}
             <button
               type="button"
@@ -283,9 +285,10 @@ export default function MuzokaralarPage() {
             </div>
           )}
 
+          <Reveal>
           <Card className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold tracking-tight">
-              {t.muzokaralar.createTitle}
+            <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+              <span aria-hidden>🤝</span> {t.muzokaralar.createTitle}
             </h2>
             <label className="block">
               <span className="mb-1.5 block text-sm text-muted">
@@ -314,6 +317,7 @@ export default function MuzokaralarPage() {
               </Button>
             </div>
           </Card>
+          </Reveal>
         </div>
       )}
     </PageShell>
