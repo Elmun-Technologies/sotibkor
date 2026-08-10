@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, Eyebrow, AppLoading } from "@/components/ui";
+import { PageShell, Card, Button, Eyebrow, AppLoading, Reveal } from "@/components/ui";
 import { TrendChart, RadarChart } from "@/components/gamification";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { getUser, type Role } from "@/lib/auth";
@@ -196,6 +196,7 @@ export default function AnalitikaPage() {
       </div>
 
       {/* Ustki statistikalar */}
+      <Reveal>
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="flex flex-col gap-1">
           <Eyebrow>{t.analitika.levelLabel}</Eyebrow>
@@ -225,15 +226,21 @@ export default function AnalitikaPage() {
           </div>
         </Card>
       </div>
+      </Reveal>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         {/* Ball trendi */}
+        <Reveal>
         <Card className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {t.analitika.trendTitle}
-          </h2>
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+              <span aria-hidden>📈</span> {t.analitika.trendTitle}
+            </h2>
+            <p className="text-sm text-muted">{t.analitika.trendCaption}</p>
+          </div>
           <TrendChart data={rangedHistory} />
         </Card>
+        </Reveal>
 
         {/* Ko'nikma profili (radar) */}
         <Card className="flex flex-col gap-3">
@@ -247,10 +254,14 @@ export default function AnalitikaPage() {
         </Card>
 
         {/* Voronka */}
+        <Reveal>
         <Card className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {t.analitika.funnelTitle}
-          </h2>
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+              <span aria-hidden>🔻</span> {t.analitika.funnelTitle}
+            </h2>
+            <p className="text-sm text-muted">{t.analitika.funnelCaption}</p>
+          </div>
           <div className="flex flex-col gap-3">
             {FUNNEL_STAGES.map((stage) => {
               const pct = MOCK_FUNNEL[stage];
@@ -282,11 +293,17 @@ export default function AnalitikaPage() {
           </div>
         </Card>
 
+        </Reveal>
+
         {/* E'tirozlar statistikasi */}
+        <Reveal>
         <Card className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {t.analitika.objTitle}
-          </h2>
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+              <span aria-hidden>⚡</span> {t.analitika.objTitle}
+            </h2>
+            <p className="text-sm text-muted">{t.analitika.objCaption}</p>
+          </div>
           <div className="divide-y divide-hair">
             {OBJECTION_TYPES.map((type) => {
               const s = MOCK_OBJECTION_STATS[type];
@@ -323,11 +340,17 @@ export default function AnalitikaPage() {
           </div>
         </Card>
 
+        </Reveal>
+
         {/* Xatolar */}
+        <Reveal>
         <Card className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {t.analitika.errorsTitle}
-          </h2>
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+              <span aria-hidden>⚠️</span> {t.analitika.errorsTitle}
+            </h2>
+            <p className="text-sm text-muted">{t.analitika.errorsCaption}</p>
+          </div>
           <ul className="flex flex-col gap-2.5">
             {t.analitika.errors.map((e) => (
               <li key={e} className="flex items-start gap-2.5 text-sm">
@@ -339,12 +362,14 @@ export default function AnalitikaPage() {
             ))}
           </ul>
         </Card>
+        </Reveal>
       </div>
 
       {/* AI xulosalari */}
-      <Card className="mt-4 flex flex-col gap-4">
-        <div className="flex items-center gap-2">
-          <span aria-hidden>💡</span>
+        <Reveal>
+        <Card className="mt-4 flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <span aria-hidden>💡</span>
           <h2 className="text-lg font-semibold tracking-tight">
             {t.analitika.insightsTitle}
           </h2>
@@ -359,12 +384,13 @@ export default function AnalitikaPage() {
             </li>
           ))}
         </ul>
-        <div>
-          <Button href={`/etirozlar?focus=${weakestType}`}>
-            {t.analitika.insightsCta} →
-          </Button>
-        </div>
-      </Card>
+          <div>
+            <Button href={`/etirozlar?focus=${weakestType}`}>
+              {t.analitika.insightsCta} →
+            </Button>
+          </div>
+        </Card>
+        </Reveal>
     </PageShell>
   );
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { getMessages } from "@/i18n";
-import { Button, Card, Tag, Eyebrow, Art } from "@/components/ui";
+import { Button, Card, Tag, Eyebrow, Art, Reveal } from "@/components/ui";
 
 const t = getMessages();
 
@@ -243,6 +243,7 @@ export default function BiznesPage() {
 
         {/* ---------- PRICING HINT ---------- */}
         <section className="mt-24">
+          <Reveal>
           <Card className="flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <Eyebrow>{b.pricingEyebrow}</Eyebrow>
@@ -255,10 +256,12 @@ export default function BiznesPage() {
               {b.pricingCta}
             </Button>
           </Card>
+          </Reveal>
         </section>
 
         {/* ---------- BOTTOM CTA ---------- */}
         <section className="mt-24">
+          <Reveal>
           <div className="ink flex flex-col items-center gap-6 px-6 py-16 text-center sm:py-20">
             <h2 className="display max-w-2xl text-4xl sm:text-6xl">
               {b.ctaTitle}
@@ -276,6 +279,7 @@ export default function BiznesPage() {
               {b.ctaBtn}
             </Link>
           </div>
+          </Reveal>
         </section>
       </main>
     </>

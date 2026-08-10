@@ -270,9 +270,13 @@ function BoshlashForm() {
         </h2>
         <p className="mt-1 text-sm text-muted">
           {t.boshlash.haveAccount}{" "}
-          <span className="font-medium text-foreground underline">
+          <button
+            type="button"
+            onClick={submit}
+            className="font-medium text-foreground underline underline-offset-2 transition hover:opacity-80"
+          >
             {t.boshlash.login}
-          </span>
+          </button>
         </p>
 
         {hasSupabaseAuth() ? (

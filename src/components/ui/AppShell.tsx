@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { getMessages } from "@/i18n";
 import { getUser, logout, type AuthUser, type Role } from "@/lib/auth";
+import { getSessions } from "@/lib/localSessions";
 import { ThemeToggle } from "./ThemeToggle";
 import { SupportWidget } from "./SupportWidget";
 
@@ -382,7 +383,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           typeof data.trialUsed === "number" &&
           typeof data.trialLimit === "number"
         ) {
-          setTrial({ trialUsed: data.trialUsed, trialLimit: data.trialLimit });
+          // Mock rejimda server trialUsed ni kuzatmaydi — haqiqiy mashqlar
+          // soniga qarab ko'rsatamiz (real Supabase'da API qiymati yetakchi).
+          const localUsed = getSessions().length;
+          const used =
+            data.trialLimit > 0
+              ? Math.min(data.trialLimit, Math.max(data.trialUsed, localUsed))
+              : data.trialUsed;
+          setTrial({ trialUsed: used, trialLimit: data.trialLimit });
         }
       })
       .catch(() => {});

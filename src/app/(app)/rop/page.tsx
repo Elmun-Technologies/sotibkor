@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, Eyebrow, AppLoading } from "@/components/ui";
+import { PageShell, Card, Button, Eyebrow, AppLoading, Illustration } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { getUser, setUserRole, type Role } from "@/lib/auth";
 import {
@@ -124,9 +124,11 @@ export default function RopPage() {
     return (
       <PageShell title={t.rop.title}>
         <Card className="flex flex-col items-center gap-4 py-12 text-center">
-          <span className="text-3xl" aria-hidden>
-            👔
-          </span>
+          <Illustration
+            name="team"
+            size={84}
+            className="text-[color:var(--accent)]/60"
+          />
           <div>
             <h2 className="text-lg font-semibold text-foreground">
               {t.rop.onlyRop}

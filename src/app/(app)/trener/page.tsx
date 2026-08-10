@@ -17,6 +17,7 @@ import {
   type RejimKey,
   type TilRejimKey,
 } from "@/lib/content";
+import { vadConfig } from "@/lib/config";
 import { SentenceStreamer } from "@/lib/sentence";
 import {
   fetchWithTimeout,
@@ -27,6 +28,7 @@ import {
 import { uploadClip } from "@/lib/archiveClient";
 import { markFirstSessionDone, markPlanDayDone } from "@/lib/progress";
 import { recordChallengeScore } from "@/lib/challenge";
+import { addSession, weakestBreakdown } from "@/lib/localSessions";
 import {
   interestScore,
   liveHint,
@@ -199,10 +201,14 @@ export default function TrenerPage() {
   // shunchaki gapirsa ham, ovoz faolligi (VAD) aniqlab persona nutqini darrov
   // to'xtatadi. Faqat "chat" bosqichida va persona haqiqatan gapirayotganda
   // (push-to-talk yozib olish bilan to'qnashmasin uchun) faollashadi.
+  // VAD chegaralari env orqali kalibrlanadi (config.ts).
+  const vad = vadConfig();
   useVoiceActivity({
     enabled: stage === "chat",
     listening: speaking && !recording,
     onVoice: stopSpeaking,
+    thresholdRms: vad.thresholdRms,
+    sustainMs: vad.sustainMs,
   });
 
   const playSentence = useCallback(
@@ -517,6 +523,20 @@ export default function TrenerPage() {
         return;
       }
       setScore(data as ScoreResult);
+      // Mahalliy tarix (mock rejimda ham "Mening qo'ng'iroqlarim" / reyting
+      // haqiqiy ma'lumot ko'rsatishi uchun). Supabase sozlansa ham zarar
+      // bermaydi — ikkala manba birga ko'rsatilishi mumkin.
+      addSession({
+        id: `local-${Date.now()}`,
+        at: Date.now(),
+        soha,
+        persona,
+        level,
+        total: data.total,
+        weak: data.breakdown
+          ? weakestBreakdown(data.breakdown as unknown as Record<string, number>)
+          : null,
+      });
       setStage("result");
       // Onboarding checklist uchun HAQIQIY signal (mock rejimda ham jonli):
       // birinchi yakunlangan suhbatni lokal belgilaymiz.

@@ -1,8 +1,9 @@
 "use client";
 
 import { useId } from "react";
+import { motion } from "framer-motion";
 import { getMessages } from "@/i18n";
-import { Card, Chip, Button, Badge, PersonaAvatar } from "@/components/ui";
+import { Card, Chip, Button, Badge, PersonaAvatar, Reveal } from "@/components/ui";
 import {
   PERSONA_KEYS,
   SOHA_KEYS,
@@ -28,6 +29,14 @@ const TIL_REJIM_LABEL: Record<TilRejimKey, string> = {
   rus: t.trener.tilRus,
 };
 
+const FIELD_ICON: Record<string, string> = {
+  soha: "🏢",
+  persona: "🎭",
+  level: "📊",
+  rejim: "📞",
+  tilRejimi: "🌐",
+};
+
 export interface SetupPanelProps {
   soha: SohaKey;
   persona: PersonaKey;
@@ -50,22 +59,28 @@ export interface SetupPanelProps {
 }
 
 function Field({
+  id,
   label,
+  icon,
   children,
 }: {
+  id: string;
   label: string;
+  icon: string;
   children: React.ReactNode;
 }) {
-  const labelId = useId();
   return (
     <div>
       <div
-        id={labelId}
-        className="mb-2 font-mono text-[11px] uppercase tracking-widest text-muted"
+        id={id}
+        className="mb-2 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-muted"
       >
+        <span aria-hidden className="text-sm leading-none">
+          {icon}
+        </span>
         {label}
       </div>
-      <div role="group" aria-labelledby={labelId}>
+      <div role="group" aria-labelledby={id}>
         {children}
       </div>
     </div>
@@ -89,98 +104,123 @@ export function SetupPanel({
   errorHint,
   errorCta,
 }: SetupPanelProps) {
+  const sohaId = useId();
+  const personaId = useId();
+  const levelId = useId();
+  const rejimId = useId();
+  const tilId = useId();
+
   return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        <h1 className="display text-5xl sm:text-6xl">{t.setup.title}</h1>
-        <p className="max-w-xl text-base text-muted">{t.setup.mockNote}</p>
-      </div>
+    <Reveal>
+      <div className="space-y-6">
+        <div className="space-y-3">
+          <h1 className="display text-5xl sm:text-6xl">{t.setup.title}</h1>
+          <p className="max-w-xl text-base text-muted">{t.setup.intro}</p>
+        </div>
 
-      <Card className="space-y-6">
-        <Field label={t.setup.soha}>
-          <div className="flex flex-wrap gap-2">
-            {SOHA_KEYS.map((k) => (
-              <Chip key={k} active={soha === k} onClick={() => onSoha(k)}>
-                {t.sohalar[k]}
-              </Chip>
-            ))}
-          </div>
-        </Field>
+        <Card className="space-y-6">
+          <Field id={sohaId} label={t.setup.soha} icon={FIELD_ICON.soha}>
+            <div className="flex flex-wrap gap-2">
+              {SOHA_KEYS.map((k) => (
+                <Chip key={k} active={soha === k} onClick={() => onSoha(k)}>
+                  {t.sohalar[k]}
+                </Chip>
+              ))}
+            </div>
+          </Field>
 
-        <Field label={t.setup.persona}>
-          <div className="flex flex-wrap gap-2">
-            {PERSONA_KEYS.map((k) => (
-              <Chip key={k} active={persona === k} onClick={() => onPersona(k)}>
-                <span className="inline-flex items-center gap-1.5">
-                  <PersonaAvatar persona={k} size={18} />
-                  {t.personalar[k]}
-                  {k === recommendedPersona ? " ★" : ""}
-                </span>
-              </Chip>
-            ))}
-          </div>
-          {recommendedPersona && (
-            <p className="mt-2 text-xs text-muted">
-              {t.trener.recommendedHint}
-            </p>
-          )}
-        </Field>
+          <Field
+            id={personaId}
+            label={t.setup.persona}
+            icon={FIELD_ICON.persona}
+          >
+            <div className="flex flex-wrap gap-2">
+              {PERSONA_KEYS.map((k) => (
+                <Chip key={k} active={persona === k} onClick={() => onPersona(k)}>
+                  <span className="inline-flex items-center gap-1.5">
+                    <PersonaAvatar persona={k} size={18} />
+                    {t.personalar[k]}
+                    {k === recommendedPersona ? " ★" : ""}
+                  </span>
+                </Chip>
+              ))}
+            </div>
+            {recommendedPersona && (
+              <p className="mt-2 text-xs text-muted">
+                {t.trener.recommendedHint}
+              </p>
+            )}
+          </Field>
 
-        <Field label={t.setup.level}>
-          <div className="flex flex-wrap items-center gap-2">
-            {LEVELS.map((l) => (
-              <Chip key={l} active={level === l} onClick={() => onLevel(l)}>
-                {l}
-              </Chip>
-            ))}
-            <span className="ml-1">
-              <Badge tone="neon">L{level}</Badge>
-            </span>
-          </div>
-        </Field>
+          <Field id={levelId} label={t.setup.level} icon={FIELD_ICON.level}>
+            <div className="flex flex-wrap items-center gap-2">
+              {LEVELS.map((l) => (
+                <Chip key={l} active={level === l} onClick={() => onLevel(l)}>
+                  {l}
+                </Chip>
+              ))}
+              <span className="ml-1">
+                <Badge tone="neon">L{level}</Badge>
+              </span>
+            </div>
+          </Field>
 
-        <Field label={t.trener.rejim}>
-          <div className="flex flex-wrap gap-2">
-            {REJIM_KEYS.map((r) => (
-              <Chip key={r} active={rejim === r} onClick={() => onRejim(r)}>
-                {REJIM_LABEL[r]}
-              </Chip>
-            ))}
-          </div>
-        </Field>
+          <Field id={rejimId} label={t.trener.rejim} icon={FIELD_ICON.rejim}>
+            <div className="flex flex-wrap gap-2">
+              {REJIM_KEYS.map((r) => (
+                <Chip key={r} active={rejim === r} onClick={() => onRejim(r)}>
+                  {REJIM_LABEL[r]}
+                </Chip>
+              ))}
+            </div>
+          </Field>
 
-        <Field label={t.trener.tilRejimi}>
-          <div className="flex flex-wrap gap-2">
-            {TIL_REJIM_KEYS.map((r) => (
-              <Chip
-                key={r}
-                active={tilRejimi === r}
-                onClick={() => onTilRejimi(r)}
+          <Field
+            id={tilId}
+            label={t.trener.tilRejimi}
+            icon={FIELD_ICON.tilRejimi}
+          >
+            <div className="flex flex-wrap gap-2">
+              {TIL_REJIM_KEYS.map((r) => (
+                <Chip
+                  key={r}
+                  active={tilRejimi === r}
+                  onClick={() => onTilRejimi(r)}
+                >
+                  {TIL_REJIM_LABEL[r]}
+                </Chip>
+              ))}
+            </div>
+          </Field>
+        </Card>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Button
+            onClick={onStart}
+            disabled={starting}
+            className="w-full sm:w-auto"
+          >
+            {t.setup.start}
+          </Button>
+        </motion.div>
+        {errorHint && (
+          <p role="alert" className="text-sm text-[color:var(--bad)]">
+            {errorHint}{" "}
+            {errorCta && (
+              <a
+                href={errorCta.href}
+                className="underline underline-offset-2"
               >
-                {TIL_REJIM_LABEL[r]}
-              </Chip>
-            ))}
-          </div>
-        </Field>
-      </Card>
-
-      <Button
-        onClick={onStart}
-        disabled={starting}
-        className="w-full sm:w-auto"
-      >
-        {t.setup.start}
-      </Button>
-      {errorHint && (
-        <p role="alert" className="text-sm text-[color:var(--bad)]">
-          {errorHint}{" "}
-          {errorCta && (
-            <a href={errorCta.href} className="underline underline-offset-2">
-              {errorCta.label}
-            </a>
-          )}
-        </p>
-      )}
-    </div>
+                {errorCta.label}
+              </a>
+            )}
+          </p>
+        )}
+      </div>
+    </Reveal>
   );
 }

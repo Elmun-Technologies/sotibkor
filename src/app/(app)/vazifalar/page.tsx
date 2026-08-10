@@ -8,6 +8,8 @@ import {
   Button,
   ProgressBar,
   AppLoading,
+  Illustration,
+  Reveal,
 } from "@/components/ui";
 import { getUser, type Role } from "@/lib/auth";
 import { useAuthGate } from "@/lib/useAuthGate";
@@ -124,7 +126,11 @@ export default function VazifalarPage() {
           {/* ROP paneliga o'tish */}
           <Card className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
-              <span aria-hidden>🎯</span>
+              <Illustration
+                name="team"
+                size={40}
+                className="text-[color:var(--accent)]/70"
+              />
               <h2 className="text-xl font-semibold tracking-tight">
                 {t.vazifalar.ropCtaTitle}
               </h2>
@@ -220,9 +226,11 @@ export default function VazifalarPage() {
 
       {list.length === 0 ? (
         <Card className="flex flex-col items-center gap-4 py-14 text-center">
-          <span className="text-3xl" aria-hidden>
-            📋
-          </span>
+          <Illustration
+            name="clipboard"
+            size={76}
+            className="text-[color:var(--accent)]/60"
+          />
           <div>
             <h2 className="text-lg font-semibold text-foreground">
               {t.vazifalar.emptyMenejerTitle}
@@ -236,11 +244,13 @@ export default function VazifalarPage() {
           </Button>
         </Card>
       ) : (
+        <Reveal>
         <div className="grid gap-4 sm:grid-cols-2">
           {list.map((task) => (
             <TaskCard key={task.id} task={task} />
           ))}
         </div>
+        </Reveal>
       )}
     </PageShell>
   );

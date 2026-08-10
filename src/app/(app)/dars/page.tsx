@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, ProgressBar, Badge, Button } from "@/components/ui";
+import { PageShell, Card, ProgressBar, Badge, Button, AppLoading, Reveal } from "@/components/ui";
+import { useAuthGate } from "@/lib/useAuthGate";
 import {
   CURRICULUM,
   lessonProgress,
@@ -95,6 +98,7 @@ function LessonRow({ lesson, index }: { lesson: Lesson; index: number }) {
 }
 
 export default function DarsPage() {
+  const ready = useAuthGate("/dars");
   const stars = curriculumStars();
 
   // "Sizning zaif joyingiz" — jarayondagi (0<comp<100) yoki keyingi ochiq dars
@@ -103,6 +107,8 @@ export default function DarsPage() {
       const c = lessonProgress(l.id).completion;
       return c > 0 && c < 100;
     }) ?? ALL_LESSONS.find((l) => lessonProgress(l.id).completion === 0);
+
+  if (!ready) return <AppLoading />;
 
   return (
     <PageShell title={t.dars.title} lead={t.dars.subtitle}>
@@ -137,6 +143,7 @@ export default function DarsPage() {
         {CURRICULUM.map((unit) => {
           const u = U[unit.id] ?? { title: unit.id, desc: "" };
           return (
+            <Reveal key={unit.id}>
             <Card key={unit.id}>
               <div className="mb-2">
                 <h2 className="text-xl font-semibold tracking-tight text-foreground">
@@ -159,6 +166,7 @@ export default function DarsPage() {
                 })}
               </div>
             </Card>
+            </Reveal>
           );
         })}
       </div>

@@ -8,6 +8,7 @@ import {
   Button,
   AppLoading,
   PersonaAvatar,
+  Reveal,
 } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
 import {
@@ -194,26 +195,28 @@ export default function QongiroqPage() {
           }
         >
           {list.map((s) => (
-            <ScenarioCard
-              key={s.id}
-              s={s}
-              view={view}
-              override={overrides[s.id] ?? {}}
-              settingsOpen={openSettings === s.id}
-              onToggleSettings={() =>
-                setOpenSettings((cur) => (cur === s.id ? null : s.id))
-              }
-              onOverride={(patch) => setOverride(s.id, patch)}
-            />
+            <Reveal key={s.id}>
+              <ScenarioCard
+                s={s}
+                view={view}
+                override={overrides[s.id] ?? {}}
+                settingsOpen={openSettings === s.id}
+                onToggleSettings={() =>
+                  setOpenSettings((cur) => (cur === s.id ? null : s.id))
+                }
+                onOverride={(patch) => setOverride(s.id, patch)}
+              />
+            </Reveal>
           ))}
         </div>
       )}
 
       {/* Yaratilgan mijozlar */}
       {created.length > 0 && (
+        <Reveal>
         <div className="mt-10">
-          <h2 className="mb-4 text-xl font-semibold tracking-tight">
-            {t.qongiroq.createdTitle}
+          <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold tracking-tight">
+            <span aria-hidden>🧑‍💼</span> {t.qongiroq.createdTitle}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {created.map((c) => (
@@ -236,14 +239,16 @@ export default function QongiroqPage() {
                 <div className="mt-auto flex items-center justify-end border-t border-hair pt-4">
                   <Button href={customHref(c)}>▶ {t.qongiroq.call}</Button>
                 </div>
-              </Card>
-            ))}
+            </Card>
+          ))}
           </div>
         </div>
+        </Reveal>
       )}
 
       {/* O'z mijozingni yarat */}
       <div className="mt-10">
+        <Reveal>
         <Card className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <span aria-hidden>➕</span>
@@ -352,6 +357,7 @@ export default function QongiroqPage() {
             <span className="text-xs text-faint">{t.qongiroq.customHint}</span>
           </div>
         </Card>
+        </Reveal>
       </div>
     </PageShell>
   );

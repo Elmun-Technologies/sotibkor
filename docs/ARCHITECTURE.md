@@ -270,3 +270,34 @@ Bizning javob: har bosqichga qat'iy **deadline** + tez **fallback**, va foydalan
 - **Fallback shaffof**: nima bo'lganini foydalanuvchi ko'radi ("Ulanish sekin — zaxira ovozga
   o'tildi") — jim qolish yo'q.
 - TTFB bosqichlari (STT/LLM/TTS) badge tooltip'ida ko'rinadi; `npm run bench:voice` buni o'lchaydi.
+
+## 6. Sifat ta'minoti (QA)
+
+Loyiha "kalitsiz demo" rejimida ham to'liq ishlaydigan darajada sinovdan o'tkazilgan holda saqlanadi.
+
+### Testlar
+
+- **Unit** (`vitest`, `npm run test`) — `src/lib/__tests__` ichida 19 fayl, ~190 test. Sof yadro (scoring, coach, drill, team, objectionEval, vadConfig, vendorReadiness, ...) ajratilgan va tekshirilgan.
+- **E2E** (`@playwright/test`, `npm run test:e2e`) — `tests/e2e/` ichida: landing, ro'yxatdan o'tish→onboarding→bosh sahifa, 13 ta (app) sahifa bo'ylab navigatsiya + mavzu almashtirish + ROP roli, va **to'liq ovoz aylanasi** (setup → mikrofon → suhbat → baho, matn rejimida). `playwright.config.ts` `next build && next start` ni avtomatik ishga tushiradi.
+- **Bench** (`npm run bench:voice`) — real kalitlar bilan TTFB/kechikishni o'lchaydi.
+
+### Statistikani tekshirish (deploy oldi)
+
+`npm run check:env` — qaysi rejimlar (mock/voice/db/auth/payment) sozlanganini ko'rsatadi, **hech qanday kalit qiymatini chiqarmaydi**; ixtiyoriy xavfsiz ulanish tekshiruvi (HEAD, kalitsiz) qiladi. `REQUIRE=voice,db` bilan chaqirilsa, kerakli rejim sozlanmagan bo'lsa exit 1 qaytaradi (CI gate sifatida).
+
+### Xavfsizlik sarlavhalari
+
+`next.config.mjs` `headers()` orqali barcha javoblarga qo'yiladi:
+
+| Sarlavha | Qiymat |
+| -------- | ------ |
+| `Content-Security-Policy` | `default-src 'self'`; script/style `self`+`unsafe-inline` (Next bootstrap uchun); `connect-src 'self' https://*.supabase.co wss://*.supabase.co`; `frame-ancestors 'none'`; `base-uri/form-action 'self'` |
+| `X-Frame-Options` | `DENY` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains` (faqat HTTPS orqali) |
+
+### CI
+
+`.github/workflows/ci.yml` ikkita job: `build` (typecheck → lint → unit → `check:env` → `next build`) va `e2e` (Playwright chromium o'rnatib E2E ishga tushiradi, hisobotni artifact sifatida yuklaydi).

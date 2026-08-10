@@ -3,14 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
-import { Card, Button, Eyebrow, AppLoading } from "@/components/ui";
+import { Card, Button, Eyebrow, AppLoading, Reveal } from "@/components/ui";
 import { getUser, isOnboarded } from "@/lib/auth";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { hasFinishedSession, getCompletedPlanDays } from "@/lib/progress";
 import { getFavorites, toggleFavorite } from "@/lib/favorites";
 import { generateWeeklyPlan, type PlanDay } from "@/lib/weeklyPlan";
-import { PersonaAvatar } from "@/components/ui";
+import { PersonaAvatar, Illustration } from "@/components/ui";
 import { OBJECTION_LIBRARY } from "@/lib/objections";
+import { getSessions, type LocalSession } from "@/lib/localSessions";
 import type { ObjectionType } from "@/lib/coach";
 import type { PersonaKey } from "@/lib/content";
 
@@ -62,6 +63,23 @@ function trainHref(type: ObjectionType): string {
   return `/trener?${q.toString()}`;
 }
 
+function scoreColor(v: number): string {
+  return v >= 66 ? "var(--good)" : v >= 40 ? "var(--warn)" : "var(--bad)";
+}
+
+/** Suhbat vaqti uchun nisbiy vaqt (uz) — mahalliy tarix ro'yxatida. */
+function relCallTime(at: number): string {
+  const diff = Date.now() - at;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return t.home.callsNow;
+  if (min < 60) return t.home.callsMin.replace("{n}", String(min));
+  const hours = Math.floor(min / 60);
+  if (hours < 24) return t.home.callsHour.replace("{n}", String(hours));
+  const days = Math.floor(hours / 24);
+  if (days === 1) return t.home.callsYesterday;
+  return t.home.callsDay.replace("{n}", String(days));
+}
+
 export default function HomePage() {
   const ready = useAuthGate("/home");
   const [name, setName] = useState("");
@@ -76,6 +94,7 @@ export default function HomePage() {
   );
   const [completedDays, setCompletedDays] = useState<Set<number>>(new Set());
   const [todayIndex, setTodayIndex] = useState(0);
+  const [sessions, setSessions] = useState<LocalSession[]>([]);
 
   const obj = OBJECTION_LIBRARY[dayIdx % OBJECTION_LIBRARY.length];
   const quote = t.home.quotes[dayIdx % t.home.quotes.length];
@@ -100,6 +119,7 @@ export default function HomePage() {
     setDayIdx(now.getDate());
     setTodayIndex((now.getDay() + 6) % 7); // dushanba=0
     setCompletedDays(getCompletedPlanDays());
+    setSessions(getSessions(4));
     // Zaif e'tiroz (spaced-repetition) — reja shu bo'yicha markazlashadi.
     // Supabase yo'q bo'lsa route null qaytaradi (reja umumiy rejaga tushadi).
     fetch("/api/session")
@@ -164,6 +184,7 @@ export default function HomePage() {
 
       {/* Boshlash checklisti — barcha qadam bajarilgach yashiriladi */}
       {!allDone && (
+        <Reveal>
         <Card className="mb-4 flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <span aria-hidden>🚀</span>
@@ -204,9 +225,11 @@ export default function HomePage() {
             )}
           </div>
         </Card>
+        </Reveal>
       )}
 
       {/* Haftalik reja (10x-4) — zaif e'tirozga qarab tuzilgan 7 kunlik mashq */}
+      <Reveal>
       <Card className="mb-4 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <span aria-hidden>🗓️</span>
@@ -258,7 +281,9 @@ export default function HomePage() {
           })}
         </div>
       </Card>
+      </Reveal>
 
+      <Reveal>
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Kun e'tirozi */}
         <Card className="flex flex-col gap-4">
@@ -330,7 +355,7 @@ export default function HomePage() {
           </div>
         </Card>
 
-        {/* Mening qo'ng'iroqlarim */}
+        {/* Mening qo'ng'iroqlarim — haqiqiy mahalliy tarix */}
         <Card className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold tracking-tight">
@@ -343,12 +368,46 @@ export default function HomePage() {
               {t.home.callsSeeAll} →
             </Link>
           </div>
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
-            <p className="text-sm text-muted">{t.home.callsEmpty}</p>
-            <Button href="/dars" variant="ghost">
-              {t.home.startTraining}
-            </Button>
-          </div>
+          {sessions.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 py-6 text-center">
+              <Illustration
+                name="calls"
+                size={72}
+                className="text-[color:var(--accent)]/60"
+              />
+              <p className="text-sm text-muted">{t.home.callsEmpty}</p>
+              <Button href="/dars" variant="ghost">
+                {t.home.startTraining}
+              </Button>
+            </div>
+          ) : (
+            <ul className="divide-y divide-hair">
+              {sessions.map((s) => (
+                <li key={s.id} className="flex items-center gap-3 py-3">
+                  <PersonaAvatar persona={s.persona as PersonaKey} size={36} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-foreground">
+                      {t.personalar[s.persona as PersonaKey]}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {relCallTime(s.at)}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div
+                      className="font-mono text-sm font-semibold tabular-nums"
+                      style={{ color: scoreColor(s.total) }}
+                    >
+                      {s.total}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wider text-faint">
+                      {t.nav.freeCalls.trim()}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         {/* Bugun prokachat */}
@@ -383,6 +442,7 @@ export default function HomePage() {
           </Button>
         </Card>
       </div>
+      </Reveal>
     </main>
   );
 }
