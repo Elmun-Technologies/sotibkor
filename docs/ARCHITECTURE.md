@@ -51,9 +51,9 @@ Bu loyihaning yuragi. Foydalanuvchi gapiradi → matnga aylanadi → persona jav
 - **OpenAI** — persona + baholovchi.
 - **Supabase** — Postgres + Auth.
 
-## 3. Ma'lumotlar bazasi sxemasi (draft)
+## 3. Ma'lumotlar bazasi sxemasi
 
-Supabase (Postgres). Bu draft — migratsiyalar issue #3'da yoziladi.
+Supabase (Postgres). Production source of truth — `supabase/migrations/0001_init.sql`–`0005_secure_sessions.sql`; qo'llash tartibi va security contract'i: [`supabase/README.md`](../supabase/README.md). Quyidagi sxema bloklari jadvallarning konseptual ko'rinishini beradi.
 
 ```sql
 -- Foydalanuvchilar (Supabase Auth bilan bog'liq)
@@ -201,7 +201,7 @@ Oqim:
       users.onboarded = true           → so'ralgan sahifa (?next=)
 ```
 
-`src/middleware.ts` har so'rovda Supabase sessiya cookie'sini yangilaydi;
+`src/proxy.ts` har mos so'rovda Supabase sessiya cookie'sini yangilaydi;
 `NEXT_PUBLIC_SUPABASE_URL`/`ANON_KEY` bo'lmasa butunlay no-op (mock rejim
 buzilmaydi). `users` jadvali RLS bilan himoyalangan — brauzer klienti
 (anon key) faqat `auth.uid() = id` bo'lgan qatorni o'qiy/yoza oladi
@@ -219,14 +219,17 @@ faqat server xizmat kaliti orqali yoziladi.
 | `/api/chat`                 | POST  | Persona javobi (OpenAI)                                | ✅ SSE/stream |
 | `/api/tts`                  | POST  | Matn → audio (Aisha)                                   | chunked       |
 | `/api/score`                | POST  | Transkript → baho JSON                                 | —             |
-| `/api/leaderboard`          | GET   | Haftalik reyting                                       | —             |
-| `/api/team-stats`           | GET   | ROP uchun jamoa statistikasi (voronka/e'tiroz)         | —             |
+| `/api/leaderboard`          | GET   | Demo reyting (`demo: true`)                            | —             |
+| `/api/team-stats`           | GET   | Demo jamoa statistikasi (`demo: true`)                 | —             |
 | `/api/archive`              | GET   | Yakunlangan suhbatlar ro'yxati (/arxiv)                | —             |
 | `/api/archive/[id]`         | GET   | Suhbat tafsiloti (transkript+baho+audio URL)           | —             |
-| `/api/archive/audio`        | POST  | Bitta audio klipni Storage'ga yozadi (fire-and-forget) | —             |
-| `/api/subscription/webhook` | POST  | Payme/Click callback                                   | —             |
+| `/api/archive/audio`        | POST  | Owner tekshiruvidan so'ng private Storage'ga yozadi  | —             |
+| `/api/health`               | GET   | Liveness va provider readiness holati (kalitsiz)        | —             |
+| `/api/stats`                | GET   | Demo profil statistikasi (`demo: true`)                | —             |
 
-Barcha route'lar server tomonda; Aisha/OpenAI kalitlari hech qachon brauzerga chiqmaydi.
+Analytics, reyting, ROP vazifalari va profil yutuqlaridagi fixture raqamlar alohida "Demo ma'lumotlari" notice bilan ko'rsatiladi; `/api/stats`, `/api/leaderboard`, `/api/team-stats` `demo: true` qaytaradi va real data emas.
+
+Billable chat/score/STT/TTS route'lari haqiqiy Supabase Auth talab qiladi; CSRF Origin, body-size/schema validation va rate limit qo'llanadi. Provider kalitlari server tomonda qoladi. Payme/Click checkout va webhook hozircha implement qilinmagan.
 
 ## 5. Latency byudjeti
 
@@ -277,13 +280,13 @@ Loyiha "kalitsiz demo" rejimida ham to'liq ishlaydigan darajada sinovdan o'tkazi
 
 ### Testlar
 
-- **Unit** (`vitest`, `npm run test`) — `src/lib/__tests__` ichida 19 fayl, ~190 test. Sof yadro (scoring, coach, drill, team, objectionEval, vadConfig, vendorReadiness, ...) ajratilgan va tekshirilgan.
-- **E2E** (`@playwright/test`, `npm run test:e2e`) — `tests/e2e/` ichida: landing, ro'yxatdan o'tish→onboarding→bosh sahifa, 13 ta (app) sahifa bo'ylab navigatsiya + mavzu almashtirish + ROP roli, va **to'liq ovoz aylanasi** (setup → mikrofon → suhbat → baho, matn rejimida). `playwright.config.ts` `next build && next start` ni avtomatik ishga tushiradi.
+- **Unit** (`vitest`, `npm run test`) — `src/lib/__tests__` ichida 22 fayl, 205 test. Sof yadro (scoring, coach, drill, team, objectionEval, vadConfig, vendorReadiness, ...) ajratilgan va tekshirilgan.
+- **E2E** (`@playwright/test`, `npm run test:e2e`) — `tests/e2e/` ichida: landing, ro'yxatdan o'tish→onboarding→bosh sahifa, 13 ta (app) sahifa bo'ylab navigatsiya + mavzu almashtirish + ROP roli, va **to'liq ovoz aylanasi** (setup → mikrofon → suhbat → baho, matn rejimida). `playwright.config.ts` `next build`dan so'ng `.next/standalone/server.js`ni avtomatik ishga tushiradi.
 - **Bench** (`npm run bench:voice`) — real kalitlar bilan TTFB/kechikishni o'lchaydi.
 
 ### Statistikani tekshirish (deploy oldi)
 
-`npm run check:env` — qaysi rejimlar (mock/voice/db/auth/payment) sozlanganini ko'rsatadi, **hech qanday kalit qiymatini chiqarmaydi**; ixtiyoriy xavfsiz ulanish tekshiruvi (HEAD, kalitsiz) qiladi. `REQUIRE=voice,db` bilan chaqirilsa, kerakli rejim sozlanmagan bo'lsa exit 1 qaytaradi (CI gate sifatida).
+`npm run check:env` — qaysi rejimlar (mock/voice/db/auth) sozlanganini ko'rsatadi, **hech qanday kalit qiymatini chiqarmaydi**; ixtiyoriy xavfsiz ulanish tekshiruvi (HEAD, kalitsiz) qiladi. `REQUIRE=voice,db` bilan chaqirilsa, kerakli rejim sozlanmagan bo'lsa exit 1 qaytaradi (CI gate sifatida). Payme/Click checkout va webhook hali implement qilinmagan, credential borligi payment tayyorligini bildirmaydi.
 
 ### Xavfsizlik sarlavhalari
 
@@ -295,9 +298,9 @@ Loyiha "kalitsiz demo" rejimida ham to'liq ishlaydigan darajada sinovdan o'tkazi
 | `X-Frame-Options` | `DENY` |
 | `X-Content-Type-Options` | `nosniff` |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
+| `Permissions-Policy` | `camera=(), microphone=(self), geolocation=()` |
 | `Strict-Transport-Security` | `max-age=63072000; includeSubDomains` (faqat HTTPS orqali) |
 
 ### CI
 
-`.github/workflows/ci.yml` ikkita job: `build` (typecheck → lint → unit → `check:env` → `next build`) va `e2e` (Playwright chromium o'rnatib E2E ishga tushiradi, hisobotni artifact sifatida yuklaydi).
+`.github/workflows/ci.yml` `npm ci`dan so'ng typecheck, lint, unit test va production build bajaradi. Playwright E2E lokal/ajratilgan browser muhitida alohida `npm run test:e2e` bilan yuradi.

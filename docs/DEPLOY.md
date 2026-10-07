@@ -4,11 +4,11 @@ Loyiha Contabo serverida **Dokploy** orqali Docker image sifatida joylanadi. Bu 
 
 ## Nima tayyor
 
-- `Dockerfile` — uch bosqichli build (`deps` → `builder` → `runner`), `node:20-alpine`, `output: "standalone"` (`next.config.mjs`) bilan kichik image.
+- `Dockerfile` — uch bosqichli build (`deps` → `builder` → `runner`), `node:22-alpine`, `output: "standalone"` (`next.config.mjs`) bilan kichik image.
 - `.dockerignore` — `node_modules`, `.next`, `.git`, `.claude`, hujjatlar va `.env*` (faqat `.env.example` qoladi) image'ga kirmaydi.
 - `public/robots.txt` — `public/` papkasi mavjud (Dockerfile shu papkani kutadi).
-- `/api/health` — konteyner sog'ligini tekshirish uchun (`HEALTHCHECK` shu route'ni chaqiradi). Maxfiy qiymat qaytarmaydi, faqat qaysi provayderlar sozlanganini (`openai`, `aisha`, `supabase`).
-- Kalitsiz ham konteyner ishga tushadi — mock rejim (CLAUDE.md'dagi qoidaga ko'ra hech qanday funksiya kalitsiz xato tashlamaydi).
+- `/api/health` — konteyner liveness tekshiruvi (`HEALTHCHECK` shu route'ni chaqiradi). `ok` server tirikligini bildiradi; maxfiy qiymatlarni qaytarmaydi. `mode`, `providers` va `readiness` maydonlari sozlangan holatni ko'rsatadi.
+- Kalitsiz konteyner mock/demo rejimda ishga tushadi; haqiqiy AI/audio integratsiyasi egasining provider credential'lari bilan alohida tasdiqlanishi kerak.
 
 ## Dokploy'da loyiha yaratish
 
@@ -45,7 +45,7 @@ CLICK_SERVICE_ID=
 CLICK_SECRET_KEY=
 ```
 
-Har biri ixtiyoriy — qaysi biri sozlanmasa, o'sha provayder mock rejimda qoladi (`/api/health` shuni ko'rsatadi). To'liq ro'yxat va izohlar: [`.env.example`](../.env.example).
+OpenAI, Aisha va Supabase qiymatlari yetishmasa tegishli funksiya live rejimga o'tmaydi (`/api/health`da readiness `false`). Aisha uchun haqiqiy HTTPS `AISHA_BASE_URL` va endpoint/auth formatini egasi tasdiqlashi shart. `PAYME_*`/`CLICK_*` qiymatlari hozircha ishlatilmaydi: checkout/webhook integratsiyasi hali mavjud emas. To'liq ro'yxat va izohlar: [`.env.example`](../.env.example).
 
 **Muhim:** `NEXT_PUBLIC_SUPABASE_URL`/`ANON_KEY` build-arg sifatida berilmasa, keyinchalik faqat runtime env qo'shib qayta ishga tushirish YETARLI EMAS — build vaqtida qayta build qilinishi kerak (Dokploy'da "Rebuild").
 
@@ -60,7 +60,7 @@ Qo'shimcha qadam — domen Contabo'da bo'lgani uchun:
 
 ## Ma'lumotlar bazasi migratsiyasi
 
-Deploydan oldin (bir marta): `supabase/migrations/0001_init.sql`, keyin `0002_google_auth.sql` — Supabase Dashboard → SQL Editor orqali qo'llang. Batafsil: [`supabase/README.md`](../supabase/README.md#migratsiyani-qollash).
+Deploydan oldin (bir marta), production Supabase loyihasiga `supabase/migrations/` ichidagi **0001–0005 migratsiyalarini tartib bilan** qo'llang. Ayniqsa `0005_secure_sessions.sql` shart: sessiya yaratishdagi trial limit va yakuniy transcript/score yozuvi RPC orqali atomik bajariladi. Barcha migratsiyalardan keyin `/api/health` va sessiya oqimini tekshiring. Dashboard → SQL Editor bo'yicha batafsil ko'rsatma: [`supabase/README.md`](../supabase/README.md#migratsiyalar).
 
 ## Lokal Docker build bilan tekshirish (Dokploy'ga yuborishdan oldin)
 
@@ -74,19 +74,25 @@ docker run -p 3000:3000 \
   -e SUPABASE_SERVICE_KEY=xxx \
   -e OPENAI_API_KEY=xxx \
   -e AISHA_API_KEY=xxx \
+  -e AISHA_BASE_URL=https://api.example.com \
   sotuvchi-trainer
 
 curl http://localhost:3000/api/health
 ```
 
+## Dependency audit
+
+`npm audit --omit=dev --audit-level=moderate` hozir 0 production vulnerability qaytaradi. To'liq `npm audit` esa dev-only lint/CSS tooling zanjirida hozircha 9 moderate/high finding ko'rsatadi (`eslint-config-next`/`fast-glob`, Tailwind CSS 3 va uning parser/watch dependencies). `npm audit fix` mos major'siz tuzata olmadi; Tailwind 4 yoki linter toolchain'ni moslashtirish alohida tekshirilishi kerak. Shuning uchun `--force` ishlatilmadi va bu finding'lar release checklist'da ochiq qoladi.
+
 ## Deploy oldi tekshiruv ro'yxati
 
-- [ ] `main` branch — `npm run typecheck && npm run lint && npm test && npm run build` mahalliy yashil (yoki CI yashil).
-- [ ] Supabase loyihasi ochilgan, `0001_init.sql` + `0002_google_auth.sql` qo'llangan.
-- [ ] Google Cloud OAuth client yaratilgan, Supabase Dashboard'da Google provider yoqilgan.
-- [ ] Dokploy: build-arg'lar (`NEXT_PUBLIC_*`) + runtime env'lar to'ldirilgan.
-- [ ] Supabase Redirect URLs'ga Contabo domeni qo'shilgan.
-- [ ] Deploydan keyin `/api/health` — `providers.supabase: true`, `providers.openai: true` (Aisha hali integratsiya qilinmagan bo'lsa `false` bo'lishi normal — qara ROADMAP).
-- [ ] `/boshlash`da Google tugmasi ko'rinadi va bosilganda Google rozilik ekraniga o'tadi.
+- [ ] Release qilinadigan commitda `npm run typecheck && npm run lint && npm test && npm run build` yashil.
+- [ ] Production Supabase loyihasida `0001_init.sql`–`0005_secure_sessions.sql` to'liq va tartib bilan qo'llangan.
+- [ ] Google Cloud OAuth client yaratilgan, Supabase Dashboard'da Google provider yoqilgan va production callback URL ruxsat etilgan.
+- [ ] Dokploy: `NEXT_PUBLIC_*` qiymatlar build-time args; service/provider key'lar faqat runtime env'da.
+- [ ] `npm run check:env` natijasi kutilgan `voice`, `db`, `auth` rejimlarini ko'rsatadi. Bu faqat konfiguratsiya tekshiruvi: haqiqiy Aisha endpoint, auth sxemasi, STT/TTS va xarajat egasining credential'lari bilan smoke-test qilinishi shart.
+- [ ] `/api/health` `ok: true` qaytaradi; live rejim talab qilinsa `readiness.voice`, `readiness.database`, `readiness.auth` ham `true`.
+- [ ] `/boshlash`da Google tugmasi ko'rinadi va haqiqiy OAuth round-trip production domenida muvaffaqiyatli.
+- [ ] Playwright Chromium o'rnatilgan muhitda `npm run test:e2e` o'zgarishsiz yashil.
 
 To'liq release checklist (build/tsc/env/latency/i18n): `release-check` skili (`.claude/skills/release-check`).

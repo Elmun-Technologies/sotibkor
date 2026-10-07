@@ -11,7 +11,7 @@ import { createClient } from "./server";
 export async function currentUserId(): Promise<string | null> {
   if (!hasSupabaseAuth()) return null;
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

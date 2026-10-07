@@ -15,6 +15,7 @@ import {
   type ChatTurn,
 } from "@/lib/llm";
 import { hasOpenAI } from "@/lib/config";
+import { rateLimitResponse, rejectCrossOrigin, requireAuthenticatedUser } from "@/lib/apiSecurity";
 import {
   PERSONALAR,
   SOHALAR,
@@ -22,7 +23,7 @@ import {
   isSohaKey,
   isTilRejimKey,
 } from "@/lib/content";
-import { parseTurns } from "@/lib/http";
+import { parseTurns, readJsonBody } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -52,11 +53,26 @@ const TIL_REJIM_MATN: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
-  let body: ChatBody;
-  try {
-    body = (await req.json()) as ChatBody;
-  } catch {
-    return Response.json({ error: "Noto'g'ri JSON." }, { status: 400 });
+  const crossOrigin = rejectCrossOrigin(req);
+  if (crossOrigin) return crossOrigin;
+  const live = hasOpenAI();
+  const auth = live ? await requireAuthenticatedUser() : { userId: null, response: null };
+  if (auth.response) return auth.response;
+  const limited = rateLimitResponse(
+    req,
+    "chat",
+    { limit: live ? 30 : 120, windowMs: 60_000 },
+    auth.userId,
+  );
+  if (limited) return limited;
+
+  const parsedBody = await readJsonBody<ChatBody>(req, 256 * 1024);
+  if (!parsedBody.ok) {
+    return Response.json({ error: parsedBody.error }, { status: parsedBody.status });
+  }
+  const body = parsedBody.data;
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return Response.json({ error: "So'rov shakli noto'g'ri." }, { status: 400 });
   }
 
   if (!isSohaKey(body.soha) || !isPersonaKey(body.persona)) {
@@ -65,14 +81,18 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   }
-  const level = Number.isFinite(body.level)
-    ? Math.max(1, Math.floor(body.level))
-    : 1;
+  if (!Number.isInteger(body.level) || body.level < 1 || body.level > 6) {
+    return Response.json({ error: "level 1..6 oralig'ida bo'lishi kerak." }, { status: 400 });
+  }
+  const level = body.level;
   const parsed = parseTurns(body.history);
   if (!parsed.ok) {
     return Response.json({ error: parsed.error }, { status: parsed.status });
   }
   const history = parsed.turns;
+  if (history.length === 0 || history[history.length - 1]?.role !== "user") {
+    return Response.json({ error: "Oxirgi replika sotuvchidan bo'lishi kerak." }, { status: 400 });
+  }
 
   const encoder = new TextEncoder();
 
@@ -86,7 +106,8 @@ export async function POST(req: NextRequest) {
           ? body.tilRejimi
           : "aralash";
       const mijozIsmi =
-        body.mijozIsmi?.trim() || PERSONALAR[body.persona].defaultName;
+        (typeof body.mijozIsmi === "string" ? body.mijozIsmi.trim().slice(0, 80) : "") ||
+        PERSONALAR[body.persona].defaultName;
       const systemPrompt = await loadPrompt(
         PERSONALAR[body.persona].promptFile,
         {

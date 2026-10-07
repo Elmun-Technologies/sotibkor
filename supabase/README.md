@@ -1,105 +1,131 @@
-# Supabase — persistensiya
+# Supabase — persistensiya va auth
 
-Sotuvchi Trainer'ning ma'lumotlar bazasi (Postgres + Auth). Kalitlar bo'lmasa
-loyiha **mock rejimda** ishlaydi — persistensiya jimgina o'chadi, hech narsa
-buzilmaydi. Kalitlar qo'shilsa real yozish yoqiladi.
+Sotuvchi Trainer Supabase Auth va Postgres/Storage'dan foydalanadi. Provider
+kalitlari bo'lmasa ilova mock/demo rejimda ishlashi mumkin, ammo ma'lumotlar
+saqlanmaydi. Production'da `SUPABASE_SERVICE_KEY` faqat server runtime env'da
+bo'lishi shart; uni hech qachon `NEXT_PUBLIC_*` qilib yoki brauzerga bermang.
 
-## Sxema
+## Migratsiyalar
 
-- `supabase/migrations/0001_init.sql` — boshlang'ich jadvallar
-  (`users, orgs, sessions, transcripts, scores, subscriptions, leaderboard,
-achievements`). Manba: [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) §3.
-- `supabase/migrations/0002_google_auth.sql` — Google OAuth uchun `users`
-  jadvalini kengaytiradi (`email, avatar_url, company, team_name, product,
-usp, audience, spheres, onboarded, last_active`), `role` ni `'menejer' |
-'rop'` ga qattiqlaydi va `users` uchun "faqat o'zini" RLS siyosatlarini
-  qo'shadi (brauzer klienti shu jadvalga to'g'ridan-to'g'ri yozadi).
-- `supabase/migrations/0003_trial_and_weak_objection.sql` — kartasiz sinov
-  izohini to'g'irlaydi (5 suhbat) va spaced-repetition uchun
-  `weak_objection_type`/`weak_objection_at` ustunlarini qo'shadi.
+Har bir production Supabase loyihasiga quyidagi fayllarni **tartib bilan, bir
+marta** qo'llang:
 
-## Muhit o'zgaruvchilari
+1. `0001_init.sql` — `users`, `sessions`, `transcripts`, `scores`,
+   `subscriptions`, `leaderboard`, `achievements` jadvallari va RLS.
+2. `0002_google_auth.sql` — profil ustunlari, `menejer`/`rop` role constraint'i,
+   `users` jadvali uchun foydalanuvchiga tegishli RLS siyosatlari.
+3. `0003_trial_and_weak_objection.sql` — trial izohi va spaced-repetition
+   ustunlari.
+4. `0004_session_audio.sql` — private `call-audio` storage bucket,
+   `session_audio` jadvali va owner-scoped select policy.
+5. `0005_secure_sessions.sql` — trial limit bilan session yaratish hamda
+   session owner'ini tekshirgan holda transcript/score/status'ni tranzaksiyada
+   yakunlaydigan RPC'lar. Ularni `public`, `anon`, `authenticated` uchun yopib,
+   faqat `service_role`ga execute huquqi beradi.
 
-`.env.local` ga (qara `.env.example`):
+**Production'da barcha besh migratsiya qo'llanmaguncha sessiya persistensiyasini
+yoqmang.** Ayniqsa 0005 bo'lmasa yangi API route'lar RPC chaqiradi va
+persistensiya xatosi qaytaradi; eski alohida insert/update yo'liga qaytish
+xavfsiz emas.
 
-```
-NEXT_PUBLIC_SUPABASE_URL=        # loyiha URL (brauzerga chiqadi)
-NEXT_PUBLIC_SUPABASE_ANON_KEY=   # anon key (RLS bilan himoyalangan)
-SUPABASE_SERVICE_KEY=            # service key — FAQAT server, hech qachon commit qilinmaydi
-```
+### Variant A — Dashboard SQL Editor (repo'da Supabase CLI config bo'lmasa tavsiya)
 
-`hasSupabase()` (`src/lib/config.ts`) `NEXT_PUBLIC_SUPABASE_URL` **va**
-`SUPABASE_SERVICE_KEY` mavjud bo'lgandagina `true` qaytadi. Ikkovi ham bo'lmasa —
-server klienti `null`, barcha yozish funksiyalari no-op.
+Supabase Dashboard → SQL Editor'da har bir migration faylini oching va Run
+qiling, tartibni buzmang. Har migration muvaffaqiyatli tugaganini ko'rmaguncha
+keyingisini bajarmang. Mavjud production bazasida `DROP`, `db reset` yoki
+migration fayllarini qayta-qayta ishlatishga urinmang.
 
-`hasSupabaseAuth()` (`src/lib/config.ts`) faqat `NEXT_PUBLIC_SUPABASE_URL` **va**
-`NEXT_PUBLIC_SUPABASE_ANON_KEY` talab qiladi (ikkovi ham brauzerga chiqadi) —
-Google kirish tugmasi shu funksiya `true` bo'lgandagina `/boshlash` sahifasida
-ko'rinadi.
+### Variant B — Supabase CLI
 
-## Migratsiyani qo'llash
-
-### Variant A — Supabase CLI
+CLI bilan ishlatishda avval Supabase loyihasiga `link` qiling va `db push`
+oldidan `--dry-run` natijasini ko'rib chiqing. `supabase db reset` faqat lokal
+dev stack uchun — production ma'lumotlarini o'chirishi mumkin.
 
 ```bash
+supabase login
+supabase link --project-ref <project-ref>
+supabase db push --dry-run
 supabase db push
-# yoki lokal stack:
-supabase start
-supabase db reset      # migrations/ ni qayta qo'llaydi
 ```
 
-### Variant B — SQL Editor (Dashboard)
-
-`0001_init.sql`, keyin `0002_google_auth.sql`, keyin `0003_trial_and_weak_objection.sql`
-mazmunini tartib bilan nusxalab, Supabase Dashboard → SQL Editor → Run.
+Bu repo'da hozir `supabase/config.toml` yo'q; CLI talab qilsa `supabase init`
+bilan config yaratib, migratsiyalarni ko'rib chiqqandan keyingina davom eting.
 
 ### Variant C — psql
 
+Faqat to'g'ri production connection string va migration history nazorati bilan
+ishlating; birinchi marta qo'llashda:
+
 ```bash
-psql "$DATABASE_URL" -f supabase/migrations/0001_init.sql
-psql "$DATABASE_URL" -f supabase/migrations/0002_google_auth.sql
-psql "$DATABASE_URL" -f supabase/migrations/0003_trial_and_weak_objection.sql
+for migration in supabase/migrations/*.sql; do
+  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$migration" || exit 1
+done
 ```
 
-## RLS eslatmasi
+Migration history'ni yuritish uchun production'da dashboard yoki Supabase CLI
+usulini tanlash afzal.
 
-`0001_init.sql` barcha jadvallarda RLS'ni **yoqadi**. Server route'lari
-(`src/app/api/*`) `SUPABASE_SERVICE_KEY` orqali yozadi — service key RLS'ni
-chetlab o'tadi, shuning uchun server yozishlari ishlaydi.
+## Muhit o'zgaruvchilari
 
-`0002_google_auth.sql` `users` jadvali uchun `select`/`insert`/`update`
-siyosatlarini qo'shadi (`auth.uid() = id`) — brauzer klienti (anon key,
-`src/lib/auth.ts`) Google kirishdan keyin shu jadvalga to'g'ridan-to'g'ri
-yozadi. Boshqa jadvallar (`sessions, transcripts, scores, ...`) faqat server
-xizmat kaliti orqali yoziladi, shuning uchun ularga hozircha siyosat kerak
-emas.
+`.env.local` yoki deploy platformasida (to'liq namunasi: [`.env.example`](../.env.example)):
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=        # loyiha URL (brauzerga chiqadi)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=   # anon key (RLS ostida)
+SUPABASE_SERVICE_KEY=            # service_role key — FAQAT server runtime env
+```
+
+`hasSupabase()` URL + service key'ni, `hasSupabaseAuth()` URL + anon key'ni
+tekshiradi. Public env qiymatlari build-time'da client bundle'ga yoziladi; service
+key esa hech qachon bundle yoki logga chiqmasligi kerak.
+
+## RLS va session ownership
+
+`0001_init.sql` barcha asosiy jadvallarda RLS yoqadi. Brauzer anon client'i
+faqat `users` jadvalidagi o'z qatoriga kira oladi. Sessiya, transcript, score
+va audio yozuvlari server route'laridan service-role orqali bajariladi.
+
+`0005_secure_sessions.sql`dagi RPC'lar `p_user_id` qiymatini cookie'dan
+olmaydi va `service_role`ga ishonadi. Shuning uchun ilova avval
+`supabase.auth.getUser()` bilan haqiqiy foydalanuvchini tekshiradi va
+`p_user_id` sifatida faqat shu `user.id`ni uzatadi. Service key'ni hech qachon
+client'ga bermang.
+
+- `create_training_session` user row'ini lock qilib trial increment va session
+  insert'ini atomik bajaradi.
+- `complete_training_session` faqat `session_id + user_id + active` mos
+  bo'lganda sessiyani tugatadi va transcript/score'ni shu tranzaksiyada yozadi.
+- Audio route `session_id` egasini tekshiradi; audio private bucket'da
+  saqlanadi va arxivda qisqa muddatli signed URL beriladi.
 
 ## Google OAuth sozlash
 
-Google orqali kirish ishlashi uchun quyidagilarni **Supabase loyihasi
-egasi** (siz) qo'lda bajarishi kerak — kod tomonidan avtomatik qilinmaydi:
+Google orqali kirish ishga tushishi uchun loyiha egasi quyidagilarni sozlashi
+kerak:
 
-1. **Google Cloud Console** → yangi loyiha (yoki mavjudi) → _APIs & Services
-   → Credentials_ → _Create Credentials_ → _OAuth client ID_ → turi **Web
-   application**.
-2. _Authorized redirect URIs_ ga qo'shing:
-   `https://<PROJECT_REF>.supabase.co/auth/v1/callback`
-   (`<PROJECT_REF>` — Supabase loyiha manzilidagi subdomen).
-3. Yaratilgan **Client ID** va **Client Secret**'ni nusxalang.
-4. **Supabase Dashboard** → _Authentication → Providers → Google_ → yoqing,
-   2-bandda olingan Client ID/Secret'ni kiriting → Save.
-5. **Supabase Dashboard** → _Authentication → URL Configuration → Redirect
-   URLs_ ro'yxatiga ilovaning har bir joylashuvi uchun qo'shing:
-   - lokal: `http://localhost:3000/auth/callback`
-   - prod (Vercel): `https://<domeningiz>/auth/callback`
-6. Vercel'da `NEXT_PUBLIC_SUPABASE_URL` va `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   o'rnatilganini tekshiring (`SUPABASE_SERVICE_KEY` bilan bir qatorda) —
-   shundagina `/boshlash` sahifasida Google tugmasi ko'rinadi
-   (`hasSupabaseAuth()`).
+1. Google Cloud Console'da OAuth client (Web application) yarating.
+2. Google'dagi authorized redirect URI'ga Supabase callback'ni kiriting:
+   `https://<PROJECT_REF>.supabase.co/auth/v1/callback`.
+3. Supabase Dashboard → Authentication → Providers → Google'da provider'ni
+   yoqing va Client ID/Secret'ni kiriting.
+4. Supabase Dashboard → Authentication → URL Configuration → Redirect URLs'ga
+   lokal va haqiqiy deploy URL'larni qo'shing, masalan:
+   - `http://localhost:3000/auth/callback`
+   - `https://<production-domain>/auth/callback`
+5. Deploy build-time args'da `NEXT_PUBLIC_SUPABASE_URL` va
+   `NEXT_PUBLIC_SUPABASE_ANON_KEY`, server runtime env'da
+   `SUPABASE_SERVICE_KEY` borligini tekshiring.
+6. Production domenida Google OAuth round-trip'ni amalda tekshiring.
 
 ## Kod bilan bog'lanish
 
-- `src/lib/db/client.ts` — `getSupabase()`: server klient yoki `null` (kalitsiz).
-- `src/lib/db/sessions.ts` — `saveSession / finishSession / saveTranscript / saveScore`
-  (kalitsiz no-op; latency kritik yo'lni bloklamaydi — fon uchun).
-- `src/app/api/session/route.ts` — `POST` create/finish. Kalitsiz `{ persisted: false }`.
+- `src/lib/supabase/server.ts` — Next.js server context uchun Supabase Auth
+  client; async `cookies()` ishlatadi.
+- `src/lib/supabase/user.ts` va `src/lib/apiSecurity.ts` — sessiyadagi user'ni
+  serverda tekshiradi.
+- `src/lib/db/sessions.ts` — session create/complete RPC chaqiruvlari va
+  owner-scoped archive query'lari.
+- `src/app/api/session/route.ts` — autentifikatsiya, input validation, rate
+  limit va create/finish API.
+- `src/app/api/archive/audio/route.ts` — bounded multipart upload, owner check
+  va private storage.

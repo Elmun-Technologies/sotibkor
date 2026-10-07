@@ -1,7 +1,7 @@
 "use client";
 
 import { getMessages } from "@/i18n";
-import { PageShell, Card, AppLoading, Reveal } from "@/components/ui";
+import { PageShell, Card, AppLoading, Reveal, SampleDataNotice } from "@/components/ui";
 import { AchievementCard } from "@/components/gamification";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { ACHIEVEMENTS, MOCK_ACHIEVEMENTS } from "@/lib/mock";
@@ -47,6 +47,7 @@ export default function YutuqlarPage() {
 
   return (
     <PageShell title={t.yutuqlar.title} lead={t.yutuqlar.subtitle}>
+      <SampleDataNotice />
       <Reveal>
       <Card className="mb-8 flex flex-wrap items-center gap-8">
         <div>

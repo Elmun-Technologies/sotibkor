@@ -9,8 +9,8 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-export function createClient() {
-  const cookieStore = cookies();
+export async function createClient() {
+  const cookieStore = await cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL as string,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
@@ -23,14 +23,14 @@ export function createClient() {
           try {
             cookieStore.set({ name, value, ...options });
           } catch {
-            /* Server Component ichidan chaqirilsa — middleware yangilaydi. */
+            /* Server Component ichidan chaqirilsa — proxy cookie'ni yangilaydi. */
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: "", ...options });
           } catch {
-            /* Server Component ichidan chaqirilsa — middleware yangilaydi. */
+            /* Server Component ichidan chaqirilsa — proxy cookie'ni yangilaydi. */
           }
         },
       },

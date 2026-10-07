@@ -1,20 +1,36 @@
 /**
- * GET /api/health — provayder tayyorligi (real kalitlar ulanganini tekshirish).
- * Maxfiy qiymatlarni QAYTARMAYDI — faqat sozlangan/sozlanmagan holati.
+ * GET /api/health — process liveness va konfiguratsiya holati.
+ * Maxfiy qiymatlarni qaytarmaydi; `ok` faqat server tirikligini bildiradi.
  */
 
-import { hasOpenAI, hasAisha, hasSupabase } from "@/lib/config";
+import {
+  hasAisha,
+  hasOpenAI,
+  hasSupabase,
+  hasSupabaseAuth,
+  vendorReadiness,
+} from "@/lib/config";
 
 export const runtime = "nodejs";
 
 export function GET() {
-  return Response.json({
-    ok: true,
-    providers: {
-      openai: hasOpenAI(),
-      aisha: hasAisha(),
-      supabase: hasSupabase(),
+  const readiness = vendorReadiness();
+  return Response.json(
+    {
+      ok: true,
+      mode: readiness.voice ? "live" : "mock",
+      providers: {
+        openai: hasOpenAI(),
+        aisha: hasAisha(),
+        supabase: hasSupabase(),
+        supabaseAuth: hasSupabaseAuth(),
+      },
+      readiness: {
+        voice: readiness.voice,
+        database: readiness.db,
+        auth: readiness.auth,
+      },
     },
-    mode: hasOpenAI() && hasAisha() ? "live" : "mock",
-  });
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }

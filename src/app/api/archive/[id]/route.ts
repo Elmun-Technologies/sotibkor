@@ -13,18 +13,19 @@ export const runtime = "nodejs";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const userId = await currentUserId();
   if (!userId) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const detail = await getSessionDetail(params.id, userId);
+  const { id } = await params;
+  const detail = await getSessionDetail(id, userId);
   if (!detail) {
     return Response.json({ error: "not_found" }, { status: 404 });
   }
 
-  const audio = await getSessionAudioClips(params.id);
+  const audio = await getSessionAudioClips(id);
   return Response.json({ ...detail, audio });
 }
