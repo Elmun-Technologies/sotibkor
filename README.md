@@ -1,41 +1,54 @@
 # Sotuvchi Trainer
 
-Sotuvchilar uchun **ovozli AI trenajor**. Sotuvchi soha tanlaydi, AI mijoz rolini o'ynab jaydari o'zbekchada otkaz beradi va manipulyatsiya qiladi; suhbat oxirida alohida LLM transkriptni rubrika bo'yicha baholab, aniq feedback beradi.
+Sotuvchilar uchun o'zbekcha, ovozli AI trenajor. Foydalanuvchi soha va mijoz
+personasini tanlaydi; trener suhbatni olib borib, yakunda transkriptga rubrika
+bo'yicha feedback beradi.
 
-## Ovoz aylanasi
-
-```
-mikrofon → Aisha.ai STT → Claude (persona, streaming) → Aisha.ai TTS → dinamik
-```
-
-To'liq aylana **< 2 soniya** — bu loyihaning kritik metrikasi.
+> **Integratsiya holati:** kalitsiz rejim demo/mock. Haqiqiy OpenAI, Aisha.ai,
+> Supabase Auth va production DB ulanishi egasining credential'lari bilan
+> alohida smoke-test qilinmaguncha tasdiqlangan deb hisoblanmaydi. Payme/Click
+> checkout va webhook hali implement qilinmagan.
 
 ## Stack
 
-- Next.js 14 (App Router) + TypeScript strict
-- Supabase (Postgres + Auth)
-- Aisha.ai (`mo.aisha.group`) — o'zbek STT/TTS
-- OpenAI API (`gpt-4o-mini`, sifat kerak bo'lsa `gpt-4o`) — mijoz personasi + baholovchi
-- Tailwind + Framer Motion (dark mode, neon)
+- Next.js 16 App Router, React 19, TypeScript strict
+- Supabase Auth, Postgres va private Storage
+- OpenAI API — persona javoblari va baholash
+- Aisha.ai — Uzbek STT/TTS (egasi tasdiqlagan base URL talab qilinadi)
+- Tailwind CSS 3 va Framer Motion
+- Node.js 22 (local, CI va Docker runtime)
 
-## Boshlash
+## Lokal ishga tushirish
 
 ```bash
-npm install
-cp .env.example .env.local   # qiymatlarni to'ldiring
+npm ci
+cp .env.example .env.local   # kerakli qiymatlarni to'ldiring
 npm run dev                  # http://localhost:3000
 ```
 
-Skriptlar: `npm run dev | build | lint | typecheck | format`.
+Kalitsiz demo uchun `.env.local` shart emas. U real ma'lumotlarni saqlamaydi.
+Production/deploy sozlamalari, OAuth, provider readiness va migratsiyalar:
+[docs/DEPLOY.md](docs/DEPLOY.md) va [supabase/README.md](supabase/README.md).
+
+## Tekshiruvlar
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run check:env
+npx playwright install chromium  # first time
+npm run test:e2e
+```
+
+`npm run start` production standalone server'ni ishga tushiradi.
 
 ## Hujjatlar
 
-- [CLAUDE.md](CLAUDE.md) — loyiha qoidalari (AI agent uchun ham)
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — arxitektura, DB sxema, latency byudjeti
-- [docs/PERSONAS.md](docs/PERSONAS.md) — 5 persona + jaydari til qoidalari
+- [docs/DEPLOY.md](docs/DEPLOY.md) — Docker/Dokploy, env va release checklist
+- [supabase/README.md](supabase/README.md) — DB migratsiyasi, RLS va Google OAuth
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — arxitektura va xavfsizlik
+- [docs/PERSONAS.md](docs/PERSONAS.md) — persona tavsiflari
 - [docs/SCORING.md](docs/SCORING.md) — baholash rubrikasi
-- [docs/ROADMAP.md](docs/ROADMAP.md) — 6 bosqich reja
-
-## Holat
-
-1-bosqich: **Ovoz aylanasi POC** (joriy). Qara: [docs/ROADMAP.md](docs/ROADMAP.md).
+- [docs/ROADMAP.md](docs/ROADMAP.md) — bajarilgan va rejalashtirilgan ishlar

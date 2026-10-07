@@ -11,24 +11,28 @@
  */
 
 const env = process.env;
+const validAishaBaseUrl = (() => {
+  if (!env.AISHA_BASE_URL) return false;
+  try {
+    const url = new URL(env.AISHA_BASE_URL);
+    return url.protocol === "https:" || (url.protocol === "http:" && env.NODE_ENV !== "production");
+  } catch {
+    return false;
+  }
+})();
 
 const readiness = {
   mock: true,
-  voice: !!(env.OPENAI_API_KEY && env.AISHA_API_KEY),
+  voice: !!(env.OPENAI_API_KEY && env.AISHA_API_KEY && validAishaBaseUrl && env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
   db: !!(env.NEXT_PUBLIC_SUPABASE_URL && env.SUPABASE_SERVICE_KEY),
   auth: !!(env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
-  payment: !!(
-    env.PAYME_MERCHANT_ID ||
-    (env.CLICK_MERCHANT_ID && env.CLICK_SERVICE_ID)
-  ),
 };
 
 const labels = {
   mock: "Kalitsiz demo (har doim ishlaydi)",
-  voice: "Real ovoz aylanasi (OPENAI_API_KEY + AISHA_API_KEY)",
+  voice: "Himoyalangan real ovoz aylanasi (OpenAI + Aisha URL/key + Supabase Auth)",
   db: "Ma'lumotlar bazasi (Supabase service key)",
   auth: "Google kirish (Supabase Auth anon key)",
-  payment: "To'lov (Payme yoki Click)",
 };
 
 const pad = (s, n) => s + " ".repeat(Math.max(0, n - s.length));
@@ -43,6 +47,7 @@ for (const [mode, ready] of Object.entries(readiness)) {
 console.log(
   `\n  Sozlangan: ${okCount}/${Object.keys(readiness).length} rejim\n`,
 );
+console.log("  Eslatma: Payme/Click checkout va webhook integratsiyasi hali amalga oshirilmagan.\n");
 
 // Ixtiyoriy: xavfsiz ulanish tekshiruvi (kalit yubormaydi).
 const probes = [];

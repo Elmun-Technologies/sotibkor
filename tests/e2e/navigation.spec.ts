@@ -48,6 +48,14 @@ test.describe("Sahifalararo navigatsiya (menejer)", () => {
     });
   }
 
+  test("statik analytics va reytinglar demo ekanini bildiradi", async ({ page }) => {
+    for (const path of ["/analitika", "/reyting", "/profil", "/yutuqlar", "/vazifalar"]) {
+      await page.goto(path);
+      await expect(page.getByRole("note")).toContainText("Demo ma'lumotlari");
+      await expect(page.getByRole("note")).toContainText("haqiqiy foydalanuvchi");
+    }
+  });
+
   test("mavzu almashtirgich ishlaydi (xatosiz)", async ({ page }) => {
     await page.goto("/home");
     const themeBtn = page.getByRole("button", { name: "Mavzu" });
@@ -75,6 +83,7 @@ test.describe("ROP roli", () => {
     await page.goto("/rop");
     await expect(page).toHaveURL(/\/rop($|\?)/);
     await expect(page.getByText("Sotuvchi Trainer").first()).toBeVisible();
+    await expect(page.getByRole("note")).toContainText("Demo ma'lumotlari");
 
     expect(pageErrors).toEqual([]);
   });

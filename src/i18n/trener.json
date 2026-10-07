@@ -9,6 +9,7 @@
   "stop": "To'xtatish",
   "finish": "Suhbatni yakunlash",
   "scoreError": "Baholab bo'lmadi — internet yoki server bilan muammo bo'ldi. Qaytadan urinib ko'ring.",
+  "sessionStartError": "Sessiyani boshlab bo'lmadi. Internet yoki hisobingizni tekshirib, qaytadan urinib ko'ring.",
   "chatError": "Mijoz javob bera olmadi — internet yoki server bilan muammo bo'ldi. Qaytadan urinib ko'ring.",
   "thinking": "Mijoz o'ylayapti...",
   "listening": "Tinglayapman...",

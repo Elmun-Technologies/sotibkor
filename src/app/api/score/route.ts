@@ -10,8 +10,9 @@ import { NextRequest } from "next/server";
 import { scoreSession, mockScore } from "@/lib/scoring";
 import type { ChatTurn } from "@/lib/llm";
 import { hasOpenAI } from "@/lib/config";
+import { rateLimitResponse, rejectCrossOrigin, requireAuthenticatedUser } from "@/lib/apiSecurity";
 import { isPersonaKey, isSohaKey } from "@/lib/content";
-import { parseTurns } from "@/lib/http";
+import { parseTurns, readJsonBody } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -23,11 +24,35 @@ interface ScoreBody {
 }
 
 export async function POST(req: NextRequest) {
-  let body: ScoreBody;
-  try {
-    body = (await req.json()) as ScoreBody;
-  } catch {
-    return Response.json({ error: "Noto'g'ri JSON." }, { status: 400 });
+  const crossOrigin = rejectCrossOrigin(req);
+  if (crossOrigin) return crossOrigin;
+  const live = hasOpenAI();
+  const auth = live ? await requireAuthenticatedUser() : { userId: null, response: null };
+  if (auth.response) return auth.response;
+  const limited = rateLimitResponse(
+    req,
+    "score",
+    { limit: live ? 5 : 60, windowMs: 60_000 },
+    auth.userId,
+  );
+  if (limited) return limited;
+
+  const parsedBody = await readJsonBody<ScoreBody>(req, 256 * 1024);
+  if (!parsedBody.ok) {
+    return Response.json({ error: parsedBody.error }, { status: parsedBody.status });
+  }
+  const body = parsedBody.data;
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return Response.json({ error: "So'rov shakli noto'g'ri." }, { status: 400 });
+  }
+  if (!isSohaKey(body.soha) || !isPersonaKey(body.persona)) {
+    return Response.json(
+      { error: "Noma'lum soha yoki persona." },
+      { status: 400 },
+    );
+  }
+  if (!Number.isInteger(body.level) || body.level < 1 || body.level > 6) {
+    return Response.json({ error: "level 1..6 oralig'ida bo'lishi kerak." }, { status: 400 });
   }
 
   const parsed = parseTurns(body.transcript);
@@ -39,22 +64,15 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Bo'sh transkript." }, { status: 400 });
   }
 
-  if (!hasOpenAI()) {
+  if (!live) {
     return Response.json({ ...mockScore(transcript), provider: "mock" });
-  }
-
-  if (!isSohaKey(body.soha) || !isPersonaKey(body.persona)) {
-    return Response.json(
-      { error: "Noma'lum soha yoki persona." },
-      { status: 400 },
-    );
   }
 
   try {
     const result = await scoreSession({
       soha: body.soha,
       persona: body.persona,
-      level: Math.max(1, Math.floor(body.level) || 1),
+      level: body.level,
       transcript,
     });
     return Response.json({ ...result, provider: "openai" });

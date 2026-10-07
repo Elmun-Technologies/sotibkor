@@ -6,8 +6,8 @@ import { defineConfig, devices } from "@playwright/test";
  * landing → ro'yxatdan o'tish → onboarding → bosh sahifa, sahifalararo
  * navigatsiya, va to'liq ovoz aylanasi (matn rejimida) trener → baho.
  *
- * webServer avtomatik `next build && next start` ni ishga tushiradi; CI'da
- * yangi server ishlatiladi, lokalda mavjud server qayta ishlatiladi.
+ * webServer standalone output'ni build qilib, `.next/standalone/server.js`ni
+ * ishga tushiradi; CI'da yangi server ishlatiladi, lokalda mavjud server qayta ishlatiladi.
  */
 
 export default defineConfig({
@@ -24,7 +24,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "npm run build && npm run start",
+    command: "npm run build && HOSTNAME=0.0.0.0 PORT=3000 node .next/standalone/server.js",
     url: "http://localhost:3000",
     timeout: 180_000,
     reuseExistingServer: !process.env.CI,

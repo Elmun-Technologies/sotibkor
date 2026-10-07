@@ -15,5 +15,8 @@
   "errorHome": "Bosh sahifa",
   "notFoundTitle": "Sahifa topilmadi",
   "notFoundDesc": "Siz izlagan sahifa mavjud emas yoki ko'chirilgan.",
-  "notFoundHome": "Bosh sahifaga qaytish"
+  "notFoundHome": "Bosh sahifaga qaytish",
+  "sampleDataTitle": "Demo ma'lumotlari",
+  "demoStamp": "DEMO · NAMUNA",
+  "sampleDataDescription": "Bu sahifadagi ko'rsatkichlar va reytinglar namuna hisoblanadi; haqiqiy foydalanuvchi yoki jamoa natijalarini aks ettirmaydi."
 }

@@ -9,6 +9,8 @@
 import { NextRequest } from "next/server";
 import { textToSpeech } from "@/lib/aisha";
 import { hasAisha } from "@/lib/config";
+import { rateLimitResponse, rejectCrossOrigin, requireAuthenticatedUser } from "@/lib/apiSecurity";
+import { readJsonBody } from "@/lib/http";
 
 export const runtime = "nodejs";
 
@@ -16,6 +18,8 @@ export const runtime = "nodejs";
 const MAX_TEXT_LEN = 2000;
 
 export async function POST(req: NextRequest) {
+  const crossOrigin = rejectCrossOrigin(req);
+  if (crossOrigin) return crossOrigin;
   if (!hasAisha()) {
     return Response.json(
       {
@@ -26,21 +30,36 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { text?: string; voice?: string };
-  try {
-    body = (await req.json()) as { text?: string; voice?: string };
-  } catch {
-    return Response.json({ error: "Noto'g'ri JSON." }, { status: 400 });
+  const auth = await requireAuthenticatedUser();
+  if (auth.response) return auth.response;
+  const limited = rateLimitResponse(
+    req,
+    "tts",
+    { limit: 30, windowMs: 60_000 },
+    auth.userId,
+  );
+  if (limited) return limited;
+
+  const parsed = await readJsonBody<{ text?: unknown; voice?: unknown }>(req, 16 * 1024);
+  if (!parsed.ok) {
+    return Response.json({ error: parsed.error }, { status: parsed.status });
   }
-  if (!body.text?.trim()) {
+  const body = parsed.data;
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return Response.json({ error: "So'rov shakli noto'g'ri." }, { status: 400 });
+  }
+  if (typeof body.text !== "string" || !body.text.trim()) {
     return Response.json({ error: "text bo'sh." }, { status: 400 });
   }
   if (body.text.length > MAX_TEXT_LEN) {
     return Response.json({ error: "Matn juda uzun." }, { status: 413 });
   }
+  if (body.voice !== undefined && (typeof body.voice !== "string" || body.voice.length > 80)) {
+    return Response.json({ error: "voice noto'g'ri." }, { status: 400 });
+  }
 
   try {
-    const result = await textToSpeech({ text: body.text, voice: body.voice });
+    const result = await textToSpeech({ text: body.text, voice: body.voice as string | undefined });
     return new Response(result.audio, {
       headers: { "Content-Type": result.mimeType, "Cache-Control": "no-store" },
     });

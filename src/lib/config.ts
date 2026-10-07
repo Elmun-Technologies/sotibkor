@@ -10,7 +10,21 @@ const readPositiveNumber = (v: string | undefined, fallback: number): number => 
 };
 
 export const hasOpenAI = (): boolean => !!process.env.OPENAI_API_KEY;
-export const hasAisha = (): boolean => !!process.env.AISHA_API_KEY;
+
+/** Aisha uchun kalit bilan birga tasdiqlangan HTTP(S) endpoint ham shart. */
+export const hasAisha = (): boolean => {
+  if (!process.env.AISHA_API_KEY || !process.env.AISHA_BASE_URL) return false;
+  try {
+    const url = new URL(process.env.AISHA_BASE_URL);
+    return (
+      url.protocol === "https:" ||
+      (url.protocol === "http:" && process.env.NODE_ENV !== "production")
+    );
+  } catch {
+    return false;
+  }
+};
+
 export const hasSupabase = (): boolean =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.SUPABASE_SERVICE_KEY;
 
@@ -37,21 +51,20 @@ export const vadConfig = (): { thresholdRms: number; sustainMs: number } => ({
 export const defaultLocale = (): "uz" | "ru" =>
   process.env.NEXT_PUBLIC_LOCALE === "ru" ? "ru" : "uz";
 
-export type VendorMode = "mock" | "voice" | "db" | "auth" | "payment";
+// Payme/Click env keys alone are not a readiness signal; checkout/webhook routes
+// are not implemented yet, so payment is intentionally excluded from this list.
+export type VendorMode = "mock" | "voice" | "db" | "auth";
 
 /**
  * Har bir rejim uchun kerakli env mavjudligini qaytaradi (scripts/check-env.mjs
- * va kelajakdagi /api/health kengaytmasi ishlatadi). Hech qanday kalit qiymatini
- * qaytarmaydi — faqat "sozlangan/yo'q" bayonoti.
+ * va /api/health ishlatadi). Hech qanday kalit qiymatini qaytarmaydi — faqat
+ * "sozlangan/yo'q" bayonoti.
  */
 export function vendorReadiness(): Record<VendorMode, boolean> {
   return {
     mock: true, // kalitsiz demo har doim ishlaydi
-    voice: hasOpenAI() && hasAisha(),
+    voice: hasOpenAI() && hasAisha() && hasSupabaseAuth(),
     db: hasSupabase(),
     auth: hasSupabaseAuth(),
-    payment:
-      !!process.env.PAYME_MERCHANT_ID ||
-      (!!process.env.CLICK_MERCHANT_ID && !!process.env.CLICK_SERVICE_ID),
   };
 }

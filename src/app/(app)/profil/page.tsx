@@ -11,6 +11,7 @@ import {
   Button,
   AppLoading,
   Reveal,
+  SampleDataNotice,
 } from "@/components/ui";
 import {
   LevelBadge,
@@ -208,6 +209,7 @@ export default function ProfilPage() {
 
   return (
     <PageShell title={t.profil.title} lead={t.profil.subtitle}>
+      <SampleDataNotice />
       {/* Daraja + asosiy ko'rsatkichlar */}
       <Reveal>
       <Card className="mb-6">
@@ -260,6 +262,7 @@ export default function ProfilPage() {
           xp={MOCK_USER.xp}
           sessions={MOCK_USER.sessionsCount}
           dateStr={certDate}
+          demo
         />
       </Card>
       </Reveal>

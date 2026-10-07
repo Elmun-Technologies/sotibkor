@@ -1,33 +1,32 @@
 /**
  * Sessiya persistensiyasi — Supabase'ga suhbat, transkript va baho yozish.
  *
- * MUHIM (CLAUDE.md §3, §4):
- *  - Supabase kalitlari bo'lmasa (mock rejim) — barcha funksiyalar JIMGINA no-op.
- *    Hech qanday xato tashlanmaydi; mock rejim buzilmaydi.
- *  - DB yozish LATENCY kritik yo'lni (STT→LLM→TTS) bloklamasligi kerak.
- *    Bu funksiyalar fon uchun mo'ljallangan: xato bo'lsa loglaydi, tashlamaydi
- *    (chaqiruvchi await qilsa ham voice loop'ni to'xtatib qo'ymaydi).
+ * Session create/complete API'lari bu helperlarni ataylab await qiladi: trial
+ * limiti va yakuniy yozuvlar DB tranzaksiyasida tasdiqlanishi kerak. Ular
+ * STT→LLM→TTS per-turn voice loop'ida chaqirilmaydi. Archive query'lari esa
+ * Supabase xatosida xavfsiz bo'sh natijaga tushadi.
  */
 
 import { getSupabase } from "./client";
 import type { ChatTurn } from "@/lib/llm";
 import type { ScoreResult } from "@/lib/scoring";
+import { TRIAL_LIMIT } from "@/lib/trial";
 
 /** Suhbat boshlanishi uchun kirish. */
 export interface SaveSessionInput {
-  /** Foydalanuvchi id (auth). Anonim/demo bo'lsa null. */
-  userId?: string | null;
+  /** Haqiqiy Supabase Auth foydalanuvchi id'si. */
+  userId: string;
   soha: string;
   persona: string;
-  /** Qiyinlik darajasi 1..N. */
+  /** Qiyinlik darajasi 1..6. */
   level: number;
 }
 
-/** Suhbat yakunlanishi uchun kirish. */
-export interface FinishSessionInput {
-  sessionId: string;
-  status?: "finished" | "abandoned";
-  durationMs?: number | null;
+export class SessionCreateError extends Error {
+  constructor(public readonly code: "trial_exhausted" | "profile_missing") {
+    super(code);
+    this.name = "SessionCreateError";
+  }
 }
 
 /**
@@ -41,24 +40,32 @@ export async function saveSession(
   if (!db) return null;
 
   try {
-    const { data, error } = await db
-      .from("sessions")
-      .insert({
-        user_id: input.userId ?? null,
-        soha: input.soha,
-        persona: input.persona,
-        level: Math.max(1, Math.floor(input.level) || 1),
-        status: "active",
-      })
-      .select("id")
-      .single();
+    // RPC trial hisoblagichini va session insert'ini bitta DB tranzaksiyasida
+    // bajaradi; parallel so'rovlar free limitni chetlab o'ta olmaydi.
+    const { data, error } = await db.rpc("create_training_session", {
+      p_user_id: input.userId,
+      p_soha: input.soha,
+      p_persona: input.persona,
+      p_level: Math.max(1, Math.min(6, Math.floor(input.level) || 1)),
+      p_trial_limit: TRIAL_LIMIT,
+    });
 
     if (error) {
+      const message = error.message.toLowerCase();
+      if (message.includes("trial_exhausted")) {
+        throw new SessionCreateError("trial_exhausted");
+      }
+      if (message.includes("profile_missing")) {
+        throw new SessionCreateError("profile_missing");
+      }
       console.error("[db] saveSession xato:", error.message);
       return null;
     }
-    return (data?.id as string) ?? null;
+
+    const row = Array.isArray(data) ? data[0] : data;
+    return (row?.session_id as string | undefined) ?? null;
   } catch (err) {
+    if (err instanceof SessionCreateError) throw err;
     console.error(
       "[db] saveSession istisno:",
       err instanceof Error ? err.message : err,
@@ -67,95 +74,34 @@ export async function saveSession(
   }
 }
 
-/**
- * Suhbat holatini yakuniy qilib belgilaydi (finished/abandoned) va davomiylikni yozadi.
- * Supabase yo'q bo'lsa — no-op.
- */
-export async function finishSession(input: FinishSessionInput): Promise<void> {
+/** Sessiya joriy foydalanuvchiga tegishli ekanini server/service-role orqali tekshiradi. */
+export async function sessionBelongsToUser(
+  sessionId: string,
+  userId: string,
+  activeOnly = false,
+): Promise<boolean> {
   const db = getSupabase();
-  if (!db) return;
+  if (!db) return false;
 
   try {
-    const { error } = await db
+    let query = db
       .from("sessions")
-      .update({
-        status: input.status ?? "finished",
-        duration_ms: input.durationMs ?? null,
-        ended_at: new Date().toISOString(),
-      })
-      .eq("id", input.sessionId);
-
-    if (error) console.error("[db] finishSession xato:", error.message);
+      .select("id")
+      .eq("id", sessionId)
+      .eq("user_id", userId);
+    if (activeOnly) query = query.eq("status", "active");
+    const { data, error } = await query.maybeSingle();
+    if (error) {
+      console.error("[db] session ownership check xato:", error.message);
+      return false;
+    }
+    return !!data;
   } catch (err) {
     console.error(
-      "[db] finishSession istisno:",
+      "[db] session ownership check istisno:",
       err instanceof Error ? err.message : err,
     );
-  }
-}
-
-/**
- * Butun transkriptni (har replika alohida qator) yozadi.
- * `speaker`: llm.ts ChatTurn.role → 'sotuvchi' (user) | 'mijoz' (assistant).
- * Supabase yo'q bo'lsa — no-op.
- */
-export async function saveTranscript(
-  sessionId: string,
-  transcript: ChatTurn[],
-): Promise<void> {
-  const db = getSupabase();
-  if (!db) return;
-  if (transcript.length === 0) return;
-
-  const rows = transcript.map((turn, index) => ({
-    session_id: sessionId,
-    turn_index: index,
-    speaker: turn.role === "user" ? "sotuvchi" : "mijoz",
-    text: turn.content,
-  }));
-
-  try {
-    const { error } = await db.from("transcripts").insert(rows);
-    if (error) console.error("[db] saveTranscript xato:", error.message);
-  } catch (err) {
-    console.error(
-      "[db] saveTranscript istisno:",
-      err instanceof Error ? err.message : err,
-    );
-  }
-}
-
-/**
- * Baho natijasini (scores jadvali, session_id UNIQUE) yozadi.
- * Qayta yakunlashda konfliktni oldini olish uchun upsert ishlatiladi.
- * Supabase yo'q bo'lsa — no-op.
- */
-export async function saveScore(
-  sessionId: string,
-  score: ScoreResult,
-): Promise<void> {
-  const db = getSupabase();
-  if (!db) return;
-
-  try {
-    const { error } = await db.from("scores").upsert(
-      {
-        session_id: sessionId,
-        total: score.total,
-        breakdown: score.breakdown,
-        mistakes: score.mistakes,
-        strengths: score.strengths,
-        xp_awarded: score.xp_awarded,
-      },
-      { onConflict: "session_id" },
-    );
-
-    if (error) console.error("[db] saveScore xato:", error.message);
-  } catch (err) {
-    console.error(
-      "[db] saveScore istisno:",
-      err instanceof Error ? err.message : err,
-    );
+    return false;
   }
 }
 
@@ -220,6 +166,48 @@ export async function listSessions(userId: string): Promise<SessionSummary[]> {
 }
 
 /** Bitta transkript qatori (/arxiv detali uchun). */
+export interface CompleteSessionInput {
+  sessionId: string;
+  userId: string;
+  status: "finished" | "abandoned";
+  durationMs: number | null;
+  transcript: ChatTurn[];
+  score: ScoreResult | null;
+}
+
+/** Yakuniy yozuvlarni DB tranzaksiyasida va session egasini tekshirgan holda saqlaydi. */
+export async function completeSession(
+  input: CompleteSessionInput,
+): Promise<"ok" | "not_found" | "failed"> {
+  const db = getSupabase();
+  if (!db) return "failed";
+
+  try {
+    const { data, error } = await db.rpc("complete_training_session", {
+      p_user_id: input.userId,
+      p_session_id: input.sessionId,
+      p_status: input.status,
+      p_duration_ms: input.durationMs,
+      p_transcript: input.status === "finished" ? input.transcript : null,
+      p_score: input.status === "finished" ? input.score : null,
+    });
+    if (error) {
+      if (error.message.toLowerCase().includes("session_not_found_or_closed")) {
+        return "not_found";
+      }
+      console.error("[db] completeSession xato:", error.message);
+      return "failed";
+    }
+    return data === true ? "ok" : "failed";
+  } catch (err) {
+    console.error(
+      "[db] completeSession istisno:",
+      err instanceof Error ? err.message : err,
+    );
+    return "failed";
+  }
+}
+
 export interface TranscriptRow {
   turnIndex: number;
   speaker: string;
@@ -227,9 +215,8 @@ export interface TranscriptRow {
 }
 
 /**
- * `scores` jadvalida saqlanadigan maydonlar — `ScoreResult.closed` bu yerga
- * kirmaydi (jadval sxemasida yo'q, `saveScore()` ham yozmaydi), shuning
- * uchun to'liq `ScoreResult` emas, shu qism.
+ * `scores` jadvalida `ScoreResult.closed` ustuni yo'q; arxiv tipi shu sabab
+ * to'liq `ScoreResult` emas, faqat jadvalda saqlanadigan maydonlardan iborat.
  */
 export type ArchiveScore = Omit<ScoreResult, "closed">;
 

@@ -39,9 +39,11 @@ export async function getTrialStatus(
         db.from("users").select("trial_used").eq("id", userId).maybeSingle(),
         db
           .from("subscriptions")
-          .select("status, expires_at")
+          .select("id")
           .eq("user_id", userId)
           .eq("status", "active")
+          .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+          .limit(1)
           .maybeSingle(),
       ]);
 
@@ -49,8 +51,7 @@ export async function getTrialStatus(
     if (subErr)
       console.error("[db] getTrialStatus (sub) xato:", subErr.message);
 
-    const hasActiveSubscription =
-      !!sub && (!sub.expires_at || new Date(sub.expires_at) > new Date());
+    const hasActiveSubscription = !!sub;
 
     return {
       trialUsed: typeof user?.trial_used === "number" ? user.trial_used : 0,
@@ -63,40 +64,6 @@ export async function getTrialStatus(
       err instanceof Error ? err.message : err,
     );
     return neutral;
-  }
-}
-
-/**
- * Sinov hisoblagichini birga oshiradi (best-effort — moliyaviy emas, shuning
- * uchun o'qi-yoz oralig'idagi kamdan-kam poyga sharti muammo emas).
- * Supabase yo'q yoki userId bo'lmasa — no-op.
- */
-export async function incrementTrialUsed(userId: string | null): Promise<void> {
-  const db = getSupabase();
-  if (!db || !userId) return;
-
-  try {
-    const { data, error: readErr } = await db
-      .from("users")
-      .select("trial_used")
-      .eq("id", userId)
-      .maybeSingle();
-    if (readErr) {
-      console.error("[db] incrementTrialUsed o'qish xato:", readErr.message);
-      return;
-    }
-    const next =
-      (typeof data?.trial_used === "number" ? data.trial_used : 0) + 1;
-    const { error } = await db
-      .from("users")
-      .update({ trial_used: next })
-      .eq("id", userId);
-    if (error) console.error("[db] incrementTrialUsed xato:", error.message);
-  } catch (err) {
-    console.error(
-      "[db] incrementTrialUsed istisno:",
-      err instanceof Error ? err.message : err,
-    );
   }
 }
 

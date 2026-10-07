@@ -11,6 +11,7 @@ export interface CertificateProps {
   xp: number;
   sessions: number;
   dateStr: string;
+  demo?: boolean;
 }
 
 /**
@@ -24,6 +25,7 @@ export function Certificate({
   xp,
   sessions,
   dateStr,
+  demo = false,
 }: CertificateProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -53,7 +55,7 @@ export function Certificate({
           xmlns="http://www.w3.org/2000/svg"
           className="mx-auto h-auto w-full max-w-xl rounded-[var(--r-card)]"
           role="img"
-          aria-label={`${t.profil.certTitle}: ${name}, ${levelLabel}`}
+          aria-label={`${t.profil.certTitle}: ${name}, ${levelLabel}${demo ? `, ${t.common.sampleDataTitle}` : ""}`}
         >
           <defs>
             <linearGradient id="cert-bg" x1="0" y1="0" x2="1" y2="1">
@@ -73,6 +75,23 @@ export function Certificate({
             strokeOpacity="0.5"
             strokeWidth="1.5"
           />
+          {demo && (
+            <g>
+              <rect x="438" y="28" width="132" height="28" rx="14" fill="#3b2d16" />
+              <text
+                x="504"
+                y="47"
+                textAnchor="middle"
+                fill="#ffd477"
+                fontSize="11"
+                fontWeight="700"
+                fontFamily="monospace"
+                letterSpacing="1"
+              >
+                {t.common.demoStamp}
+              </text>
+            </g>
+          )}
 
           {/* Brend belgi (signal to'lqin) */}
           <g

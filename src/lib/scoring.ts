@@ -62,14 +62,34 @@ export function parseScore(raw: string): ScoreResult {
   const breakdown = d.breakdown as Record<string, unknown> | undefined;
   if (!breakdown) throw new Error("breakdown yo'q.");
 
+  const MAX_BY_KEY: Record<keyof ScoreBreakdown, number> = {
+    salomlashish: 10,
+    ehtiyoj_aniqlash: 20,
+    otkazlarga_ishlov: 30,
+    closing: 20,
+    ohang: 20,
+  };
   for (const key of BREAKDOWN_KEYS) {
-    if (typeof breakdown[key] !== "number") {
-      throw new Error(`breakdown.${key} raqam emas.`);
+    const value = breakdown[key];
+    if (
+      typeof value !== "number" ||
+      !Number.isInteger(value) ||
+      value < 0 ||
+      value > MAX_BY_KEY[key]
+    ) {
+      throw new Error(`breakdown.${key} diapazondan tashqarida.`);
     }
   }
 
   const total = d.total;
-  if (typeof total !== "number") throw new Error("total raqam emas.");
+  if (
+    typeof total !== "number" ||
+    !Number.isInteger(total) ||
+    total < 0 ||
+    total > 100
+  ) {
+    throw new Error("total 0..100 oralig'idagi butun son bo'lishi kerak.");
+  }
 
   const sum = BREAKDOWN_KEYS.reduce(
     (acc, k) => acc + (breakdown[k] as number),
@@ -82,17 +102,55 @@ export function parseScore(raw: string): ScoreResult {
     );
   }
 
-  if (!Array.isArray(d.mistakes) || d.mistakes.length === 0) {
-    throw new Error("mistakes yo'q yoki bo'sh.");
+  if (
+    !Array.isArray(d.mistakes) ||
+    d.mistakes.length === 0 ||
+    d.mistakes.length > 5 ||
+    !d.mistakes.every(
+      (item) =>
+        !!item &&
+        typeof item === "object" &&
+        typeof (item as ScoreMistake).quote === "string" &&
+        !!(item as ScoreMistake).quote.trim() &&
+        typeof (item as ScoreMistake).why === "string" &&
+        !!(item as ScoreMistake).why.trim() &&
+        typeof (item as ScoreMistake).better === "string" &&
+        !!(item as ScoreMistake).better.trim(),
+    )
+  ) {
+    throw new Error("mistakes sxemasi noto'g'ri.");
   }
-  if (!Array.isArray(d.strengths) || d.strengths.length === 0) {
-    throw new Error("strengths yo'q yoki bo'sh.");
+  if (
+    !Array.isArray(d.strengths) ||
+    d.strengths.length === 0 ||
+    d.strengths.length > 5 ||
+    !d.strengths.every((item) => typeof item === "string" && !!item.trim())
+  ) {
+    throw new Error("strengths sxemasi noto'g'ri.");
   }
   if (typeof d.closed !== "boolean") {
     throw new Error("closed mavjud emas yoki boolean emas.");
   }
+  if (
+    typeof d.xp_awarded !== "number" ||
+    !Number.isInteger(d.xp_awarded) ||
+    d.xp_awarded < 0 ||
+    d.xp_awarded > 1_000
+  ) {
+    throw new Error("xp_awarded noto'g'ri.");
+  }
 
   return data as ScoreResult;
+}
+
+/** Client'dan qaytgan score obyektini ishonchli sxema bilan tekshiradi. */
+export function validateScoreResult(value: unknown): ScoreResult | null {
+  try {
+    const json = JSON.stringify(value);
+    return json ? parseScore(json) : null;
+  } catch {
+    return null;
+  }
 }
 
 /**

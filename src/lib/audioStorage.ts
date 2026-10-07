@@ -10,6 +10,7 @@
  */
 
 import { getSupabase } from "./db/client";
+import { sessionBelongsToUser } from "./db/sessions";
 
 export type Speaker = "sotuvchi" | "mijoz";
 
@@ -28,6 +29,7 @@ export function extFromMime(mime: string): string {
 
 export interface UploadTurnAudioInput {
   sessionId: string;
+  userId: string;
   clipIndex: number;
   speaker: Speaker;
   audio: Buffer;
@@ -44,6 +46,7 @@ export async function uploadTurnAudio(
 ): Promise<boolean> {
   const db = getSupabase();
   if (!db) return false;
+  if (!(await sessionBelongsToUser(input.sessionId, input.userId))) return false;
 
   const path = `${input.sessionId}/${input.speaker}-${input.clipIndex}.${extFromMime(input.mimeType)}`;
 

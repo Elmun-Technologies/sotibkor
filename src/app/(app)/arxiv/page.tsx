@@ -190,7 +190,6 @@ function DetailPanel({
                     : t.arxiv.audioSellerLabel}{" "}
                   #{clip.clipIndex + 1}
                 </span>
-                {/* eslint-disable-next-line jsx-a11y/media-has-caption -- ovoz yozuvi, subtitr manbasi yo'q */}
                 <audio controls src={clip.url} className="h-9 flex-1" />
               </div>
             ))}

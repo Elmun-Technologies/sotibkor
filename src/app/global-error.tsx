@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { getMessages } from "@/i18n";
 
 const t = getMessages();
@@ -59,7 +60,7 @@ export default function GlobalError({
               >
                 {t.common.retry}
               </button>
-              <a
+              <Link
                 href="/"
                 style={{
                   borderRadius: 999,
@@ -71,7 +72,7 @@ export default function GlobalError({
                 }}
               >
                 {t.common.errorHome}
-              </a>
+              </Link>
             </div>
           </div>
         </main>

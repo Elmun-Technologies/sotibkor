@@ -28,5 +28,6 @@ export type { PersonaAvatarProps } from "./PersonaAvatar";
 export { Illustration } from "./Illustration";
 export type { IllustrationProps, IllustrationName } from "./Illustration";
 export { EmptyState } from "./Illustration";
+export { SampleDataNotice } from "./SampleDataNotice";
 export { Reveal } from "./Reveal";
 export type { RevealProps } from "./Reveal";

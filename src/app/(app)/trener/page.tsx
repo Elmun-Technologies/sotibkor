@@ -585,14 +585,16 @@ export default function TrenerPage() {
         setTrialExhausted(true);
         return;
       }
-      if (res.ok) {
-        const data = (await res.json()) as { sessionId?: string | null };
-        setSessionId(data.sessionId ?? null);
+      if (!res.ok) {
+        setSttHint(t.trener.sessionStartError);
+        return;
       }
+      const data = (await res.json()) as { sessionId?: string | null };
+      setSessionId(data.sessionId ?? null);
       setStage("chat");
     } catch {
-      // Tarmoq xatosi — kartasiz/mock oqimni bloklamaymiz, shunchaki davom etamiz.
-      setStage("chat");
+      // Sessiya serverda tasdiqlanmasa, haq to'lanadigan providerga o'tmaymiz.
+      setSttHint(t.trener.sessionStartError);
     } finally {
       setStarting(false);
     }
@@ -661,6 +663,11 @@ export default function TrenerPage() {
             <a href="/tariflar" className="underline underline-offset-2">
               {t.trener.trialExhaustedCta}
             </a>
+          </p>
+        )}
+        {sttHint && !trialExhausted && (
+          <p role="alert" className="mt-3 text-sm text-[color:var(--bad)]">
+            {sttHint}
           </p>
         )}
       </PageShell>

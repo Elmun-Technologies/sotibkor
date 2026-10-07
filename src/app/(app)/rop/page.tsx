@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, Eyebrow, AppLoading, Illustration } from "@/components/ui";
+import { PageShell, Card, Button, Eyebrow, AppLoading, Illustration, SampleDataNotice } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { getUser, setUserRole, type Role } from "@/lib/auth";
 import {
@@ -145,6 +145,7 @@ export default function RopPage() {
 
   return (
     <PageShell title={t.rop.title} lead={t.rop.subtitle}>
+      <SampleDataNotice />
       {/* Demo rol belgisi + menejerga qaytish */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-surface2 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-muted">

@@ -10,6 +10,7 @@ import {
   AppLoading,
   Illustration,
   Reveal,
+  SampleDataNotice,
 } from "@/components/ui";
 import { getUser, type Role } from "@/lib/auth";
 import { useAuthGate } from "@/lib/useAuthGate";
@@ -122,6 +123,7 @@ export default function VazifalarPage() {
   if (role === "rop") {
     return (
       <PageShell title={t.vazifalar.title} lead={t.vazifalar.subtitleRop}>
+        <SampleDataNotice />
         <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
           {/* ROP paneliga o'tish */}
           <Card className="flex flex-col gap-4">
@@ -206,6 +208,7 @@ export default function VazifalarPage() {
 
   return (
     <PageShell title={t.vazifalar.title} lead={t.vazifalar.subtitleMenejer}>
+      <SampleDataNotice />
       <div className="mb-6 inline-flex gap-1 rounded-full bg-surface2 p-1">
         {(["active", "done"] as const).map((k) => (
           <button

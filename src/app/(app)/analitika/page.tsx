@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Button, Eyebrow, AppLoading, Reveal } from "@/components/ui";
+import { PageShell, Card, Button, Eyebrow, AppLoading, Reveal, SampleDataNotice } from "@/components/ui";
 import { TrendChart, RadarChart } from "@/components/gamification";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { getUser, type Role } from "@/lib/auth";
@@ -114,6 +114,7 @@ export default function AnalitikaPage() {
 
   return (
     <PageShell title={t.analitika.title} lead={t.analitika.subtitle}>
+      <SampleDataNotice />
       {role === "rop" && rankedTeam.length > 0 && (
         <Card className="mb-6 flex flex-col gap-4">
           <div className="flex items-center justify-between">

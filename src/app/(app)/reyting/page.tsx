@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getMessages } from "@/i18n";
-import { PageShell, Card, Chip, Button, PersonaAvatar, AppLoading, Reveal } from "@/components/ui";
+import { PageShell, Card, Chip, Button, PersonaAvatar, AppLoading, Reveal, SampleDataNotice } from "@/components/ui";
 import { useAuthGate } from "@/lib/useAuthGate";
 import { LeaderboardRow, AchievementCard } from "@/components/gamification";
 import { ACHIEVEMENTS, MOCK_LEADERBOARD, MOCK_ACHIEVEMENTS } from "@/lib/mock";
@@ -44,6 +44,7 @@ export default function ReytingPage() {
 
   return (
     <PageShell title={t.reyting.title} lead={t.reyting.subtitle}>
+      <SampleDataNotice />
       <div className="mb-6 flex gap-2">
         <Chip
           active={tab === "leaderboard"}

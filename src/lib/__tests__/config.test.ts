@@ -38,12 +38,10 @@ describe("vendorReadiness", () => {
     for (const k of [
       "OPENAI_API_KEY",
       "AISHA_API_KEY",
+      "AISHA_BASE_URL",
       "NEXT_PUBLIC_SUPABASE_URL",
       "SUPABASE_SERVICE_KEY",
       "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-      "PAYME_MERCHANT_ID",
-      "CLICK_MERCHANT_ID",
-      "CLICK_SERVICE_ID",
     ]) {
       delete process.env[k];
     }
@@ -57,7 +55,6 @@ describe("vendorReadiness", () => {
       voice: false,
       db: false,
       auth: false,
-      payment: false,
     });
     expect(hasOpenAI()).toBe(false);
     expect(hasAisha()).toBe(false);
@@ -65,25 +62,23 @@ describe("vendorReadiness", () => {
     expect(hasSupabaseAuth()).toBe(false);
   });
 
+  it("Aisha URL bo'lmasa real provayder tayyor emas", () => {
+    clear();
+    process.env.AISHA_API_KEY = "key";
+    expect(hasAisha()).toBe(false);
+  });
+
   it("barcha real providerlar sozlanganida true", () => {
     process.env.OPENAI_API_KEY = "x";
     process.env.AISHA_API_KEY = "y";
+    process.env.AISHA_BASE_URL = "https://voice.example";
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://demo.supabase.co";
     process.env.SUPABASE_SERVICE_KEY = "svc";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon";
-    process.env.PAYME_MERCHANT_ID = "pm";
     const r = vendorReadiness();
     expect(r.voice).toBe(true);
     expect(r.db).toBe(true);
     expect(r.auth).toBe(true);
-    expect(r.payment).toBe(true);
-  });
-
-  it("Click to'lov faqat merchant+service mavjud bo'lsa true", () => {
-    clear();
-    process.env.CLICK_MERCHANT_ID = "cm";
-    process.env.CLICK_SERVICE_ID = "cs";
-    expect(vendorReadiness().payment).toBe(true);
   });
 });
 
